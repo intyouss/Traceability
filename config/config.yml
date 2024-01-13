@@ -1,2 +1,22 @@
+mode:
+  dev: true
 server:
   port: 8090
+
+log:
+  maxSize: 1
+  maxBackups: 10
+  maxAge: 90
+  compress: false
+
+db:
+  prefix: tc_
+  dsn: default:default@tcp(127.0.0.1:3306)/traceability?charset=utf8mb4&parseTime=True&loc=Local
+  maxIdleConn: 10
+  maxOpenConn: 10
+  maxLifeTime: 3600
+
+redis:
+  addr: localhost:6379
+  password: ''
+  db: 0

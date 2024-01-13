@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/intyouss/Traceability/docs"
+	"github.com/intyouss/Traceability/global"
 	"github.com/spf13/viper"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -63,12 +64,12 @@ func InitRouter() {
 	go func() {
 		ln, err := net.Listen("tcp", server.Addr)
 		if err != nil {
-			panic(err.Error())
+			global.Logger.Error(fmt.Sprintf("Start Server Error:%s", err.Error()))
 			return
 		}
-		fmt.Printf("Listening and serving HTTP on %s\n", server.Addr)
+		global.Logger.Infof("Listening and serving HTTP on %s", server.Addr)
 		if err := server.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			fmt.Println(fmt.Sprintf("Start Server Error:%s", err.Error()))
+			global.Logger.Error(fmt.Sprintf("Start Server Error:%s", err.Error()))
 			return
 		}
 	}()
@@ -78,11 +79,11 @@ func InitRouter() {
 	ctx, shutdown := context.WithTimeout(context.Background(), 5*time.Second)
 	defer shutdown()
 	if err := server.Shutdown(ctx); err != nil {
-		fmt.Printf("Stop Server Error: %s", err.Error())
+		global.Logger.Error(fmt.Sprintf("Stop Server Error: %s", err.Error()))
 		return
 	}
 
-	fmt.Println("Stop Server Success")
+	global.Logger.Info("Stop Server Success")
 }
 
 func InitBaseRoutes() {

@@ -1,0 +1,35 @@
+{"level":"INFO","Time":"2024-01-13 14:13:11","msg":"Stop Server Success"}
+{"level":"INFO","Time":"2024-01-13 14:13:17","msg":"Listening and serving HTTP on %s\n:8090"}
+{"level":"INFO","Time":"2024-01-13 14:14:09","msg":"Stop Server Success"}
+{"level":"INFO","Time":"2024-01-13 14:14:15","msg":"Listening and serving HTTP on %s:8090"}
+{"level":"INFO","Time":"2024-01-13 14:14:24","msg":"Stop Server Success"}
+{"level":"INFO","time":"2024-01-13 14:15:35","msg":"Listening and serving HTTP on %s:8090"}
+{"level":"INFO","time":"2024-01-13 14:25:04","msg":"Stop Server Success"}
+{"level":"INFO","time":"2024-01-13 14:25:10","msg":"Listening and serving HTTP on %s:8090"}
+{"level":"INFO","time":"2024-01-13 14:25:46","msg":"Stop Server Success"}
+{"level":"INFO","time":"2024-01-13 14:25:53","msg":"Listening and serving HTTP on :8090"}
+{"level":"INFO","time":"2024-01-13 14:28:57","msg":"Stop Server Success"}
+{"level":"INFO","time":"2024-01-13 14:29:03","msg":"Listening and serving HTTP on :8090"}
+{"level":"INFO","time":"2024-01-13 14:33:41","msg":"Stop Server Success"}
+{"level":"INFO","time":"2024-01-13 14:33:48","msg":"Listening and serving HTTP on :8090"}
+{"level":"INFO","time":"2024-01-13 14:39:05","msg":"Stop Server Success"}
+{"level":"INFO","time":"2024-01-13 14:39:11","msg":"Listening and serving HTTP on :8090"}
+{"level":"INFO","time":"2024-01-13 14:39:56","msg":"Stop Server Success"}
+{"level":"INFO","time":"2024-01-13 14:40:03","msg":"Listening and serving HTTP on :8090"}
+{"level":"INFO","time":"2024-01-13 15:59:43","msg":"Stop Server Success"}
+{"level":"INFO","time":"2024-01-13 16:00:25","msg":"Listening and serving HTTP on :8090"}
+{"level":"INFO","time":"2024-01-13 16:03:50","msg":"Stop Server Success"}
+{"level":"PANIC","time":"2024-01-13 16:03:51","msg":"Database Init Error: %sdial tcp: lookup 127.0.0.1111: no such host"}
+{"level":"PANIC","time":"2024-01-13 16:05:15","msg":"Database Init Error: dial tcp: lookup 127.0.0.1111: no such host"}
+{"level":"PANIC","time":"2024-01-13 16:08:00","msg":"Database Init Error: dial tcp: lookup 127.0.0.1111: no such host"}
+{"level":"ERROR","time":"2024-01-13 16:08:35","msg":"Database Init Error: dial tcp: lookup 127.0.0.1111: no such host"}
+{"level":"INFO","time":"2024-01-13 16:08:35","msg":"Listening and serving HTTP on :8090"}
+{"level":"INFO","time":"2024-01-13 16:09:01","msg":"Stop Server Success"}
+{"level":"PANIC","time":"2024-01-13 16:09:07","msg":"Database Init Error: dial tcp: lookup 127.0.0.1111: no such host"}
+{"level":"INFO","time":"2024-01-13 16:09:33","msg":"Listening and serving HTTP on :8090"}
+{"level":"INFO","time":"2024-01-13 16:20:43","msg":"Stop Server Success"}
+{"level":"FATAL","time":"2024-01-13 16:20:52","msg":"Database Loaded Error: dial tcp: lookup 127.0.0.1111: no such host"}
+{"level":"INFO","time":"2024-01-13 16:46:12","msg":"Listening and serving HTTP on :8090"}
+{"level":"INFO","time":"2024-01-13 16:48:31","msg":"Stop Server Success"}
+{"level":"INFO","time":"2024-01-13 16:48:37","msg":"Listening and serving HTTP on :8090"}
+{"level":"INFO","time":"2024-01-13 16:49:40","msg":"Stop Server Success"}
