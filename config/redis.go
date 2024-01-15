@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var expireTime = 30 * 24 * 60 * 60 * time.Second
+const DefaultExpireTime = 30 * 24 * 60 * 60 * time.Second
 
 type RedisClient struct {
 	client *redis.Client
@@ -31,7 +31,13 @@ func InitRedis() (*RedisClient, error) {
 	}, nil
 }
 
-func (r *RedisClient) Set(key string, value any) error {
+func (r *RedisClient) Set(key string, value any, rest ...any) error {
+	expireTime := DefaultExpireTime
+	if len(rest) > 0 {
+		if v, ok := rest[0].(time.Duration); ok {
+			expireTime = v
+		}
+	}
 	return r.client.Set(context.Background(), key, value, expireTime).Err()
 }
 

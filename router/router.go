@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/intyouss/Traceability/docs"
 	"github.com/intyouss/Traceability/global"
+	"github.com/intyouss/Traceability/middleware"
 	"github.com/spf13/viper"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -39,10 +40,16 @@ func InitRouter() {
 	defer cancel()
 
 	r := gin.Default()
+	r.Use(middleware.Cors())
 	defaultGroup := r.Group("/api/v1/public")
 	authGroup := r.Group("api/v1/")
+	authGroup.Use(middleware.Auth())
 
 	InitBaseRoutes()
+
+	//// 注册自定义校验器
+	//registerValidation()
+
 	// 初始化所有注册路由
 	for _, fnRegisterRoute := range routes {
 		fnRegisterRoute(defaultGroup, authGroup)
@@ -89,3 +96,16 @@ func InitRouter() {
 func InitBaseRoutes() {
 	InitUserRoutes()
 }
+
+//func registerValidation() {
+//	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+//		_ = v.RegisterValidation("mobile", func(fl validator.FieldLevel) bool {
+//			if mobile, ok := fl.Field().Interface().(string); ok {
+//				if mobile != "" && strings.Index(mobile, "1") == 0 {
+//					return true
+//				}
+//			}
+//			return false
+//		})
+//	}
+//}

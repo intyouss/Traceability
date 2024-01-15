@@ -20,3 +20,7 @@ redis:
   addr: localhost:6379
   password: ''
   db: 0
+
+jwt:
+  tokenExpire: 60
+  secretKey: 'traceability'
