@@ -96,10 +96,10 @@ func (u UserApi) Register(ctx *gin.Context) {
 // GetUserInfo 获取用户信息
 // @Summary 获取用户信息
 // @Description 获取用户信息
-// @Param id query int true "用户id"
-// @Success 200 {string} json "{"msg": "success"}"
-// @Failure 400 {string} json "{"msg": "error"}"
-// @Router /api/v1/user/info [get]
+// @Param id path int true "用户id"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/user/:id [get]
 func (u UserApi) GetUserInfo(ctx *gin.Context) {
 	var idDto dto.CommonIDDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDto, BindUri: true}).GetError(); err != nil {
@@ -121,11 +121,11 @@ func (u UserApi) GetUserInfo(ctx *gin.Context) {
 // GetUserList 获取用户列表
 // @Summary 获取用户列表
 // @Description 获取用户列表
-// @Param page query int false "页码"
-// @Param pageSize query int false "每页数量"
-// @Success 200 {string} json "{"msg": "success"}"
-// @Failure 200 {string} json "{"msg": "error"}"
-// @Router /api/v1/user/list [get]
+// @Param page formData int false "页码"
+// @Param limit formData int false "每页数量"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/user/list [post]
 func (u UserApi) GetUserList(ctx *gin.Context) {
 	var userListDto dto.UserListDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &userListDto}).GetError(); err != nil {
@@ -145,6 +145,18 @@ func (u UserApi) GetUserList(ctx *gin.Context) {
 	})
 }
 
+// UpdateUser 更新用户信息
+// @Summary 更新用户信息
+// @Description 更新用户信息
+// @Param id formData int true "用户id"
+// @Param username formData string false "用户名"
+// @Param password formData string false "密码"
+// @Param email formData string false "邮箱"
+// @Param mobile formData string false "手机号"
+// @Param avatar formData file false "头像"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/user/update [put]
 func (u UserApi) UpdateUser(ctx *gin.Context) {
 	var updateDTO dto.UserUpdateDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &updateDTO}).GetError(); err != nil {
@@ -172,6 +184,13 @@ func (u UserApi) UpdateUser(ctx *gin.Context) {
 	u.Success(&Response{})
 }
 
+// DeleteUser 删除用户
+// @Summary 删除用户
+// @Description 删除用户
+// @Param id path int true "用户id"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/user/:id [delete]
 func (u UserApi) DeleteUser(ctx *gin.Context) {
 	var idDTO dto.CommonIDDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDTO, BindUri: true}).GetError(); err != nil {

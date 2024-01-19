@@ -9,7 +9,7 @@ type UserLoginDto struct {
 
 // UserAddDTO 用户添加数据传输对象
 type UserAddDTO struct {
-	ID       uint
+	ID       uint   `json:"id" form:"id"`
 	Username string `json:"username" form:"username" binding:"required" message:"Username cannot be empty"`
 	Password string `json:"password,omitempty" form:"password" binding:"required" message:"Password cannot be empty"`
 	Avatar   string

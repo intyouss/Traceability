@@ -95,6 +95,7 @@ func InitRouter() {
 
 func InitBaseRoutes() {
 	InitUserRoutes()
+	InitCommentRoutes()
 }
 
 //func registerValidation() {
