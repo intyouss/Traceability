@@ -4,19 +4,10 @@ info:
   title: Traceability
   version: 0.0.1
 paths:
-  /api/v1/comment/action:
+  /api/v1/comment/add:
     post:
-      description: 评论操作
+      description: 添加评论
       parameters:
-      - description: 操作类型 1:添加 2:删除
-        in: formData
-        name: action_type
-        required: true
-        type: integer
-      - description: 评论id
-        in: formData
-        name: comment_id
-        type: integer
       - description: 视频id
         in: formData
         name: video_id
@@ -35,7 +26,26 @@ paths:
           description: Bad Request
           schema:
             type: string
-      summary: 评论操作
+      summary: 添加评论
+  /api/v1/comment/delete:
+    post:
+      description: 删除评论
+      parameters:
+      - description: 评论id
+        in: formData
+        name: comment_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 删除评论
   /api/v1/public/comment/list:
     post:
       description: 获取评论列表
@@ -123,14 +133,17 @@ paths:
           schema:
             type: string
       summary: 用户注册
-  /api/v1/user/:id:
-    delete:
-      description: 删除用户
+  /api/v1/public/video/feed:
+    post:
+      description: 获取视频feed流
       parameters:
-      - description: 用户id
-        in: path
-        name: id
-        required: true
+      - description: 页码
+        in: formData
+        name: page
+        type: integer
+      - description: 每页数量
+        in: formData
+        name: limit
         type: integer
       responses:
         "200":
@@ -141,13 +154,14 @@ paths:
           description: Bad Request
           schema:
             type: string
-      summary: 删除用户
+      summary: 获取视频feed流
+  /api/v1/user/:
     get:
       description: 获取用户信息
       parameters:
       - description: 用户id
-        in: path
-        name: id
+        in: query
+        name: user_id
         required: true
         type: integer
       responses:
@@ -160,6 +174,25 @@ paths:
           schema:
             type: string
       summary: 获取用户信息
+  /api/v1/user/delete:
+    post:
+      description: 删除用户
+      parameters:
+      - description: 用户id
+        in: formData
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 删除用户
   /api/v1/user/list:
     post:
       description: 获取用户列表
@@ -183,7 +216,7 @@ paths:
             type: string
       summary: 获取用户列表
   /api/v1/user/update:
-    put:
+    post:
       description: 更新用户信息
       parameters:
       - description: 用户id
@@ -221,4 +254,76 @@ paths:
           schema:
             type: string
       summary: 更新用户信息
+  /api/v1/video/delete:
+    delete:
+      description: 删除视频
+      parameters:
+      - description: 用户id
+        in: formData
+        name: id
+        required: true
+        type: integer
+      - description: 视频id
+        in: formData
+        name: video_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 删除视频
+  /api/v1/video/list:
+    get:
+      description: 获取用户发布视频列表
+      parameters:
+      - description: 用户id
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 获取用户发布视频列表
+  /api/v1/video/publish:
+    post:
+      description: 发布视频
+      parameters:
+      - description: 用户id
+        in: formData
+        name: id
+        required: true
+        type: integer
+      - description: 视频标题
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: 视频文件
+        in: formData
+        name: data
+        required: true
+        type: file
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 发布视频
 swagger: "2.0"

@@ -101,13 +101,13 @@ func (u UserApi) Register(ctx *gin.Context) {
 // GetUserInfo 获取用户信息
 // @Summary 获取用户信息
 // @Description 获取用户信息
-// @Param id path int true "用户id"
+// @Param user_id query int true "用户id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/user/:id [get]
+// @Router /api/v1/user/ [get]
 func (u UserApi) GetUserInfo(ctx *gin.Context) {
-	var idDto dto.CommonIDDTO
-	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDto, BindUri: true}).GetError(); err != nil {
+	var idDto dto.CommonUserIDDTO
+	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDto}).GetError(); err != nil {
 		u.Fail(&Response{Msg: err.Error()})
 		return
 	}
@@ -165,7 +165,7 @@ func (u UserApi) GetUserList(ctx *gin.Context) {
 // @Param avatar formData file false "头像"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/user/update [put]
+// @Router /api/v1/user/update [post]
 func (u UserApi) UpdateUser(ctx *gin.Context) {
 	var updateDTO dto.UserUpdateDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &updateDTO}).GetError(); err != nil {
@@ -196,13 +196,13 @@ func (u UserApi) UpdateUser(ctx *gin.Context) {
 // DeleteUser 删除用户
 // @Summary 删除用户
 // @Description 删除用户
-// @Param id path int true "用户id"
+// @Param user_id formData int true "用户id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/user/:id [delete]
+// @Router /api/v1/user/delete [post]
 func (u UserApi) DeleteUser(ctx *gin.Context) {
-	var idDTO dto.CommonIDDTO
-	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDTO, BindUri: true}).GetError(); err != nil {
+	var idDTO dto.CommonUserIDDTO
+	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDTO}).GetError(); err != nil {
 		u.Fail(&Response{Msg: err.Error()})
 		return
 	}

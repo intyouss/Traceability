@@ -7,24 +7,11 @@
         "version": "0.0.1"
     },
     "paths": {
-        "/api/v1/comment/action": {
+        "/api/v1/comment/add": {
             "post": {
-                "description": "评论操作",
-                "summary": "评论操作",
+                "description": "添加评论",
+                "summary": "添加评论",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "操作类型 1:添加 2:删除",
-                        "name": "action_type",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "评论id",
-                        "name": "comment_id",
-                        "in": "formData"
-                    },
                     {
                         "type": "integer",
                         "description": "视频id",
@@ -37,6 +24,35 @@
                         "description": "评论内容",
                         "name": "content",
                         "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/comment/delete": {
+            "post": {
+                "description": "删除评论",
+                "summary": "删除评论",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "评论id",
+                        "name": "comment_id",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -186,7 +202,41 @@
                 }
             }
         },
-        "/api/v1/user/:id": {
+        "/api/v1/public/video/feed": {
+            "post": {
+                "description": "获取视频feed流",
+                "summary": "获取视频feed流",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "limit",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/": {
             "get": {
                 "description": "获取用户信息",
                 "summary": "获取用户信息",
@@ -194,8 +244,8 @@
                     {
                         "type": "integer",
                         "description": "用户id",
-                        "name": "id",
-                        "in": "path",
+                        "name": "user_id",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -213,16 +263,18 @@
                         }
                     }
                 }
-            },
-            "delete": {
+            }
+        },
+        "/api/v1/user/delete": {
+            "post": {
                 "description": "删除用户",
                 "summary": "删除用户",
                 "parameters": [
                     {
                         "type": "integer",
                         "description": "用户id",
-                        "name": "id",
-                        "in": "path",
+                        "name": "user_id",
+                        "in": "formData",
                         "required": true
                     }
                 ],
@@ -277,7 +329,7 @@
             }
         },
         "/api/v1/user/update": {
-            "put": {
+            "post": {
                 "description": "更新用户信息",
                 "summary": "更新用户信息",
                 "parameters": [
@@ -317,6 +369,114 @@
                         "description": "头像",
                         "name": "avatar",
                         "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/delete": {
+            "delete": {
+                "description": "删除视频",
+                "summary": "删除视频",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "视频id",
+                        "name": "video_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/list": {
+            "get": {
+                "description": "获取用户发布视频列表",
+                "summary": "获取用户发布视频列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/publish": {
+            "post": {
+                "description": "发布视频",
+                "summary": "发布视频",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "视频标题",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "视频文件",
+                        "name": "data",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {

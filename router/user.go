@@ -20,11 +20,11 @@ func InitUserRoutes() {
 			// 用户列表
 			userAuthGroup.POST("/list", userApi.GetUserList)
 			// 用户信息
-			userAuthGroup.GET("/:id", userApi.GetUserInfo)
+			userAuthGroup.GET("/", userApi.GetUserInfo)
 			// 更新用户
 			userAuthGroup.PUT("/update", userApi.UpdateUser)
 			// 删除用户
-			userAuthGroup.DELETE("/:id", userApi.DeleteUser)
+			userAuthGroup.DELETE("/delete", userApi.DeleteUser)
 		}
 	})
 }

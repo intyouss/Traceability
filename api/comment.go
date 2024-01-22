@@ -89,7 +89,6 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 // AddComment 添加评论
 // @Summary 添加评论
 // @Description 添加评论
-// @Param id formData int true "用户id"
 // @Param video_id formData int true "视频id"
 // @Param content formData string false "评论内容"
 // @Success 200 {string} Response
@@ -106,7 +105,7 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 		c.ServerError(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
 		return
 	}
-	var IdDTO dto.CommonIDDTO
+	var IdDTO dto.CommonUserIDDTO
 	IdDTO.ID = commentDao.UserId
 	userDao, err := c.UserApi.Service.GetUserById(&IdDTO)
 	if err != nil {
@@ -128,11 +127,10 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 // DeleteComment 删除评论
 // @Summary 删除评论
 // @Description 删除评论
-// @Param id formData int true "用户id"
 // @Param comment_id formData int true "评论id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/comment/delete [delete]
+// @Router /api/v1/comment/delete [post]
 func (c CommentApi) DeleteComment(ctx *gin.Context) {
 	var cDeleteDto dto.DeleteCommentDTO
 	if err := c.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &cDeleteDto}).GetError(); err != nil {

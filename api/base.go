@@ -24,10 +24,8 @@ func NewBaseApi() BaseApi {
 
 // BuildRequestOption 构建请求参数选项
 type BuildRequestOption struct {
-	Ctx     *gin.Context
-	DTO     any
-	BindUri bool
-	BindAll bool
+	Ctx *gin.Context
+	DTO any
 }
 
 // BuildRequest 构建请求参数
@@ -37,24 +35,12 @@ func (b *BaseApi) BuildRequest(opt BuildRequestOption) *BaseApi {
 	b.Ctx = opt.Ctx
 	// 绑定请求参数
 	if opt.DTO != nil {
-		if opt.BindAll || opt.BindUri {
-			err := b.Ctx.ShouldBindUri(opt.DTO)
-			if err != nil {
-				if errResult == nil {
-					errResult = err
-				} else {
-					errResult = fmt.Errorf("%w, %w", errResult, err)
-				}
-			}
-		}
-		if opt.BindAll || !opt.BindUri {
-			err := b.Ctx.ShouldBind(opt.DTO)
-			if err != nil {
-				if errResult == nil {
-					errResult = err
-				} else {
-					errResult = fmt.Errorf("%w, %w", errResult, err)
-				}
+		err := b.Ctx.ShouldBind(opt.DTO)
+		if err != nil {
+			if errResult == nil {
+				errResult = err
+			} else {
+				errResult = fmt.Errorf("%w, %w", errResult, err)
 			}
 		}
 		if errResult != nil {
