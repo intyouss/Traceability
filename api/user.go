@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/intyouss/Traceability/service"
 	"github.com/intyouss/Traceability/service/dto"
+	"github.com/jinzhu/copier"
 	"net/http"
 )
 
@@ -46,7 +47,7 @@ func (u UserApi) Login(ctx *gin.Context) {
 	}
 
 	// 调用service
-	user, token, err := u.Service.Login(loginDto)
+	userDao, token, err := u.Service.Login(loginDto)
 	if err != nil {
 		u.Fail(&Response{
 			Status: http.StatusUnauthorized,
@@ -54,6 +55,8 @@ func (u UserApi) Login(ctx *gin.Context) {
 			Msg:    err.Error()})
 		return
 	}
+	var user = new(dto.User)
+	_ = copier.Copy(user, userDao)
 
 	u.Success(&Response{
 		Data: gin.H{
@@ -79,11 +82,13 @@ func (u UserApi) Register(ctx *gin.Context) {
 		u.Fail(&Response{Msg: err.Error()})
 		return
 	}
-	user, token, err := u.Service.Register(&userAddDto)
+	userDao, token, err := u.Service.Register(&userAddDto)
 	if err != nil {
 		u.ServerError(&Response{Code: ErrCodeRegister, Msg: err.Error()})
 		return
 	}
+	var user = new(dto.User)
+	_ = copier.Copy(user, userDao)
 
 	u.Success(&Response{
 		Data: gin.H{
@@ -107,11 +112,13 @@ func (u UserApi) GetUserInfo(ctx *gin.Context) {
 		return
 	}
 
-	user, err := u.Service.GetUserById(&idDto)
+	userDao, err := u.Service.GetUserById(&idDto)
 	if err != nil {
 		u.ServerError(&Response{Code: ErrCodeGetUserById, Msg: err.Error()})
 		return
 	}
+	var user = new(dto.User)
+	_ = copier.Copy(user, userDao)
 
 	u.Success(&Response{
 		Data: user,
@@ -133,11 +140,13 @@ func (u UserApi) GetUserList(ctx *gin.Context) {
 		return
 	}
 
-	users, total, err := u.Service.GetUserList(&userListDto)
+	usersDao, total, err := u.Service.GetUserList(&userListDto)
 	if err != nil {
 		u.ServerError(&Response{Code: ErrCodeGetUserList, Msg: err.Error()})
 		return
 	}
+	var users = make([]*dto.User, len(usersDao))
+	_ = copier.Copy(&users, &usersDao)
 
 	u.Success(&Response{
 		Data:  users,

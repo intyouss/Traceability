@@ -81,3 +81,8 @@ func (u *UserService) UpdateUser(updateDTO *dto.UserUpdateDTO) error {
 func (u *UserService) DeleteUserById(commonIDDTO *dto.CommonIDDTO) error {
 	return u.Dao.DeleteUserById(commonIDDTO.ID)
 }
+
+// GetUserListByIds 根据id列表获取用户列表
+func (u *UserService) GetUserListByIds(ids []uint) ([]*models.User, error) {
+	return u.Dao.GetUserListByIds(ids)
+}

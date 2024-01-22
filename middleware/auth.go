@@ -8,7 +8,6 @@ import (
 	"github.com/intyouss/Traceability/utils"
 	"github.com/spf13/viper"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -16,7 +15,6 @@ import (
 const (
 	ErrCodeInvalidToken = iota + 10401
 	ErrCodeTokenParse
-	ErrCodeTokenNotMatched
 	ErrCodeTokenRenew
 	TokenKey    = "Authorization"
 	TokenPrefix = "Bearer: "
@@ -34,17 +32,6 @@ func Auth() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		token := c.GetHeader(TokenKey)
 
-		var id string
-		switch c.Request.Method {
-		case http.MethodGet:
-			id = c.Query("id")
-			if id == "" {
-				id = c.Param("id")
-			}
-		default:
-			id = c.PostForm("id")
-		}
-
 		if token == "" || !strings.HasPrefix(token, TokenPrefix) {
 			tokenError(c, ErrCodeInvalidToken)
 			return
@@ -54,13 +41,6 @@ func Auth() func(c *gin.Context) {
 		claims, err := utils.ParseToken(token)
 		if err != nil {
 			tokenError(c, ErrCodeTokenParse)
-			return
-		}
-
-		// 检查用户id是否一致
-		userId := strconv.Itoa(int(claims.ID))
-		if userId != id {
-			tokenError(c, ErrCodeTokenNotMatched)
 			return
 		}
 

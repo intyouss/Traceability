@@ -15,8 +15,10 @@ func InitCommentRoutes() {
 		}
 		commentAuthGroup := auGroup.Group("comment")
 		{
-			// 评论操作
-			commentAuthGroup.POST("/action", commentApi.CommentAction)
+			// 添加评论
+			commentAuthGroup.POST("/add", commentApi.AddComment)
+			// 删除评论
+			commentAuthGroup.DELETE("/delete", commentApi.DeleteComment)
 		}
 	})
 }

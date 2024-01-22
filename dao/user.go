@@ -24,14 +24,16 @@ func NewUserDao() *UserDao {
 
 func (u *UserDao) GetUserByName(username string) (*models.User, error) {
 	var user *models.User
-	err := u.DB.Model(&user).Where("username = ?", username).First(&user).Error
+	err := u.DB.Model(&models.User{}).Where("username = ?", username).First(&user).Error
 	return user, err
 }
 
 // GetUserByNameAndPassword 根据用户名和密码获取用户
 func (u *UserDao) GetUserByNameAndPassword(username, password string) (*models.User, error) {
 	var user *models.User
-	err := u.DB.Model(&models.User{}).Where("username = ? AND password = ?", username, password).First(&user).Error
+	err := u.DB.Model(&models.User{}).
+		Where("username = ? AND password = ?", username, password).
+		First(&user).Error
 	return user, err
 }
 
@@ -47,14 +49,14 @@ func (u *UserDao) CheckUserNameExist(username string) bool {
 
 // AddUser 添加用户
 func (u *UserDao) AddUser(userAddDTO *dto.UserAddDTO) (*models.User, error) {
-	var user models.User
-	userAddDTO.ToModel(&user)
+	var user *models.User
+	userAddDTO.ToModel(user)
 	err := u.DB.Create(&user).Error
 	if err == nil {
 		userAddDTO.ID = user.ID
 		userAddDTO.Password = ""
 	}
-	return &user, err
+	return user, err
 }
 
 // GetUserById 根据id获取用户
@@ -74,6 +76,7 @@ func (u *UserDao) GetUserList(userListDto *dto.UserListDTO) ([]*models.User, int
 	return users, total, err
 }
 
+// UpdateUser 更新用户信息
 func (u *UserDao) UpdateUser(updateDTO *dto.UserUpdateDTO) error {
 	var user models.User
 	err := u.DB.First(&user, updateDTO.ID).Error
@@ -84,6 +87,14 @@ func (u *UserDao) UpdateUser(updateDTO *dto.UserUpdateDTO) error {
 	return u.DB.Save(&user).Error
 }
 
+// DeleteUserById 根据id删除用户
 func (u *UserDao) DeleteUserById(id uint) error {
 	return u.DB.Delete(&models.User{}, id).Error
+}
+
+// GetUserListByIds 根据id列表获取用户列表
+func (u *UserDao) GetUserListByIds(ids []uint) ([]*models.User, error) {
+	var users []*models.User
+	err := u.DB.Model(&models.User{}).Where("id in (?)", ids).Find(&users).Error
+	return users, err
 }

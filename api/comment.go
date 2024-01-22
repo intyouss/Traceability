@@ -2,14 +2,16 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/intyouss/Traceability/global"
+	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service"
 	"github.com/intyouss/Traceability/service/dto"
+	"github.com/jinzhu/copier"
 )
 
 const (
 	ErrCodeGetCommentList = iota + 20001
-	ErrCodeCommentAction
+	ErrCodeAddComment
+	ErrCodeDeleteComment
 )
 
 type CommentApi struct {
@@ -42,10 +44,40 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 		return
 	}
 
-	comments, total, err := c.Service.GetCommentList(&cListDto)
+	commentsDao, total, err := c.Service.GetCommentList(&cListDto)
 	if err != nil {
 		c.ServerError(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
 		return
+	}
+
+	var commentUserMap map[uint]*models.User
+	for _, comment := range commentsDao {
+		commentUserMap[comment.UserId] = nil
+	}
+
+	var userIds []uint
+	for userId := range commentUserMap {
+		userIds = append(userIds, userId)
+	}
+
+	users, err := c.UserApi.Service.GetUserListByIds(userIds)
+	if err != nil {
+		c.ServerError(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
+		return
+	}
+
+	for _, user := range users {
+		commentUserMap[user.ID] = user
+	}
+
+	var comments = make([]dto.Comment, len(commentsDao))
+	for i, comment := range commentsDao {
+		comments[i].ID = comment.ID
+		comments[i].Content = comment.Content
+		comments[i].CreateAt = comment.CreatedAt.Format("2006-01-02 15:04:05")
+		var user = new(dto.User)
+		_ = copier.Copy(user, commentUserMap[comment.UserId])
+		comments[i].User = user
 	}
 
 	c.Success(&Response{
@@ -54,44 +86,63 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 	})
 }
 
-// CommentAction 评论操作
-// @Summary 评论操作
-// @Description 评论操作
-// @Param action_type formData int true "操作类型 1:添加 2:删除"
-// @Param comment_id formData int false "评论id"
+// AddComment 添加评论
+// @Summary 添加评论
+// @Description 添加评论
+// @Param id formData int true "用户id"
 // @Param video_id formData int true "视频id"
 // @Param content formData string false "评论内容"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/comment/action [post]
-func (c CommentApi) CommentAction(ctx *gin.Context) {
-	var cActionDto dto.CommentActionDTO
-	if err := c.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &cActionDto}).GetError(); err != nil {
+// @Router /api/v1/comment/add [post]
+func (c CommentApi) AddComment(ctx *gin.Context) {
+	var cAddDto dto.AddCommentDTO
+	if err := c.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &cAddDto}).GetError(); err != nil {
 		c.Fail(&Response{Msg: err.Error()})
 		return
 	}
-	userId := ctx.GetUint(global.LoginUser)
-	cActionDto.UserID = userId
-	comment, err := c.Service.CommentAction(&cActionDto)
+	commentDao, err := c.Service.AddComment(&cAddDto)
 	if err != nil {
-		c.ServerError(&Response{Code: ErrCodeCommentAction, Msg: err.Error()})
+		c.ServerError(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
 		return
 	}
-	if cActionDto.ActionType == 1 {
-		var IdDTO dto.CommonIDDTO
-		IdDTO.ID = userId
-		user, err := c.UserApi.Service.GetUserById(&IdDTO)
-		if err != nil {
-			c.ServerError(&Response{Code: ErrCodeGetUserById, Msg: err.Error()})
-			return
-		}
-		c.Success(&Response{
-			Data: gin.H{
-				"comment": comment,
-				"user":    user,
-			},
-		})
-	} else {
-		c.Success(&Response{})
+	var IdDTO dto.CommonIDDTO
+	IdDTO.ID = commentDao.UserId
+	userDao, err := c.UserApi.Service.GetUserById(&IdDTO)
+	if err != nil {
+		c.ServerError(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
+		return
 	}
+
+	var comment = new(dto.Comment)
+	_ = copier.Copy(comment, commentDao)
+	var user = new(dto.User)
+	_ = copier.Copy(user, userDao)
+	comment.User = user
+
+	c.Success(&Response{
+		Data: comment,
+	})
+}
+
+// DeleteComment 删除评论
+// @Summary 删除评论
+// @Description 删除评论
+// @Param id formData int true "用户id"
+// @Param comment_id formData int true "评论id"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/comment/delete [delete]
+func (c CommentApi) DeleteComment(ctx *gin.Context) {
+	var cDeleteDto dto.DeleteCommentDTO
+	if err := c.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &cDeleteDto}).GetError(); err != nil {
+		c.Fail(&Response{Msg: err.Error()})
+		return
+	}
+	err := c.Service.DeleteCommentById(&cDeleteDto)
+	if err != nil {
+		c.ServerError(&Response{Code: ErrCodeDeleteComment, Msg: err.Error()})
+		return
+	}
+	c.Success(&Response{})
 }
