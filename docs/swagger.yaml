@@ -46,6 +46,102 @@ paths:
           schema:
             type: string
       summary: 删除评论
+  /api/v1/like/action:
+    post:
+      description: 用户喜爱操作
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 视频id
+        in: formData
+        name: video_id
+        required: true
+        type: integer
+      - description: 操作类型 1:喜爱 2:取消喜爱
+        in: formData
+        name: action_type
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 用户喜爱操作
+  /api/v1/like/list:
+    get:
+      description: 获取用户点赞列表
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 用户id
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 获取用户点赞列表
+  /api/v1/message/chat:
+    post:
+      description: 获取消息列表
+      parameters:
+      - description: 目标用户id
+        in: formData
+        name: to_user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 获取消息列表
+  /api/v1/message/send:
+    post:
+      description: 发送消息
+      parameters:
+      - description: 目标用户id
+        in: formData
+        name: to_user_id
+        required: true
+        type: integer
+      - description: 消息内容
+        in: formData
+        name: content
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 发送消息
   /api/v1/public/comment/list:
     post:
       description: 获取评论列表
@@ -159,6 +255,11 @@ paths:
     get:
       description: 获取用户信息
       parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
       - description: 用户id
         in: query
         name: user_id
@@ -178,6 +279,11 @@ paths:
     post:
       description: 删除用户
       parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
       - description: 用户id
         in: formData
         name: user_id
@@ -197,6 +303,11 @@ paths:
     post:
       description: 获取用户列表
       parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
       - description: 页码
         in: formData
         name: page
@@ -219,6 +330,11 @@ paths:
     post:
       description: 更新用户信息
       parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
       - description: 用户id
         in: formData
         name: id

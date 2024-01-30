@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"context"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service/dto"
 )
@@ -21,18 +22,18 @@ func NewVideoDao() *VideoDao {
 }
 
 // GetVideoList 获取视频列表
-func (v *VideoDao) GetVideoList(vListDTO *dto.VideoListDTO) ([]*models.Video, int64, error) {
+func (v *VideoDao) GetVideoList(ctx context.Context, vListDTO *dto.VideoListDTO) ([]*models.Video, int64, error) {
 	var videos []*models.Video
 	var total int64
-	err := v.DB.Model(&models.Video{}).
+	err := v.DB.Model(&models.Video{}).WithContext(ctx).
 		Scopes(Paginate(vListDTO.CommonPageDTO)).Find(&videos).
 		Offset(-1).Limit(-1).Count(&total).Error
 	return videos, total, err
 }
 
 // GetVideoListByUserId 根据用户id获取视频列表
-func (v *VideoDao) GetVideoListByUserId(idDTO *dto.CommonUserIDDTO) ([]*models.Video, error) {
+func (v *VideoDao) GetVideoListByUserId(ctx context.Context, idDTO *dto.CommonUserIDDTO) ([]*models.Video, error) {
 	var videos []*models.Video
-	err := v.DB.Model(&models.Video{}).Where("user_id = ?", idDTO.ID).Find(&videos).Error
+	err := v.DB.Model(&models.Video{}).WithContext(ctx).Where("user_id = ?", idDTO.ID).Find(&videos).Error
 	return videos, err
 }

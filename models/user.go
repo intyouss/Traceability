@@ -7,17 +7,17 @@ import (
 
 type User struct {
 	gorm.Model
-	Username    string `gorm:"type:varchar(64);not null;unique" json:"username"`
-	Password    string `gorm:"type:varchar(128);not null" json:"-"`
-	Avatar      string `gorm:"type:varchar(256)" json:"avatar"`
-	Email       string `gorm:"type:varchar(128);unique" json:"email"`
-	Mobile      string `gorm:"type:varchar(11);unique" json:"mobile"`
-	FollowCount uint   `gorm:"not null;default:0" json:"follow_count"`
-	FansCount   uint   `gorm:"not null;default:0" json:"fans_count"`
-	LikeCount   uint   `gorm:"not null;default:0" json:"like_count"`
-	LikedCount  uint   `gorm:"not null;default:0" json:"liked_count"`
-	VideoCount  uint   `gorm:"not null;default:0" json:"video_count"`
-	Signature   string `gorm:"type:varchar(256)" json:"signature"`
+	Username   string `gorm:"type:varchar(64);not null;unique" json:"username"`
+	Password   string `gorm:"type:varchar(128);not null" json:"-"`
+	Avatar     string `gorm:"type:varchar(256)" json:"avatar"`
+	Email      string `gorm:"type:varchar(128);unique" json:"email"`
+	Mobile     string `gorm:"type:varchar(11);unique" json:"mobile"`
+	FocusCount uint   `gorm:"not null;default:0" json:"follow_count"`
+	FansCount  uint   `gorm:"not null;default:0" json:"fans_count"`
+	LikeCount  uint   `gorm:"not null;default:0" json:"like_count"`
+	LikedCount uint   `gorm:"not null;default:0" json:"liked_count"`
+	VideoCount uint   `gorm:"not null;default:0" json:"video_count"`
+	Signature  string `gorm:"type:varchar(256)" json:"signature"`
 }
 
 // Encrypt 密码加密

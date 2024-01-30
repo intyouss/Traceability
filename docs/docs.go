@@ -79,6 +79,150 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/like/action": {
+            "post": {
+                "description": "用户喜爱操作",
+                "summary": "用户喜爱操作",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "视频id",
+                        "name": "video_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "操作类型 1:喜爱 2:取消喜爱",
+                        "name": "action_type",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/like/list": {
+            "get": {
+                "description": "获取用户点赞列表",
+                "summary": "获取用户点赞列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/message/chat": {
+            "post": {
+                "description": "获取消息列表",
+                "summary": "获取消息列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "目标用户id",
+                        "name": "to_user_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/message/send": {
+            "post": {
+                "description": "发送消息",
+                "summary": "发送消息",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "目标用户id",
+                        "name": "to_user_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "消息内容",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/public/comment/list": {
             "post": {
                 "description": "获取评论列表",
@@ -250,6 +394,13 @@ const docTemplate = `{
                 "summary": "获取用户信息",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "用户id",
                         "name": "user_id",
@@ -279,6 +430,13 @@ const docTemplate = `{
                 "summary": "删除用户",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "用户id",
                         "name": "user_id",
@@ -307,6 +465,13 @@ const docTemplate = `{
                 "description": "获取用户列表",
                 "summary": "获取用户列表",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "页码",
@@ -341,6 +506,13 @@ const docTemplate = `{
                 "description": "更新用户信息",
                 "summary": "更新用户信息",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "用户id",

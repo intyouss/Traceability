@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"github.com/intyouss/Traceability/dao"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service/dto"
@@ -23,11 +24,11 @@ func NewVideoService() *VideoService {
 }
 
 // GetVideoList 获取视频列表
-func (v *VideoService) GetVideoList(vListDTO *dto.VideoListDTO) ([]*models.Video, int64, error) {
-	return v.Dao.GetVideoList(vListDTO)
+func (v *VideoService) GetVideoList(ctx context.Context, vListDTO *dto.VideoListDTO) ([]*models.Video, int64, error) {
+	return v.Dao.GetVideoList(ctx, vListDTO)
 }
 
 // GetVideoListByUserId 根据用户id获取视频列表
-func (v *VideoService) GetVideoListByUserId(idDTO *dto.CommonUserIDDTO) ([]*models.Video, error) {
-	return v.Dao.GetVideoListByUserId(idDTO)
+func (v *VideoService) GetVideoListByUserId(ctx context.Context, idDTO *dto.CommonUserIDDTO) ([]*models.Video, error) {
+	return v.Dao.GetVideoListByUserId(ctx, idDTO)
 }

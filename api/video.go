@@ -44,9 +44,16 @@ func (v *VideoApi) GetVideoFeed(ctx *gin.Context) {
 	}
 
 	// 调用service
-	videos, total, err := v.Service.GetVideoList(&vListDTO)
+	videos, total, err := v.Service.GetVideoList(ctx, &vListDTO)
 	if err != nil {
 		v.ServerError(&Response{Code: ErrCodeGetVideoFeed, Msg: err.Error()})
+		return
+	}
+	if total == 0 {
+		v.Success(&Response{
+			Data:  []*dto.Video{},
+			Total: total,
+		})
 		return
 	}
 	var authorMap map[uint]*models.User
@@ -59,7 +66,7 @@ func (v *VideoApi) GetVideoFeed(ctx *gin.Context) {
 	}
 
 	// 调用userApi
-	authors, err := v.UserApi.Service.GetUserListByIds(authorIds)
+	authors, err := v.UserApi.Service.GetUserListByIds(ctx, authorIds)
 	if err != nil {
 		v.ServerError(&Response{Code: ErrCodeGetVideoFeed, Msg: err.Error()})
 		return
@@ -99,16 +106,23 @@ func (v *VideoApi) GetUserVideoList(ctx *gin.Context) {
 		return
 	}
 
-	videosDao, err := v.Service.GetVideoListByUserId(&idDTO)
+	videosDao, err := v.Service.GetVideoListByUserId(ctx, &idDTO)
 	if err != nil {
 		v.ServerError(&Response{Code: ErrCodeGetUserVideoList, Msg: err.Error()})
 		return
 	}
+	if len(videosDao) == 0 {
+		v.Success(&Response{
+			Data: []*dto.Video{},
+		})
+		return
+	}
+
 	var videos = make([]*dto.Video, len(videosDao))
 	_ = copier.Copy(&videos, &videosDao)
 
 	var userDao *models.User
-	userDao, err = v.UserApi.Service.GetUserById(&idDTO)
+	userDao, err = v.UserApi.Service.GetUserById(ctx, &idDTO)
 	if err != nil {
 		v.ServerError(&Response{Code: ErrCodeGetUserVideoList, Msg: err.Error()})
 		return

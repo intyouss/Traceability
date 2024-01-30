@@ -30,15 +30,15 @@ type User struct {
 }
 
 type UserLoginDto struct {
-	Username string `json:"username" form:"username" binding:"required" message:"Username cannot be empty"`
-	Password string `json:"password" form:"password" binding:"required" message:"Password cannot be empty"`
+	Username string `json:"username" form:"username" binding:"required" message:"username cannot be empty"`
+	Password string `json:"password" form:"password" binding:"required" message:"password cannot be empty"`
 }
 
 // UserAddDTO 用户添加数据传输对象
 type UserAddDTO struct {
 	ID       uint   `json:"id" form:"id"`
-	Username string `json:"username" form:"username" binding:"required" message:"Username cannot be empty"`
-	Password string `json:"password,omitempty" form:"password" binding:"required" message:"Password cannot be empty"`
+	Username string `json:"username" form:"username" binding:"required" message:"username cannot be empty"`
+	Password string `json:"password,omitempty" form:"password" binding:"required" message:"password cannot be empty"`
 	Avatar   string
 	Email    string `json:"email" form:"email"`
 	Mobile   string `json:"mobile" form:"mobile"`

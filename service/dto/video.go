@@ -23,11 +23,11 @@ type Video struct {
 
 type VideoListDTO struct {
 	CommonPageDTO
-	LatestTime string `json:"latest_time" form:"latest_time"`
+	LatestTime string `json:"latest_time" form:"latest_time" binding:"required" message:"latest_time cannot be empty"`
 }
 
 type VideoPublishDTO struct {
-	UserID uint   `json:"id" form:"id" binding:"required" message:"UserId cannot be empty"`
-	Title  string `json:"title" form:"title" binding:"required" message:"Title cannot be empty"`
-	Data   []byte `json:"data" form:"data" binding:"required" message:"Data cannot be empty"`
+	UserID uint   `json:"id" form:"id" binding:"required" message:"user_id cannot be empty"`
+	Title  string `json:"title" form:"title" binding:"required" message:"title cannot be empty"`
+	Data   []byte `json:"data" form:"data" binding:"required" message:"data cannot be empty"`
 }

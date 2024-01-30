@@ -97,6 +97,8 @@ func InitBaseRoutes() {
 	InitUserRoutes()
 	InitCommentRoutes()
 	InitVideoRoutes()
+	InitLikeRoutes()
+	InitMessageRoutes()
 }
 
 //func registerValidation() {

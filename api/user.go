@@ -47,7 +47,7 @@ func (u UserApi) Login(ctx *gin.Context) {
 	}
 
 	// 调用service
-	userDao, token, err := u.Service.Login(loginDto)
+	userDao, token, err := u.Service.Login(ctx, loginDto)
 	if err != nil {
 		u.Fail(&Response{
 			Status: http.StatusUnauthorized,
@@ -82,7 +82,7 @@ func (u UserApi) Register(ctx *gin.Context) {
 		u.Fail(&Response{Msg: err.Error()})
 		return
 	}
-	userDao, token, err := u.Service.Register(&userAddDto)
+	userDao, token, err := u.Service.Register(ctx, &userAddDto)
 	if err != nil {
 		u.ServerError(&Response{Code: ErrCodeRegister, Msg: err.Error()})
 		return
@@ -101,10 +101,12 @@ func (u UserApi) Register(ctx *gin.Context) {
 // GetUserInfo 获取用户信息
 // @Summary 获取用户信息
 // @Description 获取用户信息
+// @Param token header string true "token"
 // @Param user_id query int true "用户id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/user/ [get]
+// TODO: 需要一个默认获取其他用户信息接口以及一个需要校验的获取用户自身信息的接口
 func (u UserApi) GetUserInfo(ctx *gin.Context) {
 	var idDto dto.CommonUserIDDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDto}).GetError(); err != nil {
@@ -112,7 +114,7 @@ func (u UserApi) GetUserInfo(ctx *gin.Context) {
 		return
 	}
 
-	userDao, err := u.Service.GetUserById(&idDto)
+	userDao, err := u.Service.GetUserById(ctx, &idDto)
 	if err != nil {
 		u.ServerError(&Response{Code: ErrCodeGetUserById, Msg: err.Error()})
 		return
@@ -128,6 +130,7 @@ func (u UserApi) GetUserInfo(ctx *gin.Context) {
 // GetUserList 获取用户列表
 // @Summary 获取用户列表
 // @Description 获取用户列表
+// @Param token header string true "token"
 // @Param page formData int false "页码"
 // @Param limit formData int false "每页数量"
 // @Success 200 {string} Response
@@ -140,7 +143,7 @@ func (u UserApi) GetUserList(ctx *gin.Context) {
 		return
 	}
 
-	usersDao, total, err := u.Service.GetUserList(&userListDto)
+	usersDao, total, err := u.Service.GetUserList(ctx, &userListDto)
 	if err != nil {
 		u.ServerError(&Response{Code: ErrCodeGetUserList, Msg: err.Error()})
 		return
@@ -157,6 +160,7 @@ func (u UserApi) GetUserList(ctx *gin.Context) {
 // UpdateUser 更新用户信息
 // @Summary 更新用户信息
 // @Description 更新用户信息
+// @Param token header string true "token"
 // @Param id formData int true "用户id"
 // @Param username formData string false "用户名"
 // @Param password formData string false "密码"
@@ -184,7 +188,7 @@ func (u UserApi) UpdateUser(ctx *gin.Context) {
 	//	updateDTO.Avatar = filePath
 	//}
 
-	err := u.Service.UpdateUser(&updateDTO)
+	err := u.Service.UpdateUser(ctx, &updateDTO)
 	if err != nil {
 		u.ServerError(&Response{Code: ErrCodeUpdateUser, Msg: err.Error()})
 		return
@@ -196,6 +200,7 @@ func (u UserApi) UpdateUser(ctx *gin.Context) {
 // DeleteUser 删除用户
 // @Summary 删除用户
 // @Description 删除用户
+// @Param token header string true "token"
 // @Param user_id formData int true "用户id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
@@ -207,7 +212,7 @@ func (u UserApi) DeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	err := u.Service.DeleteUserById(&idDTO)
+	err := u.Service.DeleteUserById(ctx, &idDTO)
 	if err != nil {
 		u.ServerError(&Response{Code: ErrCodeDeleteUser, Msg: err.Error()})
 		return

@@ -44,9 +44,13 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 		return
 	}
 
-	commentsDao, total, err := c.Service.GetCommentList(&cListDto)
+	commentsDao, total, err := c.Service.GetCommentList(ctx, &cListDto)
 	if err != nil {
 		c.ServerError(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
+		return
+	}
+	if total == 0 {
+		c.Success(&Response{})
 		return
 	}
 
@@ -60,7 +64,7 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 		userIds = append(userIds, userId)
 	}
 
-	users, err := c.UserApi.Service.GetUserListByIds(userIds)
+	users, err := c.UserApi.Service.GetUserListByIds(ctx, userIds)
 	if err != nil {
 		c.ServerError(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
 		return
@@ -100,14 +104,14 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 		c.Fail(&Response{Msg: err.Error()})
 		return
 	}
-	commentDao, err := c.Service.AddComment(&cAddDto)
+	commentDao, err := c.Service.AddComment(ctx, &cAddDto)
 	if err != nil {
 		c.ServerError(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
 		return
 	}
 	var IdDTO dto.CommonUserIDDTO
 	IdDTO.ID = commentDao.UserId
-	userDao, err := c.UserApi.Service.GetUserById(&IdDTO)
+	userDao, err := c.UserApi.Service.GetUserById(ctx, &IdDTO)
 	if err != nil {
 		c.ServerError(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
 		return
@@ -137,7 +141,7 @@ func (c CommentApi) DeleteComment(ctx *gin.Context) {
 		c.Fail(&Response{Msg: err.Error()})
 		return
 	}
-	err := c.Service.DeleteCommentById(&cDeleteDto)
+	err := c.Service.DeleteCommentById(ctx, &cDeleteDto)
 	if err != nil {
 		c.ServerError(&Response{Code: ErrCodeDeleteComment, Msg: err.Error()})
 		return
