@@ -46,6 +46,44 @@ paths:
           schema:
             type: string
       summary: 删除评论
+  /api/v1/default/relation/fans/list:
+    get:
+      description: 粉丝列表
+      parameters:
+      - description: 用户ID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 粉丝列表
+  /api/v1/default/relation/focus/list:
+    get:
+      description: 关注列表
+      parameters:
+      - description: 用户ID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 关注列表
   /api/v1/like/action:
     post:
       description: 用户喜爱操作
@@ -251,6 +289,30 @@ paths:
           schema:
             type: string
       summary: 获取视频feed流
+  /api/v1/relation/action:
+    post:
+      description: 关注/取消关注
+      parameters:
+      - description: 1:关注 2:取消关注
+        in: formData
+        name: action_type
+        required: true
+        type: integer
+      - description: 关注用户ID
+        in: formData
+        name: focus_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 关注/取消关注
   /api/v1/user/:
     get:
       description: 获取用户信息

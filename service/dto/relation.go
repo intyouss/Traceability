@@ -1,0 +1,18 @@
+package dto
+
+type RelationActionDto struct {
+	// 关注者id
+	UserId uint `json:"user_id" binding:"required" message:"user_id cannot be empty"`
+	// 动作种类
+	ActionType uint `json:"action_type" binding:"required" message:"action_type cannot be empty"`
+}
+
+type FocusListDto struct {
+	// 用户id
+	UserId uint `json:"user_id" binding:"required" message:"user_id cannot be empty"`
+}
+
+type FansListDto struct {
+	// 用户id
+	UserId uint `json:"user_id" binding:"required" message:"user_id cannot be empty"`
+}

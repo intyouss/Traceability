@@ -98,6 +98,7 @@ func InitBaseRoutes() {
 	InitCommentRoutes()
 	InitVideoRoutes()
 	InitLikeRoutes()
+	InitRelationRoutes()
 	InitMessageRoutes()
 }
 

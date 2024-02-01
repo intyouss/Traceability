@@ -79,6 +79,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/default/relation/fans/list": {
+            "get": {
+                "description": "粉丝列表",
+                "summary": "粉丝列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/default/relation/focus/list": {
+            "get": {
+                "description": "关注列表",
+                "summary": "关注列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/like/action": {
             "post": {
                 "description": "用户喜爱操作",
@@ -370,6 +428,42 @@ const docTemplate = `{
                         "description": "每页数量",
                         "name": "limit",
                         "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/relation/action": {
+            "post": {
+                "description": "关注/取消关注",
+                "summary": "关注/取消关注",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "1:关注 2:取消关注",
+                        "name": "action_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "关注用户ID",
+                        "name": "focus_id",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
