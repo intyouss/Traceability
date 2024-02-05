@@ -1,0 +1,27 @@
+version: "3"
+services:
+  minio:
+    image: "minio/minio:latest"
+    container_name: minio
+    ports:
+      - "19000:9000"
+      - "19090:9090"
+    environment:
+      # 要超过八位字符
+      - MINIO_ROOT_USER=traceability
+      - MINIO_ROOT_PASSWORD=traceability
+    command: server /data --console-address ":9090"
+    volumes:
+      - /data/minio/data:/data:rw
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      retries: 3
+    networks:
+      - traceability_net
+networks:
+  traceability_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.0.0/16
