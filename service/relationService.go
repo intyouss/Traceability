@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/intyouss/Traceability/dao"
+	"github.com/intyouss/Traceability/global"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service/dto"
 )
@@ -26,6 +27,9 @@ func NewRelationService() *RelationService {
 
 // RelationAction 关注/取消关注
 func (r *RelationService) RelationAction(ctx context.Context, dto dto.RelationActionDto) error {
+	if dto.UserId == ctx.Value(global.LoginUser).(uint) {
+		return errors.New("can't Focus/unFocus yourself")
+	}
 	switch dto.ActionType {
 	case 1:
 		return r.Dao.Focus(ctx, dto)

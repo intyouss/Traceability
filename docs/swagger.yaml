@@ -8,6 +8,11 @@ paths:
     post:
       description: 添加评论
       parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
       - description: 视频id
         in: formData
         name: video_id
@@ -31,6 +36,11 @@ paths:
     post:
       description: 删除评论
       parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
       - description: 评论id
         in: formData
         name: comment_id
@@ -46,11 +56,11 @@ paths:
           schema:
             type: string
       summary: 删除评论
-  /api/v1/default/relation/fans/list:
+  /api/v1/default/video/list:
     get:
-      description: 粉丝列表
+      description: 获取用户发布视频列表
       parameters:
-      - description: 用户ID
+      - description: 用户id
         in: query
         name: user_id
         required: true
@@ -64,26 +74,7 @@ paths:
           description: Bad Request
           schema:
             type: string
-      summary: 粉丝列表
-  /api/v1/default/relation/focus/list:
-    get:
-      description: 关注列表
-      parameters:
-      - description: 用户ID
-        in: query
-        name: user_id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-      summary: 关注列表
+      summary: 获取用户发布视频列表
   /api/v1/like/action:
     post:
       description: 用户喜爱操作
@@ -141,6 +132,11 @@ paths:
     post:
       description: 获取消息列表
       parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
       - description: 目标用户id
         in: formData
         name: to_user_id
@@ -160,6 +156,11 @@ paths:
     post:
       description: 发送消息
       parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
       - description: 目标用户id
         in: formData
         name: to_user_id
@@ -293,6 +294,11 @@ paths:
     post:
       description: 关注/取消关注
       parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
       - description: 1:关注 2:取消关注
         in: formData
         name: action_type
@@ -313,6 +319,54 @@ paths:
           schema:
             type: string
       summary: 关注/取消关注
+  /api/v1/relation/fans/list:
+    get:
+      description: 粉丝列表
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 用户ID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 粉丝列表
+  /api/v1/relation/focus/list:
+    get:
+      description: 关注列表
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 用户ID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 关注列表
   /api/v1/user/:
     get:
       description: 获取用户信息
@@ -436,11 +490,11 @@ paths:
     delete:
       description: 删除视频
       parameters:
-      - description: 用户id
-        in: formData
-        name: id
+      - description: token
+        in: header
+        name: token
         required: true
-        type: integer
+        type: string
       - description: 视频id
         in: formData
         name: video_id
@@ -456,39 +510,25 @@ paths:
           schema:
             type: string
       summary: 删除视频
-  /api/v1/video/list:
-    get:
-      description: 获取用户发布视频列表
-      parameters:
-      - description: 用户id
-        in: query
-        name: user_id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-      summary: 获取用户发布视频列表
   /api/v1/video/publish:
     post:
       description: 发布视频
       parameters:
-      - description: 用户id
-        in: formData
-        name: id
+      - description: token
+        in: header
+        name: token
         required: true
-        type: integer
+        type: string
       - description: 视频标题
         in: formData
         name: title
         required: true
         type: string
+      - description: 封面图片
+        in: formData
+        name: cover_image_data
+        required: true
+        type: file
       - description: 视频文件
         in: formData
         name: data

@@ -6,8 +6,6 @@ type Video struct {
 	gorm.Model
 	// 视频标题
 	Title string `gorm:"type:varchar(256);not null" json:"title"`
-	// 视频描述
-	Description string `gorm:"type:varchar(256);not null" json:"description"`
 	// 视频地址
 	PlayUrl string `gorm:"type:varchar(256);not null" json:"play_url"`
 	// 视频封面地址

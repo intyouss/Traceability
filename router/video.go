@@ -12,13 +12,15 @@ func InitVideoRoutes() {
 		{
 			// 视频feed流
 			videoDefaultGroup.POST("/feed", videoApi.GetVideoFeed)
+			// 用户发布视频列表
+			videoDefaultGroup.GET("/list", videoApi.GetUserVideoList)
 		}
 		videoAuthGroup := auGroup.Group("video")
 		{
-			//// 视频操作
-			//videoAuthGroup.POST("/action", videoApi.VideoAction)
-			// 用户发布视频列表
-			videoAuthGroup.GET("/list", videoApi.GetUserVideoList)
+			// 发布视频
+			videoAuthGroup.POST("/publish", videoApi.PublishVideo)
+			// 删除视频
+			videoAuthGroup.POST("/delete", videoApi.DeleteVideo)
 		}
 	})
 }

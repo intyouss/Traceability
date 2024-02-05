@@ -21,6 +21,13 @@ const docTemplate = `{
                 "summary": "添加评论",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "视频id",
                         "name": "video_id",
@@ -56,6 +63,13 @@ const docTemplate = `{
                 "summary": "删除评论",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "评论id",
                         "name": "comment_id",
@@ -79,43 +93,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/default/relation/fans/list": {
+        "/api/v1/default/video/list": {
             "get": {
-                "description": "粉丝列表",
-                "summary": "粉丝列表",
+                "description": "获取用户发布视频列表",
+                "summary": "获取用户发布视频列表",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "用户ID",
-                        "name": "user_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/default/relation/focus/list": {
-            "get": {
-                "description": "关注列表",
-                "summary": "关注列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "用户ID",
+                        "description": "用户id",
                         "name": "user_id",
                         "in": "query",
                         "required": true
@@ -222,6 +207,13 @@ const docTemplate = `{
                 "summary": "获取消息列表",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "目标用户id",
                         "name": "to_user_id",
@@ -250,6 +242,13 @@ const docTemplate = `{
                 "description": "发送消息",
                 "summary": "发送消息",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "目标用户id",
@@ -452,6 +451,13 @@ const docTemplate = `{
                 "summary": "关注/取消关注",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "1:关注 2:取消关注",
                         "name": "action_type",
@@ -463,6 +469,78 @@ const docTemplate = `{
                         "description": "关注用户ID",
                         "name": "focus_id",
                         "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/relation/fans/list": {
+            "get": {
+                "description": "粉丝列表",
+                "summary": "粉丝列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/relation/focus/list": {
+            "get": {
+                "description": "关注列表",
+                "summary": "关注列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户ID",
+                        "name": "user_id",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -667,10 +745,10 @@ const docTemplate = `{
                 "summary": "删除视频",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "用户id",
-                        "name": "id",
-                        "in": "formData",
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
                         "required": true
                     },
                     {
@@ -697,51 +775,29 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/video/list": {
-            "get": {
-                "description": "获取用户发布视频列表",
-                "summary": "获取用户发布视频列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "用户id",
-                        "name": "user_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/video/publish": {
             "post": {
                 "description": "发布视频",
                 "summary": "发布视频",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "用户id",
-                        "name": "id",
-                        "in": "formData",
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "视频标题",
                         "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "封面图片",
+                        "name": "cover_image_data",
                         "in": "formData",
                         "required": true
                     },

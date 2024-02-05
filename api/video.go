@@ -11,6 +11,8 @@ import (
 const (
 	ErrCodeGetVideoFeed = iota + 30001
 	ErrCodeGetUserVideoList
+	ErrCodePublishVideo
+	ErrCodeDeleteVideo
 )
 
 type VideoApi struct {
@@ -98,7 +100,7 @@ func (v *VideoApi) GetVideoFeed(ctx *gin.Context) {
 // @Param user_id query int true "用户id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/video/list [get]
+// @Router /api/v1/default/video/list [get]
 func (v *VideoApi) GetUserVideoList(ctx *gin.Context) {
 	var idDTO dto.CommonUserIDDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDTO}).GetError(); err != nil {
@@ -144,24 +146,49 @@ func (v *VideoApi) GetUserVideoList(ctx *gin.Context) {
 // PublishVideo 发布视频
 // @Summary 发布视频
 // @Description 发布视频
-// @Param id formData int true "用户id"
+// @Param token header string true "token"
 // @Param title formData string true "视频标题"
+// @Param cover_image_data formData file true "封面图片"
 // @Param data formData file true "视频文件"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/video/publish [post]
 func (v *VideoApi) PublishVideo(ctx *gin.Context) {
+	var videoPublishDTO dto.VideoPublishDTO
+	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoPublishDTO}).GetError(); err != nil {
+		v.Fail(&Response{Msg: err.Error()})
+		return
+	}
 
+	err := v.Service.PublishVideo(ctx, &videoPublishDTO)
+	if err != nil {
+		v.ServerError(&Response{Code: ErrCodePublishVideo, Msg: err.Error()})
+		return
+	}
+
+	v.Success(&Response{})
 }
 
 // DeleteVideo 删除视频
 // @Summary 删除视频
 // @Description 删除视频
-// @Param id formData int true "用户id"
+// @Param token header string true "token"
 // @Param video_id formData int true "视频id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/video/delete [delete]
 func (v *VideoApi) DeleteVideo(ctx *gin.Context) {
+	var videoDTO dto.VideoDeleteDTO
+	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoDTO}).GetError(); err != nil {
+		v.Fail(&Response{Msg: err.Error()})
+		return
+	}
 
+	err := v.Service.DeleteVideo(ctx, &videoDTO)
+	if err != nil {
+		v.ServerError(&Response{Code: ErrCodeDeleteVideo, Msg: err.Error()})
+		return
+	}
+
+	v.Success(&Response{})
 }

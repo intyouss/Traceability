@@ -26,6 +26,7 @@ func NewMessageApi() MessageApi {
 // SendMessage 发送消息
 // @Summary 发送消息
 // @Description 发送消息
+// @Param token header string true "token"
 // @Param to_user_id formData int true "目标用户id"
 // @Param content formData string true "消息内容"
 // @Success 200 {string} Response
@@ -50,6 +51,7 @@ func (m *MessageApi) SendMessage(ctx *gin.Context) {
 // GetMessages 获取消息列表
 // @Summary 获取消息列表
 // @Description 获取消息列表
+// @Param token header string true "token"
 // @Param to_user_id formData int true "目标用户id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response

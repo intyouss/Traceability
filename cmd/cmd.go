@@ -22,6 +22,10 @@ func Start() {
 	if global.Redis, err = config.InitRedis(); err != nil {
 		panic(err)
 	}
+	// 初始化OSS
+	if global.OSS, err = config.InitOSS(); err != nil {
+		panic(err)
+	}
 	// 初始化路由
 	router.InitRouter()
 }

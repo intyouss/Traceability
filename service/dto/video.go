@@ -27,7 +27,11 @@ type VideoListDTO struct {
 }
 
 type VideoPublishDTO struct {
-	UserID uint   `json:"id" form:"id" binding:"required" message:"user_id cannot be empty"`
-	Title  string `json:"title" form:"title" binding:"required" message:"title cannot be empty"`
-	Data   []byte `json:"data" form:"data" binding:"required" message:"data cannot be empty"`
+	Title          string `json:"title" form:"title" binding:"required" message:"title cannot be empty"`
+	CoverImageData []byte `json:"cover_image_data" form:"cover_image_data" binding:"required" message:"cover_image_data cannot be empty"`
+	Data           []byte `json:"data" form:"data" binding:"required" message:"data cannot be empty"`
+}
+
+type VideoDeleteDTO struct {
+	VideoID int `json:"video_id" form:"video_id" binding:"required" message:"video_id cannot be empty"`
 }
