@@ -5,7 +5,6 @@ import (
 	"github.com/intyouss/Traceability/service"
 	"github.com/intyouss/Traceability/service/dto"
 	"github.com/jinzhu/copier"
-	"net/http"
 )
 
 const (
@@ -42,7 +41,7 @@ func (u UserApi) Login(ctx *gin.Context) {
 	// 绑定并验证参数
 	var loginDto dto.UserLoginDto
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &loginDto}).GetError(); err != nil {
-		u.Fail(&Response{Msg: err.Error()})
+		u.Fail(&Response{Code: ErrCodeLogin, Msg: err.Error()})
 		return
 	}
 
@@ -50,9 +49,8 @@ func (u UserApi) Login(ctx *gin.Context) {
 	userDao, token, err := u.Service.Login(ctx, loginDto)
 	if err != nil {
 		u.Fail(&Response{
-			Status: http.StatusUnauthorized,
-			Code:   ErrCodeLogin,
-			Msg:    err.Error()})
+			Code: ErrCodeLogin,
+			Msg:  err.Error()})
 		return
 	}
 	var user = new(dto.User)
@@ -79,12 +77,12 @@ func (u UserApi) Login(ctx *gin.Context) {
 func (u UserApi) Register(ctx *gin.Context) {
 	var userAddDto dto.UserAddDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &userAddDto}).GetError(); err != nil {
-		u.Fail(&Response{Msg: err.Error()})
+		u.Fail(&Response{Code: ErrCodeRegister, Msg: err.Error()})
 		return
 	}
 	userDao, token, err := u.Service.Register(ctx, &userAddDto)
 	if err != nil {
-		u.ServerError(&Response{Code: ErrCodeRegister, Msg: err.Error()})
+		u.Fail(&Response{Code: ErrCodeRegister, Msg: err.Error()})
 		return
 	}
 	var user = new(dto.User)
@@ -110,13 +108,13 @@ func (u UserApi) Register(ctx *gin.Context) {
 func (u UserApi) GetUserInfo(ctx *gin.Context) {
 	var idDto dto.CommonUserIDDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDto}).GetError(); err != nil {
-		u.Fail(&Response{Msg: err.Error()})
+		u.Fail(&Response{Code: ErrCodeGetUserById, Msg: err.Error()})
 		return
 	}
 
 	userDao, err := u.Service.GetUserById(ctx, &idDto)
 	if err != nil {
-		u.ServerError(&Response{Code: ErrCodeGetUserById, Msg: err.Error()})
+		u.Fail(&Response{Code: ErrCodeGetUserById, Msg: err.Error()})
 		return
 	}
 	var user = new(dto.User)
@@ -135,17 +133,17 @@ func (u UserApi) GetUserInfo(ctx *gin.Context) {
 // @Param limit formData int false "每页数量"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/user/list [post]
+// @Router /api/v1/user/list [get]
 func (u UserApi) GetUserList(ctx *gin.Context) {
 	var userListDto dto.UserListDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &userListDto}).GetError(); err != nil {
-		u.Fail(&Response{Msg: err.Error()})
+		u.Fail(&Response{Code: ErrCodeGetUserList, Msg: err.Error()})
 		return
 	}
 
 	usersDao, total, err := u.Service.GetUserList(ctx, &userListDto)
 	if err != nil {
-		u.ServerError(&Response{Code: ErrCodeGetUserList, Msg: err.Error()})
+		u.Fail(&Response{Code: ErrCodeGetUserList, Msg: err.Error()})
 		return
 	}
 	var users = make([]*dto.User, len(usersDao))
@@ -161,7 +159,6 @@ func (u UserApi) GetUserList(ctx *gin.Context) {
 // @Summary 更新用户信息
 // @Description 更新用户信息
 // @Param token header string true "token"
-// @Param id formData int true "用户id"
 // @Param username formData string false "用户名"
 // @Param password formData string false "密码"
 // @Param email formData string false "邮箱"
@@ -173,7 +170,7 @@ func (u UserApi) GetUserList(ctx *gin.Context) {
 func (u UserApi) UpdateUser(ctx *gin.Context) {
 	var updateDTO dto.UserUpdateDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &updateDTO}).GetError(); err != nil {
-		u.Fail(&Response{Msg: err.Error()})
+		u.Fail(&Response{Code: ErrCodeUpdateUser, Msg: err.Error()})
 		return
 	}
 
@@ -183,14 +180,14 @@ func (u UserApi) UpdateUser(ctx *gin.Context) {
 	//	filePath := fmt.Sprintf("./upload/%s", file.Filename)
 	//	err = ctx.SaveUploadedFile(file, filePath)
 	//	if err != nil {
-	//		u.ServerError(&Response{Code: ErrCodeUpdateUser, Msg: err.Error()})
+	//		u.Fail(&Response{Code: ErrCodeUpdateUser, Msg: err.Error()})
 	//	}
 	//	updateDTO.Avatar = filePath
 	//}
 
 	err := u.Service.UpdateUser(ctx, &updateDTO)
 	if err != nil {
-		u.ServerError(&Response{Code: ErrCodeUpdateUser, Msg: err.Error()})
+		u.Fail(&Response{Code: ErrCodeUpdateUser, Msg: err.Error()})
 		return
 	}
 
@@ -208,13 +205,13 @@ func (u UserApi) UpdateUser(ctx *gin.Context) {
 func (u UserApi) DeleteUser(ctx *gin.Context) {
 	var idDTO dto.CommonUserIDDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDTO}).GetError(); err != nil {
-		u.Fail(&Response{Msg: err.Error()})
+		u.Fail(&Response{Code: ErrCodeDeleteUser, Msg: err.Error()})
 		return
 	}
 
 	err := u.Service.DeleteUserById(ctx, &idDTO)
 	if err != nil {
-		u.ServerError(&Response{Code: ErrCodeDeleteUser, Msg: err.Error()})
+		u.Fail(&Response{Code: ErrCodeDeleteUser, Msg: err.Error()})
 		return
 	}
 	u.Success(&Response{})

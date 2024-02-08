@@ -27,7 +27,7 @@ func NewLikeService() *LikeService {
 
 // GetLikeList 获取点赞列表
 func (l *LikeService) GetLikeList(ctx context.Context, dto *dto.LikeListDTO) ([]*models.Like, error) {
-	myUserID := ctx.Value(global.LoginUser).(uint)
+	myUserID := ctx.Value(global.LoginUser).(models.LoginUser).ID
 	if myUserID != dto.UserID {
 		return nil, errors.New("don't have permission")
 	}

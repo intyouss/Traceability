@@ -27,7 +27,7 @@ func NewRelationService() *RelationService {
 
 // RelationAction 关注/取消关注
 func (r *RelationService) RelationAction(ctx context.Context, dto dto.RelationActionDto) error {
-	if dto.UserId == ctx.Value(global.LoginUser).(uint) {
+	if dto.UserID == ctx.Value(global.LoginUser).(models.LoginUser).ID {
 		return errors.New("can't Focus/unFocus yourself")
 	}
 	switch dto.ActionType {

@@ -13,7 +13,7 @@ func InitMessageRoutes() {
 			// 发送消息
 			messageAuthGroup.POST("/send", messageApi.SendMessage)
 			// 获取消息列表
-			messageAuthGroup.POST("/chat", messageApi.GetMessages)
+			messageAuthGroup.GET("/chat", messageApi.GetMessages)
 		}
 	})
 }

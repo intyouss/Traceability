@@ -50,7 +50,7 @@ func (u *UserDao) CheckUserNameExist(username string) bool {
 
 // AddUser 添加用户
 func (u *UserDao) AddUser(ctx context.Context, userAddDTO *dto.UserAddDTO) (*models.User, error) {
-	var user *models.User
+	user := &models.User{}
 	userAddDTO.ToModel(user)
 	err := u.DB.WithContext(ctx).Create(&user).Error
 	if err == nil {
@@ -80,12 +80,12 @@ func (u *UserDao) GetUserList(ctx context.Context, userListDto *dto.UserListDTO)
 // UpdateUser 更新用户信息
 func (u *UserDao) UpdateUser(ctx context.Context, updateDTO *dto.UserUpdateDTO) error {
 	var user models.User
-	err := u.DB.Model(&models.User{}).WithContext(ctx).First(&user, updateDTO.ID).Error
+	err := u.DB.Model(&models.User{}).WithContext(ctx).First(&user, updateDTO.UserID).Error
 	if err != nil {
 		return err
 	}
 	updateDTO.ToModel(&user)
-	return u.DB.WithContext(ctx).Save(&user).Error
+	return u.DB.WithContext(ctx).Updates(&user).Error
 }
 
 // DeleteUserById 根据id删除用户

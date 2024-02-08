@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/intyouss/Traceability/dao"
+	"github.com/intyouss/Traceability/global"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service/dto"
 	"github.com/intyouss/Traceability/utils"
@@ -72,8 +73,8 @@ func (u *UserService) GetUserList(ctx context.Context, userListDTO *dto.UserList
 
 // UpdateUser 更新用户信息
 func (u *UserService) UpdateUser(ctx context.Context, updateDTO *dto.UserUpdateDTO) error {
-	if updateDTO.ID == 0 {
-		return errors.New("invalid user id")
+	if updateDTO.UserID != ctx.Value(global.LoginUser).(models.LoginUser).ID {
+		return errors.New("don't have permission")
 	}
 	return u.Dao.UpdateUser(ctx, updateDTO)
 }

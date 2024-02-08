@@ -129,7 +129,7 @@ paths:
             type: string
       summary: 获取用户点赞列表
   /api/v1/message/chat:
-    post:
+    get:
       description: 获取消息列表
       parameters:
       - description: token
@@ -182,7 +182,7 @@ paths:
             type: string
       summary: 发送消息
   /api/v1/public/comment/list:
-    post:
+    get:
       description: 获取评论列表
       parameters:
       - description: 页码
@@ -269,7 +269,7 @@ paths:
             type: string
       summary: 用户注册
   /api/v1/public/video/feed:
-    post:
+    get:
       description: 获取视频feed流
       parameters:
       - description: 页码
@@ -416,7 +416,7 @@ paths:
             type: string
       summary: 删除用户
   /api/v1/user/list:
-    post:
+    get:
       description: 获取用户列表
       parameters:
       - description: token
@@ -451,11 +451,6 @@ paths:
         name: token
         required: true
         type: string
-      - description: 用户id
-        in: formData
-        name: id
-        required: true
-        type: integer
       - description: 用户名
         in: formData
         name: username

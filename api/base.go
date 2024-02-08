@@ -98,7 +98,3 @@ func (b *BaseApi) Fail(resp *Response) {
 func (b *BaseApi) Success(resp *Response) {
 	Success(b.Ctx, resp)
 }
-
-func (b *BaseApi) ServerError(resp *Response) {
-	ServerError(b.Ctx, resp)
-}

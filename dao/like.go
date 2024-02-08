@@ -32,7 +32,7 @@ func (l *LikeDao) GetLikeListByUserId(ctx context.Context, dto *dto.LikeListDTO)
 // AddLike 点赞操作
 func (l *LikeDao) AddLike(ctx context.Context, dto *dto.LikeActionDTO) error {
 	like := models.Like{
-		UserID:  ctx.Value(global.LoginUser).(uint),
+		UserID:  ctx.Value(global.LoginUser).(models.LoginUser).ID,
 		VideoID: dto.VideoID,
 	}
 	return l.DB.Model(&models.Like{}).WithContext(ctx).Create(&like).Error
@@ -40,7 +40,7 @@ func (l *LikeDao) AddLike(ctx context.Context, dto *dto.LikeActionDTO) error {
 
 // CancelLike 取消点赞操作
 func (l *LikeDao) CancelLike(ctx context.Context, dto *dto.LikeActionDTO) error {
-	userId := ctx.Value(global.LoginUser).(uint)
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
 	return l.DB.Model(&models.Like{}).WithContext(ctx).
 		Where("user_id = ? AND video_id = ?", userId, dto.VideoID).
 		Delete(&models.Like{}).Error

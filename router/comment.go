@@ -11,7 +11,7 @@ func InitCommentRoutes() {
 		commentDefaultGroup := dfGroup.Group("comment")
 		{
 			// 获取评论列表
-			commentDefaultGroup.POST("/list", commentApi.GetCommentList)
+			commentDefaultGroup.GET("/list", commentApi.GetCommentList)
 		}
 		commentAuthGroup := auGroup.Group("comment")
 		{

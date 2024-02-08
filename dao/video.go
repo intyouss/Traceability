@@ -53,7 +53,7 @@ func (v *VideoDao) SaveVideoInfo(ctx context.Context, upload *dto.VideoPublishDT
 		return err
 	}
 	video := &models.Video{
-		AuthorID:     ctx.Value(global.LoginUser).(uint),
+		AuthorID:     ctx.Value(global.LoginUser).(models.LoginUser).ID,
 		Title:        upload.Title,
 		PlayUrl:      playUrl,
 		CoverUrl:     coverUrl,
@@ -110,7 +110,7 @@ func (v *VideoDao) DeleteVideo(ctx context.Context, deleteDTO *dto.VideoDeleteDT
 	if err != nil {
 		return nil, errors.New("video not found")
 	}
-	if video.AuthorID != ctx.Value(global.LoginUser).(uint) {
+	if video.AuthorID != ctx.Value(global.LoginUser).(models.LoginUser).ID {
 		return nil, errors.New("no permission to delete this video")
 	}
 	err = v.DB.WithContext(ctx).Delete(&models.Video{}, deleteDTO.VideoID).Error

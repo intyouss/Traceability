@@ -1,5 +1,53 @@
 version: "3"
 services:
+  mysql:
+    image: mysql:8.0.36
+    container_name: mysql # 容器名称
+    environment:
+      - MYSQL_ROOT_PASSWORD=traceability
+      - MYSQL_DATABASE=traceability
+      - TZ=Asia/Shanghai # 设置容器时区
+    volumes:
+      - ./data/mysql/log:/var/log/mysql
+      - ./data/mysql/data:/var/lib/mysql:rw
+      - ./data/mysql/conf.d:/etc/mysql/conf.d
+    command: --default-authentication-plugin=caching_sha2_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+    healthcheck:
+      test: [ "CMD", "mysql", "-uroot", "-ptraceability" ]
+      interval: 5s
+      retries: 3
+    ports:
+      - "13306:3306"
+    restart: always
+    networks:
+      - traceability_net
+  redis:
+    image: redis:7.2.4
+    container_name: redis
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./data/redis/data:/data:rw
+      - ./data/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf:rw
+      - ./data/redis/logs:/logs
+    command: redis-server --requirepass traceability --appendonly yes
+    #   #  两个写入操作 只是为了解决启动后警告 可以去掉
+    #    /bin/bash -c "echo 511 > /proc/sys/net/core/somaxconn
+    #    && echo never > /sys/kernel/mm/transparent_hugepage/enabled
+    #    && redis-server /usr/local/etc/redis/redis.conf"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "traceability", "ping" ]
+      interval: 5s
+      retries: 3
+    ports:
+      - "16379:6379"
+    restart: always
+    networks:
+      - traceability_net
   minio:
     image: "minio/minio:latest"
     container_name: minio
@@ -7,16 +55,18 @@ services:
       - "19000:9000"
       - "19090:9090"
     environment:
+      - TZ=Asia/Shanghai
       # 要超过八位字符
       - MINIO_ROOT_USER=traceability
       - MINIO_ROOT_PASSWORD=traceability
     command: server /data --console-address ":9090"
     volumes:
-      - /data/minio/data:/data:rw
+      - ./data/minio/data:/data:rw
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 5s
       retries: 3
+    restart: always
     networks:
       - traceability_net
 networks:

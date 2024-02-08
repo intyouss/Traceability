@@ -25,8 +25,8 @@ func NewRelationDao() *RelationDao {
 // Focus 关注
 func (r *RelationDao) Focus(ctx context.Context, dto dto.RelationActionDto) error {
 	relation := &models.Relation{
-		UserID:  ctx.Value(global.LoginUser).(uint),
-		FocusID: dto.UserId,
+		UserID:  ctx.Value(global.LoginUser).(models.LoginUser).ID,
+		FocusID: dto.UserID,
 	}
 	return r.DB.Model(&models.Relation{}).Create(&relation).Error
 }
@@ -34,7 +34,7 @@ func (r *RelationDao) Focus(ctx context.Context, dto dto.RelationActionDto) erro
 // UnFocus 取消关注
 func (r *RelationDao) UnFocus(ctx context.Context, dto dto.RelationActionDto) error {
 	return r.DB.Model(&models.Relation{}).WithContext(ctx).
-		Where("user_id = ? and focus_id = ?", ctx.Value(global.LoginUser), dto.UserId).
+		Where("user_id = ? and focus_id = ?", ctx.Value(global.LoginUser).(models.LoginUser).ID, dto.UserID).
 		Delete(&models.Relation{}).Error
 }
 
@@ -42,7 +42,7 @@ func (r *RelationDao) UnFocus(ctx context.Context, dto dto.RelationActionDto) er
 func (r *RelationDao) GetFocusList(ctx context.Context, dto dto.FocusListDto) ([]*models.Relation, error) {
 	var relations []*models.Relation
 	err := r.DB.Model(&models.Relation{}).WithContext(ctx).
-		Where("user_id = ?", dto.UserId).Find(&relations).Error
+		Where("user_id = ?", dto.UserID).Find(&relations).Error
 	return relations, err
 }
 
@@ -50,6 +50,6 @@ func (r *RelationDao) GetFocusList(ctx context.Context, dto dto.FocusListDto) ([
 func (r *RelationDao) GetFansList(ctx context.Context, dto dto.FansListDto) ([]*models.Relation, error) {
 	var relations []*models.Relation
 	err := r.DB.Model(&models.Relation{}).WithContext(ctx).
-		Where("focus_id = ?", dto.UserId).Find(&relations).Error
+		Where("focus_id = ?", dto.UserID).Find(&relations).Error
 	return relations, err
 }

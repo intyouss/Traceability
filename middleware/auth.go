@@ -7,7 +7,6 @@ import (
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/utils"
 	"github.com/spf13/viper"
-	"net/http"
 	"strings"
 	"time"
 )
@@ -17,14 +16,13 @@ const (
 	ErrCodeTokenParse
 	ErrCodeTokenRenew
 	TokenKey    = "Authorization"
-	TokenPrefix = "Bearer: "
+	TokenPrefix = "Bearer "
 )
 
 func tokenError(c *gin.Context, code int) {
 	api.Fail(c, &api.Response{
-		Status: http.StatusUnauthorized,
-		Code:   code,
-		Msg:    "invalid token",
+		Code: code,
+		Msg:  "invalid token",
 	})
 }
 

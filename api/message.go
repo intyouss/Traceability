@@ -36,12 +36,12 @@ func (m *MessageApi) SendMessage(ctx *gin.Context) {
 	var addMsgDTO dto.AddMessageDTO
 	err := m.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &addMsgDTO}).GetError()
 	if err != nil {
-		m.Fail(&Response{Msg: err.Error()})
+		m.Fail(&Response{Code: ErrCodeSendMessage, Msg: err.Error()})
 		return
 	}
 
 	if err := m.Service.SendMessage(ctx, &addMsgDTO); err != nil {
-		m.ServerError(&Response{Code: ErrCodeSendMessage, Msg: err.Error()})
+		m.Fail(&Response{Code: ErrCodeSendMessage, Msg: err.Error()})
 		return
 	}
 	m.Success(&Response{})
@@ -55,17 +55,17 @@ func (m *MessageApi) SendMessage(ctx *gin.Context) {
 // @Param to_user_id formData int true "目标用户id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/message/chat [post]
+// @Router /api/v1/message/chat [get]
 func (m *MessageApi) GetMessages(ctx *gin.Context) {
 	var msgListDTO dto.MessageListDTO
 	err := m.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &msgListDTO}).GetError()
 	if err != nil {
-		m.Fail(&Response{Msg: err.Error()})
+		m.Fail(&Response{Code: ErrCodeGetMessage, Msg: err.Error()})
 		return
 	}
 	msgDao, err := m.Service.GetMessages(ctx, &msgListDTO)
 	if err != nil {
-		m.ServerError(&Response{Code: ErrCodeGetMessage, Msg: err.Error()})
+		m.Fail(&Response{Code: ErrCodeGetMessage, Msg: err.Error()})
 		return
 	}
 	if len(msgDao) == 0 {

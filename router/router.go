@@ -42,7 +42,7 @@ func InitRouter() {
 	r := gin.Default()
 	r.Use(middleware.Cors())
 	defaultGroup := r.Group("/api/v1/public")
-	authGroup := r.Group("api/v1/")
+	authGroup := r.Group("/api/v1/")
 	authGroup.Use(middleware.Auth())
 
 	InitBaseRoutes()

@@ -39,7 +39,7 @@ func NewRelationApi() RelationApi {
 func (r RelationApi) RelationAction(ctx *gin.Context) {
 	var relationDto dto.RelationActionDto
 	if err := r.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &relationDto}).GetError(); err != nil {
-		r.Fail(&Response{Msg: err.Error()})
+		r.Fail(&Response{Code: ErrCodeRelationAction, Msg: err.Error()})
 		return
 	}
 
@@ -64,7 +64,7 @@ func (r RelationApi) RelationAction(ctx *gin.Context) {
 func (r RelationApi) GetFocusList(ctx *gin.Context) {
 	var focusListDto dto.FocusListDto
 	if err := r.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &focusListDto}).GetError(); err != nil {
-		r.Fail(&Response{Msg: err.Error()})
+		r.Fail(&Response{Code: ErrCodeGetFocusList, Msg: err.Error()})
 		return
 	}
 
@@ -104,7 +104,7 @@ func (r RelationApi) GetFocusList(ctx *gin.Context) {
 func (r RelationApi) GetFansList(ctx *gin.Context) {
 	var fansListDto dto.FansListDto
 	if err := r.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &fansListDto}).GetError(); err != nil {
-		r.Fail(&Response{Msg: err.Error()})
+		r.Fail(&Response{Code: ErrCodeGetFansList, Msg: err.Error()})
 		return
 	}
 

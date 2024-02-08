@@ -18,13 +18,13 @@ func InitUserRoutes() {
 		userAuthGroup := auGroup.Group("user")
 		{
 			// 用户列表
-			userAuthGroup.POST("/list", userApi.GetUserList)
+			userAuthGroup.GET("/list", userApi.GetUserList)
 			// 用户信息
 			userAuthGroup.GET("/", userApi.GetUserInfo)
 			// 更新用户
-			userAuthGroup.PUT("/update", userApi.UpdateUser)
+			userAuthGroup.POST("/update", userApi.UpdateUser)
 			// 删除用户
-			userAuthGroup.DELETE("/delete", userApi.DeleteUser)
+			userAuthGroup.POST("/delete", userApi.DeleteUser)
 		}
 	})
 }

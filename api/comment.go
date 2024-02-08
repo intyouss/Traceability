@@ -36,17 +36,17 @@ func NewCommentApi() CommentApi {
 // @Param video_id formData int true "视频id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/public/comment/list [post]
+// @Router /api/v1/public/comment/list [get]
 func (c CommentApi) GetCommentList(ctx *gin.Context) {
 	var cListDto dto.CommentListDTO
 	if err := c.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &cListDto}).GetError(); err != nil {
-		c.Fail(&Response{Msg: err.Error()})
+		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
 		return
 	}
 
 	commentsDao, total, err := c.Service.GetCommentList(ctx, &cListDto)
 	if err != nil {
-		c.ServerError(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
+		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
 		return
 	}
 	if total == 0 {
@@ -66,7 +66,7 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 
 	users, err := c.UserApi.Service.GetUserListByIds(ctx, userIds)
 	if err != nil {
-		c.ServerError(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
+		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
 		return
 	}
 
@@ -102,14 +102,14 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 func (c CommentApi) AddComment(ctx *gin.Context) {
 	var cAddDto dto.AddCommentDTO
 	if err := c.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &cAddDto}).GetError(); err != nil {
-		c.Fail(&Response{Msg: err.Error()})
+		c.Fail(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
 		return
 	}
 
 	// 添加评论
 	commentDao, err := c.Service.AddComment(ctx, &cAddDto)
 	if err != nil {
-		c.ServerError(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
+		c.Fail(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
 		return
 	}
 
@@ -118,7 +118,7 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 	IdDTO.ID = commentDao.UserId
 	userDao, err := c.UserApi.Service.GetUserById(ctx, &IdDTO)
 	if err != nil {
-		c.ServerError(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
+		c.Fail(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
 		return
 	}
 
@@ -144,12 +144,12 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 func (c CommentApi) DeleteComment(ctx *gin.Context) {
 	var cDeleteDto dto.DeleteCommentDTO
 	if err := c.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &cDeleteDto}).GetError(); err != nil {
-		c.Fail(&Response{Msg: err.Error()})
+		c.Fail(&Response{Code: ErrCodeDeleteComment, Msg: err.Error()})
 		return
 	}
 	err := c.Service.DeleteCommentById(ctx, &cDeleteDto)
 	if err != nil {
-		c.ServerError(&Response{Code: ErrCodeDeleteComment, Msg: err.Error()})
+		c.Fail(&Response{Code: ErrCodeDeleteComment, Msg: err.Error()})
 		return
 	}
 	c.Success(&Response{})

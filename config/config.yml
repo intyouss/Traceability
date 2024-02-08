@@ -11,14 +11,14 @@ log:
 
 db:
   prefix: tc_
-  dsn: default:default@tcp(127.0.0.1:3306)/traceability?charset=utf8mb4&parseTime=True&loc=Local
+  dsn: root:traceability@tcp(localhost:13306)/traceability?charset=utf8mb4&parseTime=True&loc=Local
   maxIdleConn: 10
   maxOpenConn: 10
   maxLifeTime: 3600
 
 redis:
-  addr: localhost:6379
-  password: ''
+  addr: localhost:16379
+  password: 'traceability'
   db: 0
 
 jwt:

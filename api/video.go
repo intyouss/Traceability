@@ -36,19 +36,19 @@ func NewVideoApi() VideoApi {
 // @Param limit formData int false "每页数量"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/public/video/feed [post]
+// @Router /api/v1/public/video/feed [get]
 func (v *VideoApi) GetVideoFeed(ctx *gin.Context) {
 	// 绑定并验证参数
 	var vListDTO dto.VideoListDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &vListDTO}).GetError(); err != nil {
-		v.Fail(&Response{Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodeGetVideoFeed, Msg: err.Error()})
 		return
 	}
 
 	// 调用service
 	videos, total, err := v.Service.GetVideoList(ctx, &vListDTO)
 	if err != nil {
-		v.ServerError(&Response{Code: ErrCodeGetVideoFeed, Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodeGetVideoFeed, Msg: err.Error()})
 		return
 	}
 	if total == 0 {
@@ -70,7 +70,7 @@ func (v *VideoApi) GetVideoFeed(ctx *gin.Context) {
 	// 调用userApi
 	authors, err := v.UserApi.Service.GetUserListByIds(ctx, authorIds)
 	if err != nil {
-		v.ServerError(&Response{Code: ErrCodeGetVideoFeed, Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodeGetVideoFeed, Msg: err.Error()})
 		return
 	}
 
@@ -104,13 +104,13 @@ func (v *VideoApi) GetVideoFeed(ctx *gin.Context) {
 func (v *VideoApi) GetUserVideoList(ctx *gin.Context) {
 	var idDTO dto.CommonUserIDDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDTO}).GetError(); err != nil {
-		v.Fail(&Response{Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodeGetUserVideoList, Msg: err.Error()})
 		return
 	}
 
 	videosDao, err := v.Service.GetVideoListByUserId(ctx, &idDTO)
 	if err != nil {
-		v.ServerError(&Response{Code: ErrCodeGetUserVideoList, Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodeGetUserVideoList, Msg: err.Error()})
 		return
 	}
 	if len(videosDao) == 0 {
@@ -126,7 +126,7 @@ func (v *VideoApi) GetUserVideoList(ctx *gin.Context) {
 	var userDao *models.User
 	userDao, err = v.UserApi.Service.GetUserById(ctx, &idDTO)
 	if err != nil {
-		v.ServerError(&Response{Code: ErrCodeGetUserVideoList, Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodeGetUserVideoList, Msg: err.Error()})
 		return
 	}
 	var user = new(dto.User)
@@ -156,13 +156,13 @@ func (v *VideoApi) GetUserVideoList(ctx *gin.Context) {
 func (v *VideoApi) PublishVideo(ctx *gin.Context) {
 	var videoPublishDTO dto.VideoPublishDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoPublishDTO}).GetError(); err != nil {
-		v.Fail(&Response{Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodePublishVideo, Msg: err.Error()})
 		return
 	}
 
 	err := v.Service.PublishVideo(ctx, &videoPublishDTO)
 	if err != nil {
-		v.ServerError(&Response{Code: ErrCodePublishVideo, Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodePublishVideo, Msg: err.Error()})
 		return
 	}
 
@@ -180,13 +180,13 @@ func (v *VideoApi) PublishVideo(ctx *gin.Context) {
 func (v *VideoApi) DeleteVideo(ctx *gin.Context) {
 	var videoDTO dto.VideoDeleteDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoDTO}).GetError(); err != nil {
-		v.Fail(&Response{Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodeDeleteVideo, Msg: err.Error()})
 		return
 	}
 
 	err := v.Service.DeleteVideo(ctx, &videoDTO)
 	if err != nil {
-		v.ServerError(&Response{Code: ErrCodeDeleteVideo, Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodeDeleteVideo, Msg: err.Error()})
 		return
 	}
 

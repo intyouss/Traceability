@@ -11,7 +11,7 @@ func InitLikeRoutes() {
 		likeAuthGroup := auGroup.Group("like")
 		{
 			// 获取用户喜爱视频列表
-			likeAuthGroup.POST("/list", likeApi.GetLikeList)
+			likeAuthGroup.GET("/list", likeApi.GetLikeList)
 			// 用户喜爱操作
 			likeAuthGroup.POST("/action", likeApi.LikeAction)
 		}

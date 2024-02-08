@@ -52,7 +52,7 @@ func (u *UserAddDTO) ToModel(user *models.User) {
 }
 
 type UserUpdateDTO struct {
-	ID       uint   `json:"id" form:"id"`
+	UserID   uint   `json:"user_id" form:"user_id"`
 	Username string `json:"username" form:"username"`
 	Avatar   string `json:"avatar"`
 	Mobile   string `json:"mobile" form:"mobile"`
@@ -60,7 +60,7 @@ type UserUpdateDTO struct {
 }
 
 func (u *UserUpdateDTO) ToModel(user *models.User) {
-	user.ID = u.ID
+	user.ID = u.UserID
 	user.Username = u.Username
 	user.Avatar = u.Avatar
 	user.Email = u.Email

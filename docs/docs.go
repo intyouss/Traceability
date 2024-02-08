@@ -202,7 +202,7 @@ const docTemplate = `{
             }
         },
         "/api/v1/message/chat": {
-            "post": {
+            "get": {
                 "description": "获取消息列表",
                 "summary": "获取消息列表",
                 "parameters": [
@@ -281,7 +281,7 @@ const docTemplate = `{
             }
         },
         "/api/v1/public/comment/list": {
-            "post": {
+            "get": {
                 "description": "获取评论列表",
                 "summary": "获取评论列表",
                 "parameters": [
@@ -412,7 +412,7 @@ const docTemplate = `{
             }
         },
         "/api/v1/public/video/feed": {
-            "post": {
+            "get": {
                 "description": "获取视频feed流",
                 "summary": "获取视频feed流",
                 "parameters": [
@@ -633,7 +633,7 @@ const docTemplate = `{
             }
         },
         "/api/v1/user/list": {
-            "post": {
+            "get": {
                 "description": "获取用户列表",
                 "summary": "获取用户列表",
                 "parameters": [
@@ -683,13 +683,6 @@ const docTemplate = `{
                         "description": "token",
                         "name": "token",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "用户id",
-                        "name": "id",
-                        "in": "formData",
                         "required": true
                     },
                     {

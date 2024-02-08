@@ -25,7 +25,7 @@ func NewMessageDao() *MessageDao {
 // AddMessage 添加消息
 func (m *MessageDao) AddMessage(ctx context.Context, dto *dto.AddMessageDTO) error {
 	message := &models.Message{
-		FromUserID: ctx.Value(global.LoginUser).(uint),
+		FromUserID: ctx.Value(global.LoginUser).(models.LoginUser).ID,
 		ToUserID:   dto.ToUserID,
 		Content:    dto.Content,
 	}
