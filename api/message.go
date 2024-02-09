@@ -36,11 +36,13 @@ func (m MessageApi) SendMessage(ctx *gin.Context) {
 	var addMsgDTO dto.AddMessageDTO
 	err := m.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &addMsgDTO}).GetError()
 	if err != nil {
+		m.Logger.Error(err)
 		m.Fail(&Response{Code: ErrCodeSendMessage, Msg: err.Error()})
 		return
 	}
 
 	if err := m.Service.SendMessage(ctx, &addMsgDTO); err != nil {
+		m.Logger.Error(err)
 		m.Fail(&Response{Code: ErrCodeSendMessage, Msg: err.Error()})
 		return
 	}
@@ -60,18 +62,22 @@ func (m MessageApi) GetMessages(ctx *gin.Context) {
 	var msgListDTO dto.MessageListDTO
 	err := m.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &msgListDTO}).GetError()
 	if err != nil {
+		m.Logger.Error(err)
 		m.Fail(&Response{Code: ErrCodeGetMessage, Msg: err.Error()})
 		return
 	}
-	msgDao, err := m.Service.GetMessages(ctx, &msgListDTO)
+	msgDao, preMsgTime, err := m.Service.GetMessages(ctx, &msgListDTO)
 	if err != nil {
+		m.Logger.Error(err)
 		m.Fail(&Response{Code: ErrCodeGetMessage, Msg: err.Error()})
 		return
 	}
 	if len(msgDao) == 0 {
 		m.Success(&Response{
-			Data:  []*dto.Message{},
-			Total: 0,
+			Data: gin.H{
+				"msg_list":     []*dto.Message{},
+				"pre_msg_time": 0,
+			},
 		})
 		return
 	}
@@ -84,5 +90,10 @@ func (m MessageApi) GetMessages(ctx *gin.Context) {
 			CreatedAt:  msg.CreatedAt.Unix(),
 		})
 	}
-	m.Success(&Response{Data: msgList})
+	m.Success(&Response{
+		Data: gin.H{
+			"msg_list":     msgList,
+			"pre_msg_time": preMsgTime,
+		},
+	})
 }

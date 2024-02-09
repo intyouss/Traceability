@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"time"
@@ -11,6 +10,10 @@ import (
 	"github.com/intyouss/Traceability/service/dto"
 	"github.com/intyouss/Traceability/utils"
 	"github.com/minio/minio-go/v7"
+)
+
+const (
+	VideoBucket = "oss"
 )
 
 var VideoDaoIns *VideoDao
@@ -31,19 +34,31 @@ func NewVideoDao() *VideoDao {
 }
 
 // GetVideoList 获取视频列表
-func (v *VideoDao) GetVideoList(ctx context.Context, vListDTO *dto.VideoListDTO) ([]*models.Video, int64, error) {
-	var videos []*models.Video
-	var total int64
-	err := v.DB.Model(&models.Video{}).WithContext(ctx).
-		Scopes(Paginate(vListDTO.CommonPageDTO)).Find(&videos).
-		Offset(-1).Limit(-1).Count(&total).Error
-	return videos, total, err
+func (v *VideoDao) GetVideoList(
+	ctx context.Context, vListDTO *dto.VideoListDTO,
+) (videos []*models.Video, nextTime int64, err error) {
+	var latestTime time.Time
+	if vListDTO.LatestTime != nil && *vListDTO.LatestTime == 0 {
+		latestTime = time.Now()
+		err = v.DB.Model(&models.Video{}).WithContext(ctx).Where("created_at <= ?", latestTime).
+			Order("id DESC").Find(&videos).Error
+		nextTime = videos[0].CreatedAt.UnixMilli()
+		return videos, nextTime, err
+	}
+	latestTime = time.UnixMilli(*vListDTO.LatestTime)
+	err = v.DB.Model(&models.Video{}).WithContext(ctx).Where("created_at > ?", latestTime).
+		Order("id DESC").Find(&videos).Error
+	if len(videos) != 0 {
+		nextTime = videos[0].CreatedAt.UnixMilli()
+	}
+	return videos, nextTime, err
 }
 
 // GetVideoListByUserId 根据用户id获取视频列表
 func (v *VideoDao) GetVideoListByUserId(ctx context.Context, idDTO *dto.CommonUserIDDTO) ([]*models.Video, error) {
 	var videos []*models.Video
-	err := v.DB.Model(&models.Video{}).WithContext(ctx).Where("user_id = ?", idDTO.ID).Find(&videos).Error
+	err := v.DB.Model(&models.Video{}).WithContext(ctx).Where("author_id = ?", idDTO.ID).
+		Order("id DESC").Find(&videos).Error
 	return videos, err
 }
 
@@ -61,7 +76,24 @@ func (v *VideoDao) SaveVideoInfo(ctx context.Context, upload *dto.VideoPublishDT
 		LikeCount:    0,
 		CommentCount: 0,
 	}
-	return v.DB.WithContext(ctx).Create(video).Error
+	err = v.DB.WithContext(ctx).Create(video).Error
+	if err != nil {
+		// 保存失败，删除远程视频和封面,回滚
+		go func() {
+			err = v.DeleteRemoteVideo(ctx, video)
+			if err != nil {
+				v.logger.Error(err)
+			}
+		}()
+		go func() {
+			err = v.DeleteRemoteCoverImage(ctx, video)
+			if err != nil {
+				v.logger.Error(err)
+			}
+		}()
+		return err
+	}
+	return nil
 }
 
 // GetRemoteVideoInfo 获取远程视频及封面url
@@ -84,24 +116,48 @@ func (v *VideoDao) GetRemoteVideoInfo(ctx context.Context, upload *dto.VideoPubl
 
 // UploadVideo 上传视频
 func (v *VideoDao) UploadVideo(ctx context.Context, upload *dto.VideoPublishDTO) error {
+	// 读取视频文件
+	videoSize := upload.Data.Size
+	videoData, err := upload.Data.Open()
+	if err != nil {
+		return err
+	}
+	defer videoData.Close()
+	// 上传视频
 	title := upload.Title
-	reader := bytes.NewReader(upload.Data)
-	return v.OSS.UploadSizeFile(
-		ctx, "oss", "videos/"+title+".mp4", reader, reader.Size(), minio.PutObjectOptions{
+	fileName := "videos/" + title + ".mp4"
+	err = v.OSS.UploadSizeFile(
+		ctx, VideoBucket, fileName, videoData, videoSize, minio.PutObjectOptions{
 			ContentType: "video/mp4",
 		},
 	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // UploadCoverImage 上传封面
 func (v *VideoDao) UploadCoverImage(ctx context.Context, upload *dto.VideoPublishDTO) error {
+	// 读取封面图片
+	imageSize := upload.CoverImageData.Size
+	imageData, err := upload.CoverImageData.Open()
+	if err != nil {
+		return err
+	}
+	defer imageData.Close()
+	// 上传封面
 	title := upload.Title
-	coverBytes := bytes.NewReader(upload.CoverImageData)
-	return v.OSS.UploadSizeFile(
-		ctx, "oss", "images/"+title+".png", coverBytes, coverBytes.Size(), minio.PutObjectOptions{
+	fileName := "images/" + title + ".png"
+	err = v.OSS.UploadSizeFile(
+		ctx, VideoBucket, fileName, imageData, imageSize, minio.PutObjectOptions{
 			ContentType: "image/png",
 		},
 	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // DeleteVideo 删除视频
@@ -120,12 +176,12 @@ func (v *VideoDao) DeleteVideo(ctx context.Context, deleteDTO *dto.VideoDeleteDT
 
 // DeleteRemoteVideo 删除远程视频
 func (v *VideoDao) DeleteRemoteVideo(ctx context.Context, video *models.Video) error {
-	videoName := video.Title + ".mp4"
-	return v.OSS.RemoveFile(ctx, "oss", "videos/"+videoName)
+	videoName := "videos/" + video.Title + ".mp4"
+	return v.OSS.RemoveFile(ctx, VideoBucket, videoName)
 }
 
 // DeleteRemoteCoverImage 删除远程封面
 func (v *VideoDao) DeleteRemoteCoverImage(ctx context.Context, video *models.Video) error {
-	imageName := video.Title + ".png"
-	return v.OSS.RemoveFile(ctx, "oss", "images/"+imageName)
+	imageName := "images/" + video.Title + ".png"
+	return v.OSS.RemoveFile(ctx, VideoBucket, imageName)
 }

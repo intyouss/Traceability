@@ -410,15 +410,10 @@
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "页码",
-                        "name": "page",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "每页数量",
-                        "name": "limit",
-                        "in": "formData"
+                        "description": "最新时间",
+                        "name": "latest_time",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {

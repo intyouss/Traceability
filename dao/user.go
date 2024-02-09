@@ -43,10 +43,7 @@ func (u *UserDao) GetUserByNameAndPassword(username, password string) (*models.U
 func (u *UserDao) CheckUserNameExist(username string) bool {
 	var user models.User
 	err := u.DB.Model(&models.User{}).Where("username = ?", username).First(&user).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return false
-	}
-	return true
+	return !errors.Is(err, gorm.ErrRecordNotFound)
 }
 
 // AddUser 添加用户

@@ -1,5 +1,7 @@
 package dto
 
+import "mime/multipart"
+
 // Video 视频数据传输对象
 type Video struct {
 	ID uint `json:"id"`
@@ -22,14 +24,13 @@ type Video struct {
 }
 
 type VideoListDTO struct {
-	CommonPageDTO
-	LatestTime string `json:"latest_time" form:"latest_time" binding:"required" message:"latest_time cannot be empty"`
+	LatestTime *int64 `json:"latest_time" form:"latest_time" binding:"required" message:"latest_time cannot be empty"`
 }
 
 type VideoPublishDTO struct {
-	Title          string `json:"title" form:"title" binding:"required" message:"title cannot be empty"`
-	CoverImageData []byte `json:"cover_image_data" form:"cover_image_data" binding:"required" message:"cover_image_data cannot be empty"`
-	Data           []byte `json:"data" form:"data" binding:"required" message:"data cannot be empty"`
+	Title          string               `json:"title" form:"title" binding:"required" message:"title cannot be empty"`
+	CoverImageData multipart.FileHeader `json:"cover_image_data" form:"cover_image_data" binding:"required" type:"blob" message:"cover_image_data cannot be empty"`
+	Data           multipart.FileHeader `json:"data" form:"data" binding:"required" message:"data cannot be empty" type:"blob"`
 }
 
 type VideoDeleteDTO struct {

@@ -30,6 +30,6 @@ func (m *MessageService) SendMessage(ctx context.Context, dto *dto.AddMessageDTO
 }
 
 // GetMessages 获取消息列表
-func (m *MessageService) GetMessages(ctx context.Context, dto *dto.MessageListDTO) ([]*models.Message, error) {
+func (m *MessageService) GetMessages(ctx context.Context, dto *dto.MessageListDTO) ([]*models.Message, int64, error) {
 	return m.Dao.GetMessages(ctx, dto)
 }

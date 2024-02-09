@@ -40,12 +40,14 @@ func NewCommentApi() CommentApi {
 func (c CommentApi) GetCommentList(ctx *gin.Context) {
 	var cListDto dto.CommentListDTO
 	if err := c.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &cListDto}).GetError(); err != nil {
+		c.Logger.Error(err)
 		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
 		return
 	}
 
 	commentsDao, total, err := c.Service.GetCommentList(ctx, &cListDto)
 	if err != nil {
+		c.Logger.Error(err)
 		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
 		return
 	}
@@ -54,7 +56,7 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 		return
 	}
 
-	var commentUserMap map[uint]*models.User
+	commentUserMap := make(map[uint]*models.User)
 	for _, comment := range commentsDao {
 		commentUserMap[comment.UserId] = nil
 	}
@@ -66,6 +68,7 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 
 	users, err := c.UserApi.Service.GetUserListByIds(ctx, userIds)
 	if err != nil {
+		c.Logger.Error(err)
 		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
 		return
 	}
@@ -102,6 +105,7 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 func (c CommentApi) AddComment(ctx *gin.Context) {
 	var cAddDto dto.AddCommentDTO
 	if err := c.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &cAddDto}).GetError(); err != nil {
+		c.Logger.Error(err)
 		c.Fail(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
 		return
 	}
@@ -109,6 +113,7 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 	// 添加评论
 	commentDao, err := c.Service.AddComment(ctx, &cAddDto)
 	if err != nil {
+		c.Logger.Error(err)
 		c.Fail(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
 		return
 	}
@@ -118,6 +123,7 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 	IdDTO.ID = commentDao.UserId
 	userDao, err := c.UserApi.Service.GetUserById(ctx, &IdDTO)
 	if err != nil {
+		c.Logger.Error(err)
 		c.Fail(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
 		return
 	}
@@ -144,11 +150,13 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 func (c CommentApi) DeleteComment(ctx *gin.Context) {
 	var cDeleteDto dto.DeleteCommentDTO
 	if err := c.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &cDeleteDto}).GetError(); err != nil {
+		c.Logger.Error(err)
 		c.Fail(&Response{Code: ErrCodeDeleteComment, Msg: err.Error()})
 		return
 	}
 	err := c.Service.DeleteCommentById(ctx, &cDeleteDto)
 	if err != nil {
+		c.Logger.Error(err)
 		c.Fail(&Response{Code: ErrCodeDeleteComment, Msg: err.Error()})
 		return
 	}
