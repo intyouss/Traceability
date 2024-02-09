@@ -24,5 +24,5 @@ type MessageListDTO struct {
 	// 目标用户id
 	ToUserID uint `json:"to_user_id" form:"to_user_id" binding:"required" message:"to_user_id cannot be empty"`
 	// 上一次消息时间
-	PreMsgTime int64 `json:"pre_msg_time" form:"pre_msg_time" binding:"required" message:"pre_msg_time cannot be empty"`
+	PreMsgTime *int64 `json:"pre_msg_time" form:"pre_msg_time" binding:"required" message:"pre_msg_time cannot be empty"`
 }

@@ -41,7 +41,7 @@ func (l *LikeDao) AddLike(ctx context.Context, dto *dto.LikeActionDTO) error {
 // CancelLike 取消点赞操作
 func (l *LikeDao) CancelLike(ctx context.Context, dto *dto.LikeActionDTO) error {
 	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
-	return l.DB.Model(&models.Like{}).WithContext(ctx).
+	return l.DB.Model(&models.Like{}).WithContext(ctx).Unscoped().
 		Where("user_id = ? AND video_id = ?", userId, dto.VideoID).
 		Delete(&models.Like{}).Error
 }

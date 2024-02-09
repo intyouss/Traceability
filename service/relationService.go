@@ -41,11 +41,11 @@ func (r *RelationService) RelationAction(ctx context.Context, dto dto.RelationAc
 }
 
 // GetFocusList 关注列表
-func (r *RelationService) GetFocusList(ctx context.Context, dto dto.FocusListDto) ([]*models.Relation, error) {
+func (r *RelationService) GetFocusList(ctx context.Context, dto dto.FocusListDto) (int64, []*models.Relation, error) {
 	return r.Dao.GetFocusList(ctx, dto)
 }
 
 // GetFansList 粉丝列表
-func (r *RelationService) GetFansList(ctx context.Context, dto dto.FansListDto) ([]*models.Relation, error) {
+func (r *RelationService) GetFansList(ctx context.Context, dto dto.FansListDto) (int64, []*models.Relation, error) {
 	return r.Dao.GetFansList(ctx, dto)
 }

@@ -68,13 +68,13 @@ func (r RelationApi) GetFocusList(ctx *gin.Context) {
 		return
 	}
 
-	focusList, err := r.Service.GetFocusList(ctx, focusListDto)
+	total, focusList, err := r.Service.GetFocusList(ctx, focusListDto)
 	if err != nil {
 		r.Fail(&Response{Code: ErrCodeGetFocusList, Msg: err.Error()})
 		return
 	}
-	if len(focusList) == 0 {
-		r.Success(&Response{Data: []dto.User{}})
+	if total == 0 {
+		r.Success(&Response{Data: []dto.User{}, Total: 0})
 		return
 	}
 	var focusUserIDs []uint
@@ -89,7 +89,7 @@ func (r RelationApi) GetFocusList(ctx *gin.Context) {
 	var users []dto.User
 	_ = copier.Copy(&users, &userList)
 
-	r.Success(&Response{Data: users})
+	r.Success(&Response{Data: users, Total: total})
 	return
 }
 
@@ -108,13 +108,13 @@ func (r RelationApi) GetFansList(ctx *gin.Context) {
 		return
 	}
 
-	fansList, err := r.Service.GetFansList(ctx, fansListDto)
+	total, fansList, err := r.Service.GetFansList(ctx, fansListDto)
 	if err != nil {
 		r.Fail(&Response{Code: ErrCodeGetFansList, Msg: err.Error()})
 		return
 	}
-	if len(fansList) == 0 {
-		r.Success(&Response{Data: []dto.User{}})
+	if total == 0 {
+		r.Success(&Response{Data: []dto.User{}, Total: 0})
 		return
 	}
 	var fansUserIDs []uint
@@ -129,6 +129,6 @@ func (r RelationApi) GetFansList(ctx *gin.Context) {
 	var users []dto.User
 	_ = copier.Copy(&users, &userList)
 
-	r.Success(&Response{Data: users})
+	r.Success(&Response{Data: users, Total: total})
 	return
 }

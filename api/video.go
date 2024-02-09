@@ -37,7 +37,7 @@ func NewVideoApi() VideoApi {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/public/video/feed [get]
-func (v *VideoApi) GetVideoFeed(ctx *gin.Context) {
+func (v VideoApi) GetVideoFeed(ctx *gin.Context) {
 	// 绑定并验证参数
 	var vListDTO dto.VideoListDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &vListDTO}).GetError(); err != nil {
@@ -101,7 +101,7 @@ func (v *VideoApi) GetVideoFeed(ctx *gin.Context) {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/default/video/list [get]
-func (v *VideoApi) GetUserVideoList(ctx *gin.Context) {
+func (v VideoApi) GetUserVideoList(ctx *gin.Context) {
 	var idDTO dto.CommonUserIDDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDTO}).GetError(); err != nil {
 		v.Fail(&Response{Code: ErrCodeGetUserVideoList, Msg: err.Error()})
@@ -153,7 +153,7 @@ func (v *VideoApi) GetUserVideoList(ctx *gin.Context) {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/video/publish [post]
-func (v *VideoApi) PublishVideo(ctx *gin.Context) {
+func (v VideoApi) PublishVideo(ctx *gin.Context) {
 	var videoPublishDTO dto.VideoPublishDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoPublishDTO}).GetError(); err != nil {
 		v.Fail(&Response{Code: ErrCodePublishVideo, Msg: err.Error()})
@@ -177,7 +177,7 @@ func (v *VideoApi) PublishVideo(ctx *gin.Context) {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/video/delete [delete]
-func (v *VideoApi) DeleteVideo(ctx *gin.Context) {
+func (v VideoApi) DeleteVideo(ctx *gin.Context) {
 	var videoDTO dto.VideoDeleteDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoDTO}).GetError(); err != nil {
 		v.Fail(&Response{Code: ErrCodeDeleteVideo, Msg: err.Error()})

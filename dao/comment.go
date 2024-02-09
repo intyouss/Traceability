@@ -48,5 +48,5 @@ func (c *CommentDao) GetCommentById(ctx context.Context, id uint) (*models.Comme
 
 // DeleteCommentById 根据id删除评论
 func (c *CommentDao) DeleteCommentById(ctx context.Context, id uint) error {
-	return c.DB.WithContext(ctx).Delete(&models.Comment{}, id).Error
+	return c.DB.WithContext(ctx).Unscoped().Delete(&models.Comment{}, id).Error
 }

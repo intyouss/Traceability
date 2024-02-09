@@ -239,7 +239,7 @@ const docTemplate = `{
         },
         "/api/v1/message/send": {
             "post": {
-                "description": "发送消息",
+                "description": "发送消息(暂时设置为不互相关注也能发消息)",
                 "summary": "发送消息",
                 "parameters": [
                     {

@@ -113,7 +113,7 @@ func (v *VideoDao) DeleteVideo(ctx context.Context, deleteDTO *dto.VideoDeleteDT
 	if video.AuthorID != ctx.Value(global.LoginUser).(models.LoginUser).ID {
 		return nil, errors.New("no permission to delete this video")
 	}
-	err = v.DB.WithContext(ctx).Delete(&models.Video{}, deleteDTO.VideoID).Error
+	err = v.DB.WithContext(ctx).Unscoped().Delete(&models.Video{}, deleteDTO.VideoID).Error
 	return &video, err
 }
 

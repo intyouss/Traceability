@@ -35,7 +35,7 @@ func NewLikeApi() LikeApi {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/like/list [get]
-func (l *LikeApi) GetLikeList(ctx *gin.Context) {
+func (l LikeApi) GetLikeList(ctx *gin.Context) {
 	var kListDto dto.LikeListDTO
 	if err := l.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &kListDto}).GetError(); err != nil {
 		l.Fail(&Response{Code: ErrCodeGetLikeList, Msg: err.Error()})
@@ -76,7 +76,7 @@ func (l *LikeApi) GetLikeList(ctx *gin.Context) {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/like/action [post]
-func (l *LikeApi) LikeAction(ctx *gin.Context) {
+func (l LikeApi) LikeAction(ctx *gin.Context) {
 	var likeActionDto dto.LikeActionDTO
 	if err := l.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &likeActionDto}).GetError(); err != nil {
 		l.Fail(&Response{Code: ErrCodeLikeAction, Msg: err.Error()})

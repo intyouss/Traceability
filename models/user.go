@@ -10,8 +10,8 @@ type User struct {
 	Username   string `gorm:"type:varchar(64);not null;unique" json:"username"`
 	Password   string `gorm:"type:varchar(128);not null" json:"-"`
 	Avatar     string `gorm:"type:varchar(256)" json:"avatar"`
-	Email      string `gorm:"type:varchar(128);unique" json:"email"`
-	Mobile     string `gorm:"type:varchar(11);unique" json:"mobile"`
+	Email      string `gorm:"type:varchar(128)" json:"email"`
+	Mobile     string `gorm:"type:varchar(11)" json:"mobile"`
 	FocusCount uint   `gorm:"not null;default:0" json:"follow_count"`
 	FansCount  uint   `gorm:"not null;default:0" json:"fans_count"`
 	LikeCount  uint   `gorm:"not null;default:0" json:"like_count"`

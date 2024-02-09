@@ -25,14 +25,14 @@ func NewMessageApi() MessageApi {
 
 // SendMessage 发送消息
 // @Summary 发送消息
-// @Description 发送消息
+// @Description 发送消息(暂时设置为不互相关注也能发消息)
 // @Param token header string true "token"
 // @Param to_user_id formData int true "目标用户id"
 // @Param content formData string true "消息内容"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/message/send [post]
-func (m *MessageApi) SendMessage(ctx *gin.Context) {
+func (m MessageApi) SendMessage(ctx *gin.Context) {
 	var addMsgDTO dto.AddMessageDTO
 	err := m.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &addMsgDTO}).GetError()
 	if err != nil {
@@ -56,7 +56,7 @@ func (m *MessageApi) SendMessage(ctx *gin.Context) {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/message/chat [get]
-func (m *MessageApi) GetMessages(ctx *gin.Context) {
+func (m MessageApi) GetMessages(ctx *gin.Context) {
 	var msgListDTO dto.MessageListDTO
 	err := m.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &msgListDTO}).GetError()
 	if err != nil {
