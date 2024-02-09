@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/intyouss/Traceability/dao"
 	"github.com/intyouss/Traceability/global"
 	"github.com/intyouss/Traceability/models"
@@ -37,7 +38,7 @@ func (u *UserService) Login(ctx context.Context, userDTO dto.UserLoginDto) (*mod
 		// 生成token
 		token, err = utils.GenerateToken(user.ID, user.Username)
 		if err != nil {
-			return nil, "", errors.New(fmt.Sprintf("generate token error: %s", err.Error()))
+			return nil, "", fmt.Errorf("generate token error: %s", err.Error())
 		}
 	}
 	return user, token, nil
@@ -51,12 +52,12 @@ func (u *UserService) Register(ctx context.Context, userAddDTO *dto.UserAddDTO) 
 	}
 	user, err := u.Dao.AddUser(ctx, userAddDTO)
 	if err != nil {
-		return nil, "", errors.New(fmt.Sprintf("add user error: %s", err.Error()))
+		return nil, "", fmt.Errorf("add user error: %s", err.Error())
 	}
 	// 生成token
 	token, err = utils.GenerateToken(userAddDTO.ID, userAddDTO.Username)
 	if err != nil {
-		return nil, "", errors.New(fmt.Sprintf("generate token error: %s", err.Error()))
+		return nil, "", fmt.Errorf("generate token error: %s", err.Error())
 	}
 	return user, token, nil
 }

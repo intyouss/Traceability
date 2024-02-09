@@ -2,10 +2,11 @@ package service
 
 import (
 	"context"
+	"sync"
+
 	"github.com/intyouss/Traceability/dao"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service/dto"
-	"sync"
 )
 
 var VideoServiceIns *VideoService

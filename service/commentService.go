@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+
 	"github.com/intyouss/Traceability/dao"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service/dto"
@@ -42,7 +44,7 @@ func (c *CommentService) AddComment(ctx context.Context, cAddDTO *dto.AddComment
 func (c *CommentService) DeleteCommentById(ctx context.Context, cDeleteDTO *dto.DeleteCommentDTO) error {
 	video, err := c.Dao.GetCommentById(ctx, cDeleteDTO.CommentID)
 	if err != nil {
-		return errors.New("comment not found")
+		return fmt.Errorf("get comment error: %s", err.Error())
 	}
 	if video.UserId != cDeleteDTO.UserID {
 		return errors.New("permission denied")

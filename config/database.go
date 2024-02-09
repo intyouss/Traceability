@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/intyouss/Traceability/models"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"

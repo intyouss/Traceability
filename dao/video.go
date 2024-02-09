@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"time"
+
 	"github.com/intyouss/Traceability/global"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service/dto"
 	"github.com/intyouss/Traceability/utils"
 	"github.com/minio/minio-go/v7"
-	"time"
 )
 
 var VideoDaoIns *VideoDao

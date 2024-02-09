@@ -3,11 +3,12 @@ package api
 import (
 	"errors"
 	"fmt"
+	"reflect"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/intyouss/Traceability/global"
 	"go.uber.org/zap"
-	"reflect"
 )
 
 type BaseApi struct {

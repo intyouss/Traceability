@@ -4,6 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
+	"net/http"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/intyouss/Traceability/docs"
 	"github.com/intyouss/Traceability/global"
@@ -11,11 +17,6 @@ import (
 	"github.com/spf13/viper"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"net"
-	"net/http"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 type IFnRegisterRoute = func(defaultGroup *gin.RouterGroup, authGroup *gin.RouterGroup)

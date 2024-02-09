@@ -2,10 +2,11 @@ package dao
 
 import (
 	"context"
+	"time"
+
 	"github.com/intyouss/Traceability/global"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service/dto"
-	"time"
 )
 
 var MessageDaoIns *MessageDao

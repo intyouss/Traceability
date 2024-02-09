@@ -3,9 +3,10 @@ package config
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
-	"time"
 )
 
 const DefaultExpireTime = 30 * 24 * 60 * 60 * time.Second

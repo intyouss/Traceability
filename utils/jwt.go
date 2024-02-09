@@ -2,9 +2,10 @@ package utils
 
 import (
 	"errors"
+	"time"
+
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
-	"time"
 )
 
 var secretKey = []byte(viper.GetString("jwt.secretKey"))

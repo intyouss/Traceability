@@ -1,14 +1,15 @@
 package middleware
 
 import (
+	"strings"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/intyouss/Traceability/api"
 	"github.com/intyouss/Traceability/global"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/utils"
 	"github.com/spf13/viper"
-	"strings"
-	"time"
 )
 
 const (
