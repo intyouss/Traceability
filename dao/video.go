@@ -22,13 +22,15 @@ var VideoDaoIns *VideoDao
 
 type VideoDao struct {
 	*BaseDao
-	OSS *utils.MinioClient
+	UserDao *UserDao
+	OSS     *utils.MinioClient
 }
 
 func NewVideoDao() *VideoDao {
 	if VideoDaoIns == nil {
 		VideoDaoIns = &VideoDao{
 			BaseDao: NewBaseDao(),
+			UserDao: NewUserDao(),
 			OSS:     global.OSS,
 		}
 	}
@@ -39,6 +41,13 @@ func NewVideoDao() *VideoDao {
 func (v *VideoDao) IsExist(ctx context.Context, videoId uint) bool {
 	err := v.DB.Model(&models.Video{}).WithContext(ctx).First(&models.Video{}, videoId).Error
 	return !errors.Is(err, gorm.ErrRecordNotFound)
+}
+
+// GetAuthorIdByVideoId 根据id获取视频
+func (v *VideoDao) GetAuthorIdByVideoId(ctx context.Context, videoId uint) (uint, error) {
+	var video models.Video
+	err := v.DB.Model(&models.Video{}).WithContext(ctx).First(&video, videoId).Error
+	return video.AuthorID, err
 }
 
 // GetVideoList 获取视频列表
@@ -92,24 +101,29 @@ func (v *VideoDao) SaveVideoInfo(ctx context.Context, upload *dto.VideoPublishDT
 		LikeCount:    0,
 		CommentCount: 0,
 	}
-	err = v.DB.WithContext(ctx).Create(video).Error
-	if err != nil {
-		// 保存失败，删除远程视频和封面,回滚
-		go func() {
-			err = v.DeleteRemoteVideo(ctx, video)
-			if err != nil {
-				v.logger.Error(err)
-			}
-		}()
-		go func() {
-			err = v.DeleteRemoteCoverImage(ctx, video)
-			if err != nil {
-				v.logger.Error(err)
-			}
-		}()
-		return err
-	}
-	return nil
+	return v.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Create(&video).Error; err != nil {
+			// 保存失败，删除远程视频和封面,回滚
+			go func() {
+				err = v.DeleteRemoteVideo(ctx, video)
+				if err != nil {
+					v.logger.Error(err)
+				}
+			}()
+			go func() {
+				err = v.DeleteRemoteCoverImage(ctx, video)
+				if err != nil {
+					v.logger.Error(err)
+				}
+			}()
+			return err
+		}
+		// 更新视频数
+		if err := v.UserDao.UpdateVideoCount(ctx, video.AuthorID, 1); err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 // GetRemoteVideoInfo 获取远程视频及封面url
@@ -186,7 +200,16 @@ func (v *VideoDao) DeleteVideo(ctx context.Context, deleteDTO *dto.VideoDeleteDT
 	if video.AuthorID != ctx.Value(global.LoginUser).(models.LoginUser).ID {
 		return nil, errors.New("no permission to delete this video")
 	}
-	err = v.DB.WithContext(ctx).Unscoped().Delete(&models.Video{}, deleteDTO.VideoID).Error
+	err = v.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err = v.DB.WithContext(ctx).Unscoped().Delete(&models.Video{}, deleteDTO.VideoID).Error; err != nil {
+			return err
+		}
+		// 更新视频数
+		if err = v.UserDao.UpdateVideoCount(ctx, video.AuthorID, -1); err != nil {
+			return err
+		}
+		return nil
+	})
 	return &video, err
 }
 
@@ -200,4 +223,18 @@ func (v *VideoDao) DeleteRemoteVideo(ctx context.Context, video *models.Video) e
 func (v *VideoDao) DeleteRemoteCoverImage(ctx context.Context, video *models.Video) error {
 	imageName := "images/" + video.Title + ".png"
 	return v.OSS.RemoveFile(ctx, VideoBucket, imageName)
+}
+
+// UpdateCommentCount 更新评论数
+func (v *VideoDao) UpdateCommentCount(ctx context.Context, videoId uint, count int) error {
+	value := map[string]interface{}{"comment_count": gorm.Expr("comment_count + ?", count)}
+	return v.DB.Model(&models.Video{}).WithContext(ctx).Where("id = ?", videoId).
+		Updates(value).Error
+}
+
+// UpdateVideoLikeCount 更新点赞数
+func (v *VideoDao) UpdateVideoLikeCount(ctx context.Context, videoId uint, count int) error {
+	value := map[string]interface{}{"like_count": gorm.Expr("like_count + ?", count)}
+	return v.DB.Model(&models.Video{}).WithContext(ctx).Where("id = ?", videoId).
+		Updates(value).Error
 }

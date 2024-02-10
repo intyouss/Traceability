@@ -17,7 +17,7 @@ const (
 
 type VideoApi struct {
 	BaseApi
-	UserApi
+	UserApi UserApi
 	Service *service.VideoService
 }
 

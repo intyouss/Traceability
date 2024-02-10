@@ -15,12 +15,14 @@ var RelationDaoIns *RelationDao
 
 type RelationDao struct {
 	*BaseDao
+	UserDao *UserDao
 }
 
 func NewRelationDao() *RelationDao {
 	if RelationDaoIns == nil {
 		RelationDaoIns = &RelationDao{
 			BaseDao: NewBaseDao(),
+			UserDao: NewUserDao(),
 		}
 	}
 	return RelationDaoIns
@@ -41,23 +43,47 @@ func (r *RelationDao) Focus(ctx context.Context, dto dto.RelationActionDto) erro
 	if r.isFocused(ctx, relation) {
 		return errors.New("already focused")
 	}
-	return r.DB.WithContext(ctx).Create(&relation).Error
+	return r.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Create(&relation).Error; err != nil {
+			return err
+		}
+		// 更新关注数
+		if err := r.UserDao.UpdateFocusCount(ctx, relation.UserID, 1); err != nil {
+			return err
+		}
+		// 更新粉丝数
+		if err := r.UserDao.UpdateFansCount(ctx, relation.FocusID, 1); err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 // UnFocus 取消关注
 func (r *RelationDao) UnFocus(ctx context.Context, dto dto.RelationActionDto) error {
-	var relation models.Relation
-	result := r.DB.Model(&models.Relation{}).WithContext(ctx).Unscoped().
-		Where("user_id = ? and focus_id = ?", ctx.Value(global.LoginUser).(models.LoginUser).ID, dto.UserID).
-		Delete(&relation)
-	if result.Error != nil {
-		return result.Error
-	}
-	// 如果没有删除任何记录，说明没有这个关系
-	if result.RowsAffected == 0 {
-		return errors.New("do not have this focus relation")
-	}
-	return nil
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	return r.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		result := r.DB.WithContext(ctx).Unscoped().
+			Where("user_id = ? and focus_id = ?", ctx.Value(global.LoginUser).(models.LoginUser).ID, dto.UserID).
+			Delete(&models.Relation{})
+		if result.Error != nil {
+			return result.Error
+		}
+		// 如果没有删除任何记录，说明没有这个关系
+		if result.RowsAffected == 0 {
+			return errors.New("do not have this focus relation")
+		}
+		// 更新关注数
+		if err := r.UserDao.UpdateFocusCount(ctx, userId, -1); err != nil {
+			return err
+		}
+
+		// 更新粉丝数
+		if err := r.UserDao.UpdateFansCount(ctx, dto.UserID, -1); err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 // GetFocusList 关注列表

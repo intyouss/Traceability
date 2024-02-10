@@ -13,7 +13,7 @@ const (
 
 type MessageApi struct {
 	BaseApi
-	UserApi
+	UserApi UserApi
 	Service *service.MessageService
 }
 

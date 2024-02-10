@@ -16,9 +16,9 @@ const (
 
 type CommentApi struct {
 	BaseApi
-	UserApi
-	VideoApi
-	Service *service.CommentService
+	UserApi  UserApi
+	VideoApi VideoApi
+	Service  *service.CommentService
 }
 
 func NewCommentApi() CommentApi {

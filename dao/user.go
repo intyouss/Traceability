@@ -103,3 +103,38 @@ func (u *UserDao) IsExist(ctx context.Context, id uint) bool {
 	err := u.DB.Model(&models.User{}).WithContext(ctx).First(&models.User{}, id).Error
 	return !errors.Is(err, gorm.ErrRecordNotFound)
 }
+
+// UpdateFocusCount 更新关注数
+func (u *UserDao) UpdateFocusCount(ctx context.Context, id uint, count int) error {
+	value := map[string]interface{}{"focus_count": gorm.Expr("focus_count + ?", count)}
+	return u.DB.Model(&models.User{}).WithContext(ctx).Where("id = ?", id).
+		Updates(value).Error
+}
+
+// UpdateFansCount 更新粉丝数
+func (u *UserDao) UpdateFansCount(ctx context.Context, id uint, count int) error {
+	value := map[string]interface{}{"fans_count": gorm.Expr("fans_count + ?", count)}
+	return u.DB.Model(&models.User{}).WithContext(ctx).Where("id = ?", id).
+		Updates(value).Error
+}
+
+// UpdateLikeCount 更新点赞数
+func (u *UserDao) UpdateLikeCount(ctx context.Context, id uint, count int) error {
+	value := map[string]interface{}{"like_count": gorm.Expr("like_count + ?", count)}
+	return u.DB.Model(&models.User{}).WithContext(ctx).Where("id = ?", id).
+		Updates(value).Error
+}
+
+// UpdateLikedCount 更新被点赞数
+func (u *UserDao) UpdateLikedCount(ctx context.Context, id uint, count int) error {
+	value := map[string]interface{}{"liked_count": gorm.Expr("liked_count + ?", count)}
+	return u.DB.Model(&models.User{}).WithContext(ctx).Where("id = ?", id).
+		Updates(value).Error
+}
+
+// UpdateVideoCount 更新视频数
+func (u *UserDao) UpdateVideoCount(ctx context.Context, id uint, count int) error {
+	value := map[string]interface{}{"video_count": gorm.Expr("video_count + ?", count)}
+	return u.DB.Model(&models.User{}).WithContext(ctx).Where("id = ?", id).
+		Updates(value).Error
+}

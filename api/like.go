@@ -15,9 +15,9 @@ const (
 
 type LikeApi struct {
 	BaseApi
-	UserApi
-	VideoApi
-	Service *service.LikeService
+	UserApi  UserApi
+	VideoApi VideoApi
+	Service  *service.LikeService
 }
 
 func NewLikeApi() LikeApi {

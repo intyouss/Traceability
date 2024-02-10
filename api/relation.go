@@ -15,7 +15,7 @@ const (
 
 type RelationApi struct {
 	BaseApi
-	UserApi
+	UserApi UserApi
 	Service *service.RelationService
 }
 
