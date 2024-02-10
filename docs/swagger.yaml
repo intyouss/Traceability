@@ -208,6 +208,30 @@ paths:
           schema:
             type: string
       summary: 获取评论列表
+  /api/v1/public/user/:
+    get:
+      description: 获取用户信息
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 用户id
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 获取用户信息
   /api/v1/public/user/login:
     post:
       description: 用户登录
@@ -301,9 +325,9 @@ paths:
         name: action_type
         required: true
         type: integer
-      - description: 关注用户ID
+      - description: 想要关注/取关的用户ID
         in: formData
-        name: focus_id
+        name: user_id
         required: true
         type: integer
       responses:

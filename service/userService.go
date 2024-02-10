@@ -82,10 +82,18 @@ func (u *UserService) UpdateUser(ctx context.Context, updateDTO *dto.UserUpdateD
 
 // DeleteUserById 删除用户
 func (u *UserService) DeleteUserById(ctx context.Context, commonIDDTO *dto.CommonUserIDDTO) error {
+	if commonIDDTO.ID != ctx.Value(global.LoginUser).(models.LoginUser).ID {
+		return errors.New("don't have permission")
+	}
 	return u.Dao.DeleteUserById(ctx, commonIDDTO.ID)
 }
 
 // GetUserListByIds 根据id列表获取用户列表
 func (u *UserService) GetUserListByIds(ctx context.Context, ids []uint) ([]*models.User, error) {
 	return u.Dao.GetUserListByIds(ctx, ids)
+}
+
+// IsExist 用户是否存在
+func (u *UserService) IsExist(ctx context.Context, id uint) bool {
+	return u.Dao.IsExist(ctx, id)
 }

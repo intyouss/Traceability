@@ -14,6 +14,8 @@ func InitUserRoutes() {
 			userDefaultGroup.POST("/login", userApi.Login)
 			// 注册
 			userDefaultGroup.POST("/register", userApi.Register)
+			// 用户信息
+			userDefaultGroup.GET("/", userApi.GetUserInfo)
 		}
 		userAuthGroup := auGroup.Group("user")
 		{

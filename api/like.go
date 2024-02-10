@@ -45,6 +45,11 @@ func (l LikeApi) GetLikeList(ctx *gin.Context) {
 		return
 	}
 
+	if !l.UserApi.Service.IsExist(ctx, kListDto.UserID) {
+		l.Fail(&Response{Code: ErrCodeGetLikeList, Msg: "user not exist"})
+		return
+	}
+
 	likeListDao, err := l.Service.GetLikeList(ctx, &kListDto)
 	if err != nil {
 		l.Logger.Error(err)
@@ -115,6 +120,11 @@ func (l LikeApi) LikeAction(ctx *gin.Context) {
 	if err := l.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &likeActionDto}).GetError(); err != nil {
 		l.Logger.Error(err)
 		l.Fail(&Response{Code: ErrCodeLikeAction, Msg: err.Error()})
+		return
+	}
+
+	if !l.VideoApi.Service.IsExist(ctx, likeActionDto.VideoID) {
+		l.Fail(&Response{Code: ErrCodeLikeAction, Msg: "video not exist"})
 		return
 	}
 

@@ -120,6 +120,11 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 		return
 	}
 
+	if !c.VideoApi.Service.IsExist(ctx, cAddDto.VideoID) {
+		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: "video not exist"})
+		return
+	}
+
 	// 添加评论
 	commentDao, err := c.Service.AddComment(ctx, &cAddDto)
 	if err != nil {

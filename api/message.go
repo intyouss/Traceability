@@ -13,12 +13,14 @@ const (
 
 type MessageApi struct {
 	BaseApi
+	UserApi
 	Service *service.MessageService
 }
 
 func NewMessageApi() MessageApi {
 	return MessageApi{
 		BaseApi: NewBaseApi(),
+		UserApi: NewUserApi(),
 		Service: service.NewMessageService(),
 	}
 }
@@ -38,6 +40,11 @@ func (m MessageApi) SendMessage(ctx *gin.Context) {
 	if err != nil {
 		m.Logger.Error(err)
 		m.Fail(&Response{Code: ErrCodeSendMessage, Msg: err.Error()})
+		return
+	}
+
+	if !m.UserApi.Service.IsExist(ctx, addMsgDTO.ToUserID) {
+		m.Fail(&Response{Code: ErrCodeSendMessage, Msg: "user not exist"})
 		return
 	}
 
@@ -66,6 +73,12 @@ func (m MessageApi) GetMessages(ctx *gin.Context) {
 		m.Fail(&Response{Code: ErrCodeGetMessage, Msg: err.Error()})
 		return
 	}
+
+	if !m.UserApi.Service.IsExist(ctx, msgListDTO.ToUserID) {
+		m.Fail(&Response{Code: ErrCodeSendMessage, Msg: "user not exist"})
+		return
+	}
+
 	msgDao, preMsgTime, err := m.Service.GetMessages(ctx, &msgListDTO)
 	if err != nil {
 		m.Logger.Error(err)

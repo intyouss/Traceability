@@ -32,7 +32,7 @@ func NewRelationApi() RelationApi {
 // @Description 关注/取消关注
 // @Param token header string true "token"
 // @Param action_type formData int true "1:关注 2:取消关注"
-// @Param focus_id formData int true "关注用户ID"
+// @Param user_id formData int true "想要关注/取关的用户ID"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/relation/action [post]
@@ -41,6 +41,11 @@ func (r RelationApi) RelationAction(ctx *gin.Context) {
 	if err := r.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &relationDto}).GetError(); err != nil {
 		r.Logger.Error(err)
 		r.Fail(&Response{Code: ErrCodeRelationAction, Msg: err.Error()})
+		return
+	}
+
+	if !r.UserApi.Service.IsExist(ctx, relationDto.UserID) {
+		r.Fail(&Response{Code: ErrCodeRelationAction, Msg: "user not exist"})
 		return
 	}
 

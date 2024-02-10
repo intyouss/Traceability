@@ -97,3 +97,9 @@ func (u *UserDao) GetUserListByIds(ctx context.Context, ids []uint) ([]*models.U
 	err := u.DB.Model(&models.User{}).WithContext(ctx).Where("id in (?)", ids).Find(&users).Error
 	return users, err
 }
+
+// IsExist 用户是否存在
+func (u *UserDao) IsExist(ctx context.Context, id uint) bool {
+	err := u.DB.Model(&models.User{}).WithContext(ctx).First(&models.User{}, id).Error
+	return !errors.Is(err, gorm.ErrRecordNotFound)
+}

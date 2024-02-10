@@ -108,7 +108,7 @@ func (u UserApi) Register(ctx *gin.Context) {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/user/ [get]
-// TODO: 需要一个默认获取其他用户信息接口以及一个需要校验的获取用户自身信息的接口
+// @Router /api/v1/public/user/ [get]
 func (u UserApi) GetUserInfo(ctx *gin.Context) {
 	var idDto dto.CommonUserIDDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDto}).GetError(); err != nil {

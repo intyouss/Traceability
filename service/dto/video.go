@@ -29,8 +29,8 @@ type VideoListDTO struct {
 
 type VideoPublishDTO struct {
 	Title          string               `json:"title" form:"title" binding:"required" message:"title cannot be empty"`
-	CoverImageData multipart.FileHeader `json:"cover_image_data" form:"cover_image_data" binding:"required" type:"blob" message:"cover_image_data cannot be empty"`
-	Data           multipart.FileHeader `json:"data" form:"data" binding:"required" message:"data cannot be empty" type:"blob"`
+	CoverImageData multipart.FileHeader `json:"cover_image_data" form:"cover_image_data" type:"blob" binding:"required"  message:"cover_image_data cannot be empty"`
+	Data           multipart.FileHeader `json:"data" form:"data" type:"blob" binding:"required" message:"data cannot be empty" `
 }
 
 type VideoDeleteDTO struct {

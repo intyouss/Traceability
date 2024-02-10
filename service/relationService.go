@@ -43,10 +43,16 @@ func (r *RelationService) RelationAction(ctx context.Context, dto dto.RelationAc
 
 // GetFocusList 关注列表
 func (r *RelationService) GetFocusList(ctx context.Context, dto dto.FocusListDto) (int64, []*models.Relation, error) {
+	if dto.UserID != ctx.Value(global.LoginUser).(models.LoginUser).ID {
+		return 0, nil, errors.New("can't get other user's focus list")
+	}
 	return r.Dao.GetFocusList(ctx, dto)
 }
 
 // GetFansList 粉丝列表
 func (r *RelationService) GetFansList(ctx context.Context, dto dto.FansListDto) (int64, []*models.Relation, error) {
+	if dto.UserID != ctx.Value(global.LoginUser).(models.LoginUser).ID {
+		return 0, nil, errors.New("can't get other user's fans list")
+	}
 	return r.Dao.GetFansList(ctx, dto)
 }

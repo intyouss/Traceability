@@ -313,6 +313,42 @@
                 }
             }
         },
+        "/api/v1/public/user/": {
+            "get": {
+                "description": "获取用户信息",
+                "summary": "获取用户信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/public/user/login": {
             "post": {
                 "description": "用户登录",
@@ -453,8 +489,8 @@
                     },
                     {
                         "type": "integer",
-                        "description": "关注用户ID",
-                        "name": "focus_id",
+                        "description": "想要关注/取关的用户ID",
+                        "name": "user_id",
                         "in": "formData",
                         "required": true
                     }

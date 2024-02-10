@@ -52,7 +52,7 @@ func (u *UserAddDTO) ToModel(user *models.User) {
 }
 
 type UserUpdateDTO struct {
-	UserID   uint   `json:"user_id" form:"user_id"`
+	UserID   uint   `json:"user_id" form:"user_id" binding:"required" message:"user_id cannot be empty"`
 	Username string `json:"username" form:"username"`
 	Avatar   string `json:"avatar"`
 	Mobile   string `json:"mobile" form:"mobile"`

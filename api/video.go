@@ -115,6 +115,11 @@ func (v VideoApi) GetUserVideoList(ctx *gin.Context) {
 		return
 	}
 
+	if !v.UserApi.Service.IsExist(ctx, idDTO.ID) {
+		v.Fail(&Response{Code: ErrCodeGetUserVideoList, Msg: "user not exist"})
+		return
+	}
+
 	videosDao, err := v.Service.GetVideoListByUserId(ctx, &idDTO)
 	if err != nil {
 		v.Logger.Error(err)
@@ -162,6 +167,7 @@ func (v VideoApi) GetUserVideoList(ctx *gin.Context) {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/video/publish [post]
+// PS: 视频与图片文件的参数校验失效，需要手动处理
 func (v VideoApi) PublishVideo(ctx *gin.Context) {
 	var videoPublishDTO dto.VideoPublishDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoPublishDTO}).GetError(); err != nil {

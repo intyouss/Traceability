@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/intyouss/Traceability/global"
 
@@ -47,7 +46,7 @@ func (c *CommentService) AddComment(ctx context.Context, cAddDTO *dto.AddComment
 func (c *CommentService) DeleteCommentById(ctx context.Context, cDeleteDTO *dto.DeleteCommentDTO) error {
 	video, err := c.Dao.GetCommentById(ctx, cDeleteDTO.CommentID)
 	if err != nil {
-		return fmt.Errorf("get comment error: %s", err.Error())
+		return err
 	}
 	if video.UserId != ctx.Value(global.LoginUser).(models.LoginUser).ID {
 		return errors.New("permission denied")
