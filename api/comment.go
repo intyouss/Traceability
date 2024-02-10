@@ -17,14 +17,16 @@ const (
 type CommentApi struct {
 	BaseApi
 	UserApi
+	VideoApi
 	Service *service.CommentService
 }
 
 func NewCommentApi() CommentApi {
 	return CommentApi{
-		BaseApi: NewBaseApi(),
-		UserApi: NewUserApi(),
-		Service: service.NewCommentService(),
+		BaseApi:  NewBaseApi(),
+		UserApi:  NewUserApi(),
+		VideoApi: NewVideoApi(),
+		Service:  service.NewCommentService(),
 	}
 }
 
@@ -45,6 +47,11 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 		return
 	}
 
+	if !c.VideoApi.Service.IsExist(ctx, cListDto.VideoID) {
+		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: "video not exist"})
+		return
+	}
+
 	commentsDao, total, err := c.Service.GetCommentList(ctx, &cListDto)
 	if err != nil {
 		c.Logger.Error(err)
@@ -52,7 +59,10 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 		return
 	}
 	if total == 0 {
-		c.Success(&Response{})
+		c.Success(&Response{
+			Data:  []dto.Comment{},
+			Total: 0,
+		})
 		return
 	}
 
@@ -81,7 +91,7 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 	for i, comment := range commentsDao {
 		comments[i].ID = comment.ID
 		comments[i].Content = comment.Content
-		comments[i].CreateAt = comment.CreatedAt.Format("2006-01-02 15:04:05")
+		comments[i].CreatedAt = comment.CreatedAt.Format("2006-01-02 15:04:05")
 		var user = new(dto.User)
 		_ = copier.Copy(user, commentUserMap[comment.UserId])
 		comments[i].User = user
@@ -130,6 +140,7 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 
 	var comment = new(dto.Comment)
 	_ = copier.Copy(comment, commentDao)
+	comment.CreatedAt = commentDao.CreatedAt.Format("2006-01-02 15:04:05")
 	var user = new(dto.User)
 	_ = copier.Copy(user, userDao)
 	comment.User = user

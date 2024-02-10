@@ -29,7 +29,7 @@ func (c *CommentDao) GetCommentList(
 	var comments []*models.Comment
 	var total int64
 	err := c.DB.Model(&models.Comment{}).WithContext(ctx).
-		Scopes(Paginate(cListDTO.CommonPageDTO)).Find(&comments).
+		Scopes(Paginate(cListDTO.CommonPageDTO)).Where("video_id = ?", cListDTO.VideoID).Find(&comments).
 		Offset(-1).Limit(-1).Count(&total).Error
 	return comments, total, err
 }

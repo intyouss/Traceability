@@ -2,6 +2,9 @@ package dao
 
 import (
 	"context"
+	"errors"
+
+	"gorm.io/gorm"
 
 	"github.com/intyouss/Traceability/global"
 	"github.com/intyouss/Traceability/models"
@@ -23,20 +26,38 @@ func NewRelationDao() *RelationDao {
 	return RelationDaoIns
 }
 
+// isFocused 是否已经关注
+func (r *RelationDao) isFocused(ctx context.Context, relation models.Relation) bool {
+	err := r.DB.Model(&models.Relation{}).WithContext(ctx).First(&relation).Error
+	return !errors.Is(err, gorm.ErrRecordNotFound)
+}
+
 // Focus 关注
 func (r *RelationDao) Focus(ctx context.Context, dto dto.RelationActionDto) error {
-	relation := &models.Relation{
+	relation := models.Relation{
 		UserID:  ctx.Value(global.LoginUser).(models.LoginUser).ID,
 		FocusID: dto.UserID,
 	}
-	return r.DB.Model(&models.Relation{}).Create(&relation).Error
+	if r.isFocused(ctx, relation) {
+		return errors.New("already focused")
+	}
+	return r.DB.WithContext(ctx).Create(&relation).Error
 }
 
 // UnFocus 取消关注
 func (r *RelationDao) UnFocus(ctx context.Context, dto dto.RelationActionDto) error {
-	return r.DB.Model(&models.Relation{}).WithContext(ctx).Unscoped().
+	var relation models.Relation
+	result := r.DB.Model(&models.Relation{}).WithContext(ctx).Unscoped().
 		Where("user_id = ? and focus_id = ?", ctx.Value(global.LoginUser).(models.LoginUser).ID, dto.UserID).
-		Delete(&models.Relation{}).Error
+		Delete(&relation)
+	if result.Error != nil {
+		return result.Error
+	}
+	// 如果没有删除任何记录，说明没有这个关系
+	if result.RowsAffected == 0 {
+		return errors.New("do not have this focus relation")
+	}
+	return nil
 }
 
 // GetFocusList 关注列表

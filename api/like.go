@@ -22,8 +22,10 @@ type LikeApi struct {
 
 func NewLikeApi() LikeApi {
 	return LikeApi{
-		BaseApi: NewBaseApi(),
-		Service: service.NewLikeService(),
+		BaseApi:  NewBaseApi(),
+		UserApi:  NewUserApi(),
+		VideoApi: NewVideoApi(),
+		Service:  service.NewLikeService(),
 	}
 }
 
@@ -50,22 +52,51 @@ func (l LikeApi) GetLikeList(ctx *gin.Context) {
 		return
 	}
 	if len(likeListDao) != 0 {
-		idDTO := dto.CommonUserIDDTO{
-			ID: likeListDao[0].UserID,
+		likeVideoIdList := make([]uint, 0, len(likeListDao))
+		for _, like := range likeListDao {
+			likeVideoIdList = append(likeVideoIdList, like.VideoID)
 		}
 
-		var likeVideoListDao []*models.Video
-		likeVideoListDao, err = l.VideoApi.Service.GetVideoListByUserId(ctx, &idDTO)
+		likeVideoListDao, err := l.VideoApi.Service.GetVideoListByVideoId(ctx, likeVideoIdList)
 		if err != nil {
 			l.Logger.Error(err)
 			l.Fail(&Response{Code: ErrCodeGetLikeList, Msg: err.Error()})
 			return
 		}
 
+		likeVideoUserIdMap := make(map[uint]*models.User, len(likeVideoIdList))
+		for _, like := range likeVideoListDao {
+			likeVideoUserIdMap[like.AuthorID] = nil
+		}
+
+		likeVideoUserIdList := make([]uint, 0, len(likeVideoUserIdMap))
+		for userId := range likeVideoUserIdMap {
+			likeVideoUserIdList = append(likeVideoUserIdList, userId)
+		}
+
+		likeUserList, err := l.UserApi.Service.GetUserListByIds(ctx, likeVideoUserIdList)
+		if err != nil {
+			l.Logger.Error(err)
+			l.Fail(&Response{Code: ErrCodeGetLikeList, Msg: err.Error()})
+			return
+		}
+
+		for _, user := range likeUserList {
+			likeVideoUserIdMap[user.ID] = user
+		}
+
 		var likeVideoList []*dto.Video
-		_ = copier.Copy(&likeVideoList, &likeVideoListDao)
+		for _, video := range likeVideoListDao {
+			var likeVideo = new(dto.Video)
+			_ = copier.Copy(likeVideo, video)
+			var user = new(dto.User)
+			_ = copier.Copy(user, likeVideoUserIdMap[video.AuthorID])
+			likeVideo.Author = user
+			likeVideoList = append(likeVideoList, likeVideo)
+		}
 
 		l.Success(&Response{Data: likeVideoList})
+		return
 	}
 	l.Success(&Response{Data: []*dto.Video{}})
 }

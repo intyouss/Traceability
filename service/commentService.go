@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/intyouss/Traceability/global"
+
 	"github.com/intyouss/Traceability/dao"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service/dto"
@@ -37,6 +39,7 @@ func (c *CommentService) GetCommentList(
 func (c *CommentService) AddComment(ctx context.Context, cAddDTO *dto.AddCommentDTO) (*models.Comment, error) {
 	var comment models.Comment
 	cAddDTO.ToModel(&comment)
+	comment.UserId = ctx.Value(global.LoginUser).(models.LoginUser).ID
 	return c.Dao.AddComment(ctx, &comment)
 }
 
@@ -46,7 +49,7 @@ func (c *CommentService) DeleteCommentById(ctx context.Context, cDeleteDTO *dto.
 	if err != nil {
 		return fmt.Errorf("get comment error: %s", err.Error())
 	}
-	if video.UserId != cDeleteDTO.UserID {
+	if video.UserId != ctx.Value(global.LoginUser).(models.LoginUser).ID {
 		return errors.New("permission denied")
 	}
 	return c.Dao.DeleteCommentById(ctx, cDeleteDTO.CommentID)

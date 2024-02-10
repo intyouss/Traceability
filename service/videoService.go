@@ -35,6 +35,16 @@ func (v *VideoService) GetVideoListByUserId(ctx context.Context, idDTO *dto.Comm
 	return v.Dao.GetVideoListByUserId(ctx, idDTO)
 }
 
+// IsExist 判断视频是否存在
+func (v *VideoService) IsExist(ctx context.Context, videoId uint) bool {
+	return v.Dao.IsExist(ctx, videoId)
+}
+
+// GetVideoListByVideoId 根据视频id列表获取视频列表
+func (v *VideoService) GetVideoListByVideoId(ctx context.Context, videoIds []uint) ([]*models.Video, error) {
+	return v.Dao.GetVideoListByVideoId(ctx, videoIds)
+}
+
 // PublishVideo 发布视频
 func (v *VideoService) PublishVideo(ctx context.Context, upload *dto.VideoPublishDTO) error {
 	var wg sync.WaitGroup

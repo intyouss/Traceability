@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/intyouss/Traceability/global"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service/dto"
@@ -33,6 +35,12 @@ func NewVideoDao() *VideoDao {
 	return VideoDaoIns
 }
 
+// IsExist 判断视频是否存在
+func (v *VideoDao) IsExist(ctx context.Context, videoId uint) bool {
+	err := v.DB.Model(&models.Video{}).WithContext(ctx).First(&models.Video{}, videoId).Error
+	return !errors.Is(err, gorm.ErrRecordNotFound)
+}
+
 // GetVideoList 获取视频列表
 func (v *VideoDao) GetVideoList(
 	ctx context.Context, vListDTO *dto.VideoListDTO,
@@ -59,6 +67,14 @@ func (v *VideoDao) GetVideoListByUserId(ctx context.Context, idDTO *dto.CommonUs
 	var videos []*models.Video
 	err := v.DB.Model(&models.Video{}).WithContext(ctx).Where("author_id = ?", idDTO.ID).
 		Order("id DESC").Find(&videos).Error
+	return videos, err
+}
+
+// GetVideoListByVideoId 根据视频id列表获取视频列表
+func (v *VideoDao) GetVideoListByVideoId(ctx context.Context, videoIds []uint) ([]*models.Video, error) {
+	var videos []*models.Video
+	err := v.DB.Model(&models.Video{}).WithContext(ctx).Where("id IN ?", videoIds).
+		Find(&videos).Error
 	return videos, err
 }
 

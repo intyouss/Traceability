@@ -205,3 +205,8 @@ func (v VideoApi) DeleteVideo(ctx *gin.Context) {
 
 	v.Success(&Response{})
 }
+
+// GetVideoListByVideoId 根据视频id获取视频列表
+func (v VideoApi) GetVideoListByVideoId(ctx *gin.Context, videoIds []uint) ([]*models.Video, error) {
+	return v.Service.GetVideoListByVideoId(ctx, videoIds)
+}
