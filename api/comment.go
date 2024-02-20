@@ -60,7 +60,9 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 	}
 	if total == 0 {
 		c.Success(&Response{
-			Data:  []dto.Comment{},
+			Data: gin.H{
+				"comment": []dto.Comment{},
+			},
 			Total: 0,
 		})
 		return
@@ -98,7 +100,9 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 	}
 
 	c.Success(&Response{
-		Data:  comments,
+		Data: gin.H{
+			"comments": comments,
+		},
 		Total: total,
 	})
 }
@@ -135,7 +139,7 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 
 	// 获取用户信息
 	var IdDTO dto.CommonUserIDDTO
-	IdDTO.ID = commentDao.UserId
+	IdDTO.ID = int(commentDao.UserId)
 	userDao, err := c.UserApi.Service.GetUserById(ctx, &IdDTO)
 	if err != nil {
 		c.Logger.Error(err)
@@ -151,7 +155,9 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 	comment.User = user
 
 	c.Success(&Response{
-		Data: comment,
+		Data: gin.H{
+			"comment": comment,
+		},
 	})
 }
 

@@ -21,6 +21,8 @@ type Video struct {
 	CommentCount uint `json:"comment_count"`
 	// 用户喜爱状态
 	LikeStatus bool `json:"like_status"`
+	// 创建时间
+	CreatedAt string `json:"created_at"`
 }
 
 type VideoListDTO struct {

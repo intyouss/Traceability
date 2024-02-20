@@ -88,7 +88,7 @@ func (m MessageApi) GetMessages(ctx *gin.Context) {
 	if len(msgDao) == 0 {
 		m.Success(&Response{
 			Data: gin.H{
-				"msg_list":     []*dto.Message{},
+				"messages":     []*dto.Message{},
 				"pre_msg_time": 0,
 			},
 		})
@@ -105,7 +105,7 @@ func (m MessageApi) GetMessages(ctx *gin.Context) {
 	}
 	m.Success(&Response{
 		Data: gin.H{
-			"msg_list":     msgList,
+			"messages":     msgList,
 			"pre_msg_time": preMsgTime,
 		},
 	})

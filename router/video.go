@@ -11,7 +11,7 @@ func InitVideoRoutes() {
 		videoDefaultGroup := dfGroup.Group("video")
 		{
 			// 视频feed流
-			videoDefaultGroup.GET("/feed", videoApi.GetVideoFeed)
+			videoDefaultGroup.GET("/feed/index", videoApi.GetVideoFeed)
 			// 用户发布视频列表
 			videoDefaultGroup.GET("/list", videoApi.GetUserVideoList)
 		}

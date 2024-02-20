@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"errors"
+	"net/url"
 	"time"
 
 	"gorm.io/gorm"
@@ -43,7 +44,7 @@ func (v *VideoDao) IsExist(ctx context.Context, videoId uint) bool {
 	return !errors.Is(err, gorm.ErrRecordNotFound)
 }
 
-// GetAuthorIdByVideoId 根据id获取视频
+// GetAuthorIdByVideoId 根据视频id获取作者id
 func (v *VideoDao) GetAuthorIdByVideoId(ctx context.Context, videoId uint) (uint, error) {
 	var video models.Video
 	err := v.DB.Model(&models.Video{}).WithContext(ctx).First(&video, videoId).Error
@@ -89,7 +90,7 @@ func (v *VideoDao) GetVideoListByVideoId(ctx context.Context, videoIds []uint) (
 
 // SaveVideoInfo 保存视频信息
 func (v *VideoDao) SaveVideoInfo(ctx context.Context, upload *dto.VideoPublishDTO) error {
-	playUrl, coverUrl, err := v.GetRemoteVideoInfo(ctx, upload)
+	playUrl, coverUrl, err := v.GetRemoteVideoInfo(ctx, upload.Title)
 	if err != nil {
 		return err
 	}
@@ -127,21 +128,68 @@ func (v *VideoDao) SaveVideoInfo(ctx context.Context, upload *dto.VideoPublishDT
 }
 
 // GetRemoteVideoInfo 获取远程视频及封面url
-func (v *VideoDao) GetRemoteVideoInfo(ctx context.Context, upload *dto.VideoPublishDTO) (playURL, coverURL string, err error) {
+func (v *VideoDao) GetRemoteVideoInfo(ctx context.Context, title string) (playURL, coverURL string, err error) {
 	hours, days := 24, 7
 	urls, err := v.OSS.GetFileURL(
-		ctx, "oss", "videos/"+upload.Title+".mp4", time.Hour*time.Duration(hours*days))
+		ctx, "oss", "videos/"+title+".mp4", time.Hour*time.Duration(hours*days))
 	if err != nil {
 		return "", "", err
 	}
 	playURL = urls.String()
 	urls, err = v.OSS.GetFileURL(
-		ctx, "oss", "images/"+upload.Title+".png", time.Hour*time.Duration(hours*days))
+		ctx, "oss", "images/"+title+".png", time.Hour*time.Duration(hours*days))
 	if err != nil {
 		return "", "", err
 	}
 	coverURL = urls.String()
 	return
+}
+
+// CheckUrl 检查url是否过期
+func (v *VideoDao) CheckUrl(accessUrl string) (bool, error) {
+	parseUrl, err := url.Parse(accessUrl)
+	if err != nil {
+		return false, err
+	}
+	dateStr := parseUrl.Query().Get("X-Amz-Date")
+	dateInt, err := time.Parse("20060102T150405Z", dateStr)
+	if err != nil {
+		return false, err
+	}
+	// 7天后过期,提前一个小时生成新的url
+	hours, days := 24, 7
+	now := time.Now().Add(time.Hour).UTC()
+	return now.Before(dateInt.Add(time.Hour * time.Duration(hours*days))), nil
+}
+
+// UpdateUrl 检查视频列表所有url是否失效，更新url
+func (v *VideoDao) UpdateUrl(ctx context.Context, videoList []*models.Video) error {
+	for _, video := range videoList {
+		ok, err := v.CheckUrl(video.PlayUrl)
+		if err != nil {
+			return err
+		}
+		if ok {
+			continue
+		}
+		video.PlayUrl, video.CoverUrl, err = v.GetRemoteVideoInfo(ctx, video.Title)
+		if err != nil {
+			return err
+		}
+		go func(vi *models.Video) {
+			err = v.UpdateDBUrl(ctx, vi.ID, vi.PlayUrl, vi.CoverUrl)
+			if err != nil {
+				v.logger.Error(err)
+			}
+		}(video)
+	}
+	return nil
+}
+
+// UpdateDBUrl 更新数据库url
+func (v *VideoDao) UpdateDBUrl(ctx context.Context, videoId uint, playUrl, coverUrl string) error {
+	return v.DB.WithContext(ctx).Where("id = ?", videoId).
+		Updates(&models.Video{PlayUrl: playUrl, CoverUrl: coverUrl}).Error
 }
 
 // UploadVideo 上传视频

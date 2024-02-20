@@ -127,7 +127,9 @@ func (u UserApi) GetUserInfo(ctx *gin.Context) {
 	_ = copier.Copy(user, userDao)
 
 	u.Success(&Response{
-		Data: user,
+		Data: gin.H{
+			"user": user,
+		},
 	})
 }
 
@@ -158,7 +160,9 @@ func (u UserApi) GetUserList(ctx *gin.Context) {
 	_ = copier.Copy(&users, &usersDao)
 
 	u.Success(&Response{
-		Data:  users,
+		Data: gin.H{
+			"users": users,
+		},
 		Total: total,
 	})
 }

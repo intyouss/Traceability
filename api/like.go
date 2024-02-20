@@ -100,10 +100,16 @@ func (l LikeApi) GetLikeList(ctx *gin.Context) {
 			likeVideoList = append(likeVideoList, likeVideo)
 		}
 
-		l.Success(&Response{Data: likeVideoList})
+		l.Success(&Response{
+			Data: gin.H{
+				"videos": likeVideoList,
+			}})
 		return
 	}
-	l.Success(&Response{Data: []*dto.Video{}})
+	l.Success(&Response{
+		Data: gin.H{
+			"videos": []*dto.Video{},
+		}})
 }
 
 // LikeAction 用户喜爱操作

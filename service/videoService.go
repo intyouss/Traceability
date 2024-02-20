@@ -27,12 +27,31 @@ func NewVideoService() *VideoService {
 
 // GetVideoList 获取视频列表
 func (v *VideoService) GetVideoList(ctx context.Context, vListDTO *dto.VideoListDTO) ([]*models.Video, int64, error) {
-	return v.Dao.GetVideoList(ctx, vListDTO)
+	videos, nextTime, err := v.Dao.GetVideoList(ctx, vListDTO)
+	if err != nil {
+		return nil, 0, err
+	}
+	if len(videos) == 0 {
+		return nil, 0, nil
+	}
+	err = v.Dao.UpdateUrl(ctx, videos)
+	if err != nil {
+		return nil, 0, err
+	}
+	return videos, nextTime, nil
 }
 
 // GetVideoListByUserId 根据用户id获取视频列表
 func (v *VideoService) GetVideoListByUserId(ctx context.Context, idDTO *dto.CommonUserIDDTO) ([]*models.Video, error) {
-	return v.Dao.GetVideoListByUserId(ctx, idDTO)
+	videos, err := v.Dao.GetVideoListByUserId(ctx, idDTO)
+	if err != nil {
+		return nil, err
+	}
+	if len(videos) == 0 {
+		return nil, nil
+	}
+	err = v.Dao.UpdateUrl(ctx, videos)
+	return videos, err
 }
 
 // IsExist 判断视频是否存在
@@ -42,7 +61,15 @@ func (v *VideoService) IsExist(ctx context.Context, videoId uint) bool {
 
 // GetVideoListByVideoId 根据视频id列表获取视频列表
 func (v *VideoService) GetVideoListByVideoId(ctx context.Context, videoIds []uint) ([]*models.Video, error) {
-	return v.Dao.GetVideoListByVideoId(ctx, videoIds)
+	videos, err := v.Dao.GetVideoListByVideoId(ctx, videoIds)
+	if err != nil {
+		return nil, err
+	}
+	if len(videos) == 0 {
+		return nil, nil
+	}
+	err = v.Dao.UpdateUrl(ctx, videos)
+	return videos, err
 }
 
 // PublishVideo 发布视频

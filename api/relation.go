@@ -82,7 +82,10 @@ func (r RelationApi) GetFocusList(ctx *gin.Context) {
 		return
 	}
 	if total == 0 {
-		r.Success(&Response{Data: []dto.User{}, Total: 0})
+		r.Success(&Response{
+			Data: gin.H{
+				"users": []dto.User{},
+			}, Total: 0})
 		return
 	}
 	var focusUserIDs []uint
@@ -98,7 +101,10 @@ func (r RelationApi) GetFocusList(ctx *gin.Context) {
 	var users []dto.User
 	_ = copier.Copy(&users, &userList)
 
-	r.Success(&Response{Data: users, Total: total})
+	r.Success(&Response{
+		Data: gin.H{
+			"users": users,
+		}, Total: total})
 }
 
 // GetFansList 粉丝列表
@@ -124,7 +130,10 @@ func (r RelationApi) GetFansList(ctx *gin.Context) {
 		return
 	}
 	if total == 0 {
-		r.Success(&Response{Data: []dto.User{}, Total: 0})
+		r.Success(&Response{
+			Data: gin.H{
+				"users": []dto.User{},
+			}, Total: 0})
 		return
 	}
 	var fansUserIDs []uint
@@ -140,5 +149,8 @@ func (r RelationApi) GetFansList(ctx *gin.Context) {
 	var users []dto.User
 	_ = copier.Copy(&users, &userList)
 
-	r.Success(&Response{Data: users, Total: total})
+	r.Success(&Response{
+		Data: gin.H{
+			"users": users,
+		}, Total: total})
 }

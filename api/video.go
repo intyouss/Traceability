@@ -1,6 +1,10 @@
 package api
 
 import (
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service"
@@ -29,13 +33,13 @@ func NewVideoApi() VideoApi {
 	}
 }
 
-// GetVideoFeed 获取视频feed流
+// GetVideoFeed 获取首页视频feed流
 // @Summary 获取视频feed流
 // @Description 获取视频feed流
 // @Param latest_time formData int true "最新时间"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/public/video/feed [get]
+// @Router /api/v1/public/video/feed/index [get]
 func (v VideoApi) GetVideoFeed(ctx *gin.Context) {
 	// 绑定并验证参数
 	var vListDTO dto.VideoListDTO
@@ -55,8 +59,8 @@ func (v VideoApi) GetVideoFeed(ctx *gin.Context) {
 	if len(videos) == 0 {
 		v.Success(&Response{
 			Data: gin.H{
-				"video_list": []*dto.Video{},
-				"next_time":  nextTime,
+				"videos":    []*dto.Video{},
+				"next_time": nextTime,
 			},
 		})
 		return
@@ -77,25 +81,26 @@ func (v VideoApi) GetVideoFeed(ctx *gin.Context) {
 		v.Fail(&Response{Code: ErrCodeGetVideoFeed, Msg: err.Error()})
 		return
 	}
-
 	for _, author := range authors {
 		authorMap[author.ID] = author
 	}
 
 	// 组装数据
-	var videoList = make([]*dto.Video, len(videos))
-	_ = copier.Copy(&videoList, &videos)
-
-	for i, video := range videoList {
+	var videoList = make([]*dto.Video, 0, len(videos))
+	for _, video := range videos {
+		var videoDTO = new(dto.Video)
+		_ = copier.Copy(videoDTO, video)
+		videoDTO.CreatedAt = timeFormat(video.CreatedAt)
 		var user = new(dto.User)
-		_ = copier.Copy(user, authorMap[videos[i].ID])
-		video.Author = user
+		_ = copier.Copy(user, authorMap[video.AuthorID])
+		videoDTO.Author = user
+		videoList = append(videoList, videoDTO)
 	}
 
 	v.Success(&Response{
 		Data: gin.H{
-			"video_list": videoList,
-			"next_time":  nextTime,
+			"videos":    videoList,
+			"next_time": nextTime,
 		},
 	})
 }
@@ -115,7 +120,7 @@ func (v VideoApi) GetUserVideoList(ctx *gin.Context) {
 		return
 	}
 
-	if !v.UserApi.Service.IsExist(ctx, idDTO.ID) {
+	if !v.UserApi.Service.IsExist(ctx, uint(idDTO.ID)) {
 		v.Fail(&Response{Code: ErrCodeGetUserVideoList, Msg: "user not exist"})
 		return
 	}
@@ -128,13 +133,12 @@ func (v VideoApi) GetUserVideoList(ctx *gin.Context) {
 	}
 	if len(videosDao) == 0 {
 		v.Success(&Response{
-			Data: []*dto.Video{},
+			Data: gin.H{
+				"videos": []*dto.Video{},
+			},
 		})
 		return
 	}
-
-	var videos = make([]*dto.Video, len(videosDao))
-	_ = copier.Copy(&videos, &videosDao)
 
 	var userDao *models.User
 	userDao, err = v.UserApi.Service.GetUserById(ctx, &idDTO)
@@ -146,14 +150,19 @@ func (v VideoApi) GetUserVideoList(ctx *gin.Context) {
 	var user = new(dto.User)
 	_ = copier.Copy(user, userDao)
 
-	var videoList []*dto.Video
-	for _, video := range videos {
-		video.Author = user
-		videoList = append(videoList, video)
+	var videos = make([]*dto.Video, len(videosDao))
+	for _, video := range videosDao {
+		var videoDTO = new(dto.Video)
+		_ = copier.Copy(videoDTO, video)
+		videoDTO.CreatedAt = timeFormat(video.CreatedAt)
+		videoDTO.Author = user
+		videos = append(videos, videoDTO)
 	}
 
 	v.Success(&Response{
-		Data: videoList,
+		Data: gin.H{
+			"videos": videos,
+		},
 	})
 }
 
@@ -212,7 +221,23 @@ func (v VideoApi) DeleteVideo(ctx *gin.Context) {
 	v.Success(&Response{})
 }
 
-// GetVideoListByVideoId 根据视频id获取视频列表
-func (v VideoApi) GetVideoListByVideoId(ctx *gin.Context, videoIds []uint) ([]*models.Video, error) {
-	return v.Service.GetVideoListByVideoId(ctx, videoIds)
+// timeFormat 时间格式化
+func timeFormat(t time.Time) string {
+	since := time.Since(t)
+	switch {
+	case since < time.Minute: // 如果是一分钟内的时间，返回刚刚
+		return "刚刚"
+	case since < time.Hour: // 如果是一小时内的时间，返回是几分钟前
+		return strings.Split(since.String(), "m")[0] + "分钟前"
+	case since < 24*time.Hour: // 如果是超过一个小时的时间，返回是几小时前
+		return strings.Split(since.String(), "h")[0] + "小时前"
+	case since < 7*24*time.Hour: // 如果超过一天但是在一周内，返回是几天前
+		x, _ := strconv.Atoi(strings.Split(since.String(), "h")[0])
+		return strconv.Itoa(x/24) + "天前"
+	case since < 21*24*time.Hour: // 如果超过一周，但不超过三周，返回是几周前
+		x, _ := strconv.Atoi(strings.Split(since.String(), "h")[0])
+		return strconv.Itoa(x/(7*24)) + "周前"
+	default: // 如果超过三周，返回年月日
+		return t.Format("2006-01-02")
+	}
 }
