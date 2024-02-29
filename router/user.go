@@ -16,11 +16,11 @@ func InitUserRoutes() {
 			userDefaultGroup.POST("/register", userApi.Register)
 			// 用户信息
 			userDefaultGroup.GET("/", userApi.GetUserInfo)
+			// 模糊搜索用户列表
+			userDefaultGroup.GET("/search", userApi.GetUserListBySearch)
 		}
 		userAuthGroup := auGroup.Group("user")
 		{
-			// 用户列表
-			userAuthGroup.GET("/list", userApi.GetUserList)
 			// 用户信息
 			userAuthGroup.GET("/", userApi.GetUserInfo)
 			// 更新用户

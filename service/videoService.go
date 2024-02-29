@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"sync"
 
 	"github.com/intyouss/Traceability/dao"
@@ -26,8 +27,21 @@ func NewVideoService() *VideoService {
 }
 
 // GetVideoList 获取视频列表
-func (v *VideoService) GetVideoList(ctx context.Context, vListDTO *dto.VideoListDTO) ([]*models.Video, int64, error) {
-	videos, nextTime, err := v.Dao.GetVideoList(ctx, vListDTO)
+func (v *VideoService) GetVideoList(
+	ctx context.Context, vListDTO *dto.VideoListDTO,
+) (videos []*models.Video, nextTime int64, err error) {
+	switch vListDTO.Type {
+	case 1:
+		videos, nextTime, err = v.Dao.GetVideoList(ctx, vListDTO)
+	case 2:
+		videos, nextTime, err = v.Dao.GetFocusVideoList(ctx, vListDTO)
+	case 3:
+		videos, nextTime, err = v.Dao.GetFriendVideoList(ctx, vListDTO)
+	case 4:
+		videos, nextTime, err = v.Dao.GetVideoList(ctx, vListDTO)
+	default:
+		return nil, 0, errors.New("type error")
+	}
 	if err != nil {
 		return nil, 0, err
 	}
@@ -70,6 +84,25 @@ func (v *VideoService) GetVideoListByVideoId(ctx context.Context, videoIds []uin
 	}
 	err = v.Dao.UpdateUrl(ctx, videos)
 	return videos, err
+}
+
+func (v *VideoService) GetVideoSearch(
+	ctx context.Context, searchDTO *dto.VideoSearchDTO,
+) (videos []*models.Video, err error) {
+	switch searchDTO.Type {
+	case 1:
+		videos, err = v.Dao.GetVideoSearchByAuthorAndTitle(ctx, searchDTO)
+	case 2:
+		videos, err = v.Dao.GetVideoSearchByTitle(ctx, searchDTO)
+	}
+	if err != nil {
+		return nil, err
+	}
+	if len(videos) == 0 {
+		return nil, nil
+	}
+	err = v.Dao.UpdateUrl(ctx, videos)
+	return
 }
 
 // PublishVideo 发布视频

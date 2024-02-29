@@ -105,3 +105,37 @@ func (r *RelationDao) GetFansList(ctx context.Context, dto dto.FansListDto) (int
 		Offset(-1).Limit(-1).Count(&total).Error
 	return total, relations, err
 }
+
+// GetFocusListByUserId 根据用户id获取关注列表
+func (r *RelationDao) GetFocusListByUserId(ctx context.Context, id uint) ([]*models.Relation, error) {
+	var relations []*models.Relation
+	err := r.DB.Model(&models.Relation{}).WithContext(ctx).Where("user_id = ?", id).Find(&relations).Error
+	return relations, err
+}
+
+// GetFansListByUserId 根据用户id获取粉丝列表
+func (r *RelationDao) GetFansListByUserId(ctx context.Context, id uint) ([]*models.Relation, error) {
+	var relations []*models.Relation
+	err := r.DB.Model(&models.Relation{}).WithContext(ctx).Where("focus_id = ?", id).Find(&relations).Error
+	return relations, err
+}
+
+// GetFriendListByUserId 根据用户id获取朋友列表
+func (r *RelationDao) GetFriendListByUserId(ctx context.Context, userId uint) ([]*models.Relation, error) {
+	var relations []*models.Relation
+	err := r.DB.Model(&models.Relation{}).WithContext(ctx).
+		Where("user_id = ?", userId).Find(&relations).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(relations) == 0 {
+		return nil, nil
+	}
+	var focusIds []uint
+	for _, relation := range relations {
+		focusIds = append(focusIds, relation.FocusID)
+	}
+	err = r.DB.Model(&models.Relation{}).WithContext(ctx).
+		Where("focus_id = ? and user_id in ?", userId, focusIds).Find(&relations).Error
+	return relations, err
+}

@@ -65,11 +65,23 @@ func (u *UserDao) GetUserById(ctx context.Context, id uint) (*models.User, error
 	return &user, err
 }
 
-// GetUserList 获取用户列表
-func (u *UserDao) GetUserList(ctx context.Context, userListDto *dto.UserListDTO) ([]*models.User, int64, error) {
+// GetUserIdsBySearchKey 根据关键字模糊搜索用户id列表
+func (u *UserDao) GetUserIdsBySearchKey(ctx context.Context, key string) ([]uint, error) {
+	var ids []uint
+	err := u.DB.Model(&models.User{}).WithContext(ctx).
+		Where("username like ?", "%"+key+"%").
+		Pluck("id", &ids).Error
+	return ids, err
+}
+
+// GetUserListBySearch 模糊搜索用户列表
+func (u *UserDao) GetUserListBySearch(
+	ctx context.Context, userListDto *dto.UserSearchListDTO,
+) ([]*models.User, int64, error) {
 	var users []*models.User
 	var total int64
 	err := u.DB.Model(&models.User{}).WithContext(ctx).
+		Where("username like ?", "%"+userListDto.Key+"%").
 		Scopes(Paginate(userListDto.CommonPageDTO)).Find(&users).
 		Offset(-1).Limit(-1).Count(&total).Error
 	return users, total, err

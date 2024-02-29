@@ -67,6 +67,7 @@ func (u *UserUpdateDTO) ToModel(user *models.User) {
 	user.Mobile = u.Mobile
 }
 
-type UserListDTO struct {
+type UserSearchListDTO struct {
+	Key string `json:"key" form:"key" binding:"required" message:"key cannot be empty"`
 	CommonPageDTO
 }

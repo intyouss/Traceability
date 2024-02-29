@@ -4,6 +4,35 @@ info:
   title: Traceability
   version: 0.0.1
 paths:
+  /api/v1/auth/video/feed:
+    get:
+      description: 获取视频feed流
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: feed类型
+        in: formData
+        name: type
+        required: true
+        type: integer
+      - description: 最新时间
+        in: formData
+        name: latest_time
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 获取视频feed流
   /api/v1/comment/add:
     post:
       description: 添加评论
@@ -292,13 +321,44 @@ paths:
           schema:
             type: string
       summary: 用户注册
-  /api/v1/public/video/feed:
+  /api/v1/public/user/search:
     get:
-      description: 获取视频feed流
+      description: 获取用户列表
       parameters:
-      - description: 最新时间
+      - description: 关键字
         in: formData
-        name: latest_time
+        name: key
+        type: string
+      - description: 页码
+        in: formData
+        name: page
+        type: integer
+      - description: 每页数量
+        in: formData
+        name: limit
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 获取用户列表
+  /api/v1/public/video/search:
+    get:
+      description: 获取视频搜索结果
+      parameters:
+      - description: 搜索关键字
+        in: formData
+        name: key
+        required: true
+        type: string
+      - description: 搜索类型
+        in: formData
+        name: type
         required: true
         type: integer
       responses:
@@ -310,7 +370,7 @@ paths:
           description: Bad Request
           schema:
             type: string
-      summary: 获取视频feed流
+      summary: 获取视频搜索结果
   /api/v1/relation/action:
     post:
       description: 关注/取消关注
@@ -436,33 +496,6 @@ paths:
           schema:
             type: string
       summary: 删除用户
-  /api/v1/user/list:
-    get:
-      description: 获取用户列表
-      parameters:
-      - description: token
-        in: header
-        name: token
-        required: true
-        type: string
-      - description: 页码
-        in: formData
-        name: page
-        type: integer
-      - description: 每页数量
-        in: formData
-        name: limit
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-      summary: 获取用户列表
   /api/v1/user/update:
     post:
       description: 更新用户信息

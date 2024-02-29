@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/url"
 	"time"
 
@@ -23,16 +24,18 @@ var VideoDaoIns *VideoDao
 
 type VideoDao struct {
 	*BaseDao
-	UserDao *UserDao
-	OSS     *utils.MinioClient
+	UserDao     *UserDao
+	RelationDao *RelationDao
+	OSS         *utils.MinioClient
 }
 
 func NewVideoDao() *VideoDao {
 	if VideoDaoIns == nil {
 		VideoDaoIns = &VideoDao{
-			BaseDao: NewBaseDao(),
-			UserDao: NewUserDao(),
-			OSS:     global.OSS,
+			BaseDao:     NewBaseDao(),
+			UserDao:     NewUserDao(),
+			RelationDao: NewRelationDao(),
+			OSS:         global.OSS,
 		}
 	}
 	return VideoDaoIns
@@ -55,21 +58,86 @@ func (v *VideoDao) GetAuthorIdByVideoId(ctx context.Context, videoId uint) (uint
 func (v *VideoDao) GetVideoList(
 	ctx context.Context, vListDTO *dto.VideoListDTO,
 ) (videos []*models.Video, nextTime int64, err error) {
-	var latestTime time.Time
-	if vListDTO.LatestTime != nil && *vListDTO.LatestTime == 0 {
-		latestTime = time.Now()
-		err = v.DB.Model(&models.Video{}).WithContext(ctx).Where("created_at <= ?", latestTime).
-			Order("id DESC").Find(&videos).Error
-		nextTime = videos[0].CreatedAt.UnixMilli()
-		return videos, nextTime, err
-	}
-	latestTime = time.UnixMilli(*vListDTO.LatestTime)
+	//if vListDTO.LatestTime != nil && *vListDTO.LatestTime == 0 {
+	//	latestTime = time.Now()
+	//	err = v.DB.Model(&models.Video{}).WithContext(ctx).Where("created_at <= ?", latestTime).
+	//		Order("id DESC").Find(&videos).Error
+	//	nextTime = videos[0].CreatedAt.UnixMilli()
+	//	return videos, nextTime, err
+	//}
+	latestTime := time.UnixMilli(*vListDTO.LatestTime)
 	err = v.DB.Model(&models.Video{}).WithContext(ctx).Where("created_at > ?", latestTime).
 		Order("id DESC").Find(&videos).Error
-	if len(videos) != 0 {
-		nextTime = videos[0].CreatedAt.UnixMilli()
+	if len(videos) == 0 {
+		return nil, 0, nil
 	}
+	nextTime = videos[0].CreatedAt.UnixMilli()
 	return videos, nextTime, err
+}
+
+// GetFocusVideoList 获取关注视频列表
+func (v *VideoDao) GetFocusVideoList(
+	ctx context.Context, vListDTO *dto.VideoListDTO,
+) (videoList []*models.Video, nextTime int64, err error) {
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	relations, err := v.RelationDao.GetFocusListByUserId(ctx, userId)
+	if err != nil {
+		return nil, 0, err
+	}
+	var focusIds []uint
+	for _, relation := range relations {
+		focusIds = append(focusIds, relation.FocusID)
+	}
+	videos, _, err := v.GetVideoList(ctx, vListDTO)
+	if err != nil {
+		return nil, 0, err
+	}
+	if len(videos) == 0 {
+		return nil, 0, nil
+	}
+	for _, video := range videos {
+		for _, focusId := range focusIds {
+			if video.AuthorID == focusId {
+				videoList = append(videoList, video)
+			}
+		}
+	}
+	fmt.Println(focusIds)
+	fmt.Printf("%#v", videos)
+	fmt.Printf("%#v", videoList)
+	nextTime = videoList[0].CreatedAt.UnixMilli()
+	return videoList, nextTime, nil
+}
+
+// GetFriendVideoList 获取好友视频列表
+func (v *VideoDao) GetFriendVideoList(
+	ctx context.Context, vListDTO *dto.VideoListDTO,
+) (videoList []*models.Video, nextTime int64, err error) {
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	relations, err := v.RelationDao.GetFriendListByUserId(ctx, userId)
+	if err != nil {
+		return nil, 0, err
+	}
+	var focusIds []uint
+	for _, relation := range relations {
+		focusIds = append(focusIds, relation.FocusID)
+	}
+	videos, _, err := v.GetVideoList(ctx, vListDTO)
+	if err != nil {
+		return nil, 0, err
+	}
+	if len(videos) == 0 {
+		return nil, 0, nil
+	}
+	for _, video := range videos {
+		for _, focusId := range focusIds {
+			if video.AuthorID == focusId {
+				videoList = append(videoList, video)
+			}
+		}
+	}
+	nextTime = videoList[0].CreatedAt.UnixMilli()
+	return videoList, nextTime, nil
 }
 
 // GetVideoListByUserId 根据用户id获取视频列表
@@ -86,6 +154,28 @@ func (v *VideoDao) GetVideoListByVideoId(ctx context.Context, videoIds []uint) (
 	err := v.DB.Model(&models.Video{}).WithContext(ctx).Where("id IN ?", videoIds).
 		Find(&videos).Error
 	return videos, err
+}
+
+// GetVideoSearchByTitle 根据标题模糊搜索视频
+func (v *VideoDao) GetVideoSearchByTitle(ctx context.Context, searchDTO *dto.VideoSearchDTO) (videos []*models.Video, err error) {
+	err = v.DB.Model(&models.Video{}).WithContext(ctx).
+		Where("title LIKE ?", "%"+searchDTO.Key+"%").
+		Find(&videos).Error
+	return
+}
+
+// GetVideoSearchByAuthorAndTitle 根据标题与用户名模糊搜索视频
+func (v *VideoDao) GetVideoSearchByAuthorAndTitle(
+	ctx context.Context, searchDTO *dto.VideoSearchDTO,
+) (videos []*models.Video, err error) {
+	ids, err := v.UserDao.GetUserIdsBySearchKey(ctx, searchDTO.Key)
+	if err != nil {
+		return
+	}
+	err = v.DB.Model(&models.Video{}).WithContext(ctx).
+		Where("title LIKE ?", "%"+searchDTO.Key+"%").
+		Or("author_id IN ?", ids).Find(&videos).Error
+	return
 }
 
 // SaveVideoInfo 保存视频信息

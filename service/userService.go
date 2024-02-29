@@ -71,9 +71,11 @@ func (u *UserService) GetUserById(ctx context.Context, idDTO *dto.CommonUserIDDT
 	return u.Dao.GetUserById(ctx, id)
 }
 
-// GetUserList 获取用户列表
-func (u *UserService) GetUserList(ctx context.Context, userListDTO *dto.UserListDTO) ([]*models.User, int64, error) {
-	return u.Dao.GetUserList(ctx, userListDTO)
+// GetUserListBySearch 模糊搜索用户列表
+func (u *UserService) GetUserListBySearch(
+	ctx context.Context, userListDTO *dto.UserSearchListDTO,
+) ([]*models.User, int64, error) {
+	return u.Dao.GetUserListBySearch(ctx, userListDTO)
 }
 
 // UpdateUser 更新用户信息

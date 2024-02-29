@@ -133,24 +133,24 @@ func (u UserApi) GetUserInfo(ctx *gin.Context) {
 	})
 }
 
-// GetUserList 获取用户列表
+// GetUserListBySearch 获取用户列表
 // @Summary 获取用户列表
 // @Description 获取用户列表
-// @Param token header string true "token"
+// @Param key formData string false "关键字"
 // @Param page formData int false "页码"
 // @Param limit formData int false "每页数量"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/user/list [get]
-func (u UserApi) GetUserList(ctx *gin.Context) {
-	var userListDto dto.UserListDTO
+// @Router /api/v1/public/user/search [get]
+func (u UserApi) GetUserListBySearch(ctx *gin.Context) {
+	var userListDto dto.UserSearchListDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &userListDto}).GetError(); err != nil {
 		u.Logger.Error(err)
 		u.Fail(&Response{Code: ErrCodeGetUserList, Msg: err.Error()})
 		return
 	}
 
-	usersDao, total, err := u.Service.GetUserList(ctx, &userListDto)
+	usersDao, total, err := u.Service.GetUserListBySearch(ctx, &userListDto)
 	if err != nil {
 		u.Logger.Error(err)
 		u.Fail(&Response{Code: ErrCodeGetUserList, Msg: err.Error()})

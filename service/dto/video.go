@@ -26,6 +26,7 @@ type Video struct {
 }
 
 type VideoListDTO struct {
+	Type       uint   `json:"type" form:"type" binding:"required" message:"type cannot be empty"`
 	LatestTime *int64 `json:"latest_time" form:"latest_time" binding:"required" message:"latest_time cannot be empty"`
 }
 
@@ -37,4 +38,9 @@ type VideoPublishDTO struct {
 
 type VideoDeleteDTO struct {
 	VideoID int `json:"video_id" form:"video_id" binding:"required" message:"video_id cannot be empty"`
+}
+
+type VideoSearchDTO struct {
+	Key  string `json:"key" form:"key" binding:"required" message:"key cannot be empty"`
+	Type uint   `json:"type" form:"type" binding:"required" message:"type cannot be empty"`
 }

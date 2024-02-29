@@ -17,6 +17,7 @@ const (
 	ErrCodeGetUserVideoList
 	ErrCodePublishVideo
 	ErrCodeDeleteVideo
+	ErrCodeGetVideoSearch
 )
 
 type VideoApi struct {
@@ -33,13 +34,24 @@ func NewVideoApi() VideoApi {
 	}
 }
 
-// GetVideoFeed 获取首页视频feed流
+// GetVideoFeed 获取视频feed流
 // @Summary 获取视频feed流
 // @Description 获取视频feed流
 // @Param latest_time formData int true "最新时间"
+// @Param type formData int true "feed类型"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/public/video/feed/index [get]
+// @Router /api/v1/public/video/feed [get]
+
+// GetVideoFeed 获取视频feed流 (auth)
+// @Summary 获取视频feed流
+// @Description 获取视频feed流
+// @Param token header string true "token"
+// @Param type formData int true "feed类型"
+// @Param latest_time formData int true "最新时间"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/auth/video/feed [get]
 func (v VideoApi) GetVideoFeed(ctx *gin.Context) {
 	// 绑定并验证参数
 	var vListDTO dto.VideoListDTO
@@ -155,6 +167,71 @@ func (v VideoApi) GetUserVideoList(ctx *gin.Context) {
 		var videoDTO = new(dto.Video)
 		_ = copier.Copy(videoDTO, video)
 		videoDTO.CreatedAt = timeFormat(video.CreatedAt)
+		videoDTO.Author = user
+		videos = append(videos, videoDTO)
+	}
+
+	v.Success(&Response{
+		Data: gin.H{
+			"videos": videos,
+		},
+	})
+}
+
+// GetVideoSearch 获取视频搜索结果
+// @Summary 获取视频搜索结果
+// @Description 获取视频搜索结果
+// @Param key formData string true "搜索关键字"
+// @Param type formData int true "搜索类型"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/public/video/search [get]
+func (v VideoApi) GetVideoSearch(ctx *gin.Context) {
+	var videoSearchDTO dto.VideoSearchDTO
+	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoSearchDTO}).GetError(); err != nil {
+		v.Logger.Error(err)
+		v.Fail(&Response{Code: ErrCodeGetVideoSearch, Msg: err.Error()})
+		return
+	}
+
+	videosDao, err := v.Service.GetVideoSearch(ctx, &videoSearchDTO)
+	if err != nil {
+		v.Logger.Error(err)
+		v.Fail(&Response{Code: ErrCodeGetVideoSearch, Msg: err.Error()})
+		return
+	}
+	if len(videosDao) == 0 {
+		v.Success(&Response{
+			Data: gin.H{
+				"videos": []*dto.Video{},
+			},
+		})
+		return
+	}
+	var authorIds = make([]uint, 0, len(videosDao))
+	for _, video := range videosDao {
+		authorIds = append(authorIds, video.AuthorID)
+	}
+	var authorIdsMap = make(map[uint]*models.User)
+	for _, video := range videosDao {
+		authorIdsMap[video.AuthorID] = nil
+	}
+	authors, err := v.UserApi.Service.GetUserListByIds(ctx, authorIds)
+	if err != nil {
+		v.Logger.Error(err)
+		v.Fail(&Response{Code: ErrCodeGetVideoSearch, Msg: err.Error()})
+		return
+	}
+	for _, author := range authors {
+		authorIdsMap[author.ID] = author
+	}
+	var videos = make([]*dto.Video, 0, len(videosDao))
+	for _, video := range videosDao {
+		var videoDTO = new(dto.Video)
+		_ = copier.Copy(videoDTO, video)
+		videoDTO.CreatedAt = timeFormat(video.CreatedAt)
+		var user = new(dto.User)
+		_ = copier.Copy(user, authorIdsMap[video.AuthorID])
 		videoDTO.Author = user
 		videos = append(videos, videoDTO)
 	}

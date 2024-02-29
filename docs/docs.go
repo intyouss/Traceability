@@ -15,6 +15,49 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/auth/video/feed": {
+            "get": {
+                "description": "获取视频feed流",
+                "summary": "获取视频feed流",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "feed类型",
+                        "name": "type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "最新时间",
+                        "name": "latest_time",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/comment/add": {
             "post": {
                 "description": "添加评论",
@@ -447,15 +490,62 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/public/video/feed": {
+        "/api/v1/public/user/search": {
             "get": {
-                "description": "获取视频feed流",
-                "summary": "获取视频feed流",
+                "description": "获取用户列表",
+                "summary": "获取用户列表",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "关键字",
+                        "name": "key",
+                        "in": "formData"
+                    },
+                    {
                         "type": "integer",
-                        "description": "最新时间",
-                        "name": "latest_time",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "limit",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/public/video/search": {
+            "get": {
+                "description": "获取视频搜索结果",
+                "summary": "获取视频搜索结果",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "搜索关键字",
+                        "name": "key",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "搜索类型",
+                        "name": "type",
                         "in": "formData",
                         "required": true
                     }
@@ -645,47 +735,6 @@ const docTemplate = `{
                         "name": "user_id",
                         "in": "formData",
                         "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/user/list": {
-            "get": {
-                "description": "获取用户列表",
-                "summary": "获取用户列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "页码",
-                        "name": "page",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "每页数量",
-                        "name": "limit",
-                        "in": "formData"
                     }
                 ],
                 "responses": {
