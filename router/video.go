@@ -21,6 +21,8 @@ func InitVideoRoutes() {
 		{
 			// 推荐，关注，朋友页视频feed流
 			videoAuthGroup.GET("/feed", videoApi.GetVideoFeed)
+			// 用户发布视频列表
+			videoAuthGroup.GET("/list", videoApi.GetUserVideoList)
 			// 发布视频
 			videoAuthGroup.POST("/publish", videoApi.PublishVideo)
 			// 删除视频

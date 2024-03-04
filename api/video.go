@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/intyouss/Traceability/global"
+
 	"github.com/gin-gonic/gin"
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service"
@@ -117,22 +119,32 @@ func (v VideoApi) GetVideoFeed(ctx *gin.Context) {
 	})
 }
 
-// GetUserVideoList 获取用户发布视频列表
+// GetUserVideoList 获取其他用户发布视频列表
 // @Summary 获取用户发布视频列表
 // @Description 获取用户发布视频列表
 // @Param user_id query int true "用户id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/default/video/list [get]
+
+// GetUserVideoList 获取用户发布视频列表
+// @Summary 获取用户发布视频列表
+// @Description 获取用户发布视频列表
+// @Param token header string true "token"
+// @Param user_id query int true "用户id"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/video/list [get]
 func (v VideoApi) GetUserVideoList(ctx *gin.Context) {
-	var idDTO dto.CommonUserIDDTO
+	var idDTO dto.CommonIDDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDTO}).GetError(); err != nil {
 		v.Logger.Error(err)
 		v.Fail(&Response{Code: ErrCodeGetUserVideoList, Msg: err.Error()})
 		return
 	}
 
-	if !v.UserApi.Service.IsExist(ctx, uint(idDTO.ID)) {
+	if !v.UserApi.Service.IsExist(ctx, idDTO.ID) && ctx.
+		Value(global.LoginUser).(models.LoginUser).ID != idDTO.ID {
 		v.Fail(&Response{Code: ErrCodeGetUserVideoList, Msg: "user not exist"})
 		return
 	}
@@ -162,7 +174,7 @@ func (v VideoApi) GetUserVideoList(ctx *gin.Context) {
 	var user = new(dto.User)
 	_ = copier.Copy(user, userDao)
 
-	var videos = make([]*dto.Video, len(videosDao))
+	var videos = make([]*dto.Video, 0, len(videosDao))
 	for _, video := range videosDao {
 		var videoDTO = new(dto.Video)
 		_ = copier.Copy(videoDTO, video)

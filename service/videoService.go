@@ -29,7 +29,7 @@ func NewVideoService() *VideoService {
 // GetVideoList 获取视频列表
 func (v *VideoService) GetVideoList(
 	ctx context.Context, vListDTO *dto.VideoListDTO,
-) (videos []*models.Video, nextTime int64, err error) {
+) (videos []*models.Video, nextTime string, err error) {
 	switch vListDTO.Type {
 	case 1:
 		videos, nextTime, err = v.Dao.GetVideoList(ctx, vListDTO)
@@ -40,23 +40,23 @@ func (v *VideoService) GetVideoList(
 	case 4:
 		videos, nextTime, err = v.Dao.GetVideoList(ctx, vListDTO)
 	default:
-		return nil, 0, errors.New("type error")
+		return nil, "", errors.New("type error")
 	}
 	if err != nil {
-		return nil, 0, err
+		return nil, "", err
 	}
 	if len(videos) == 0 {
-		return nil, 0, nil
+		return nil, "", nil
 	}
 	err = v.Dao.UpdateUrl(ctx, videos)
 	if err != nil {
-		return nil, 0, err
+		return nil, "", err
 	}
 	return videos, nextTime, nil
 }
 
 // GetVideoListByUserId 根据用户id获取视频列表
-func (v *VideoService) GetVideoListByUserId(ctx context.Context, idDTO *dto.CommonUserIDDTO) ([]*models.Video, error) {
+func (v *VideoService) GetVideoListByUserId(ctx context.Context, idDTO *dto.CommonIDDTO) ([]*models.Video, error) {
 	videos, err := v.Dao.GetVideoListByUserId(ctx, idDTO)
 	if err != nil {
 		return nil, err

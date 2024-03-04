@@ -3,8 +3,8 @@ package dao
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/url"
+	"strconv"
 	"time"
 
 	"gorm.io/gorm"
@@ -57,7 +57,7 @@ func (v *VideoDao) GetAuthorIdByVideoId(ctx context.Context, videoId uint) (uint
 // GetVideoList 获取视频列表
 func (v *VideoDao) GetVideoList(
 	ctx context.Context, vListDTO *dto.VideoListDTO,
-) (videos []*models.Video, nextTime int64, err error) {
+) (videos []*models.Video, nextTime string, err error) {
 	//if vListDTO.LatestTime != nil && *vListDTO.LatestTime == 0 {
 	//	latestTime = time.Now()
 	//	err = v.DB.Model(&models.Video{}).WithContext(ctx).Where("created_at <= ?", latestTime).
@@ -65,24 +65,30 @@ func (v *VideoDao) GetVideoList(
 	//	nextTime = videos[0].CreatedAt.UnixMilli()
 	//	return videos, nextTime, err
 	//}
-	latestTime := time.UnixMilli(*vListDTO.LatestTime)
-	err = v.DB.Model(&models.Video{}).WithContext(ctx).Where("created_at > ?", latestTime).
+	latestTime, err := strconv.ParseInt(vListDTO.LatestTime, 10, 64)
+	if err != nil {
+		return nil, "", err
+	}
+	err = v.DB.Model(&models.Video{}).WithContext(ctx).Where("created_at > ?", time.UnixMilli(latestTime)).
 		Order("id DESC").Find(&videos).Error
 	if len(videos) == 0 {
-		return nil, 0, nil
+		return nil, "", nil
 	}
-	nextTime = videos[0].CreatedAt.UnixMilli()
+	nextTime = strconv.Itoa(int(videos[0].CreatedAt.UnixMilli()))
 	return videos, nextTime, err
 }
 
 // GetFocusVideoList 获取关注视频列表
 func (v *VideoDao) GetFocusVideoList(
 	ctx context.Context, vListDTO *dto.VideoListDTO,
-) (videoList []*models.Video, nextTime int64, err error) {
+) (videoList []*models.Video, nextTime string, err error) {
 	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
 	relations, err := v.RelationDao.GetFocusListByUserId(ctx, userId)
 	if err != nil {
-		return nil, 0, err
+		return nil, "", err
+	}
+	if len(relations) == 0 {
+		return nil, "", nil
 	}
 	var focusIds []uint
 	for _, relation := range relations {
@@ -90,10 +96,10 @@ func (v *VideoDao) GetFocusVideoList(
 	}
 	videos, _, err := v.GetVideoList(ctx, vListDTO)
 	if err != nil {
-		return nil, 0, err
+		return nil, "", err
 	}
 	if len(videos) == 0 {
-		return nil, 0, nil
+		return nil, "", nil
 	}
 	for _, video := range videos {
 		for _, focusId := range focusIds {
@@ -102,21 +108,21 @@ func (v *VideoDao) GetFocusVideoList(
 			}
 		}
 	}
-	fmt.Println(focusIds)
-	fmt.Printf("%#v", videos)
-	fmt.Printf("%#v", videoList)
-	nextTime = videoList[0].CreatedAt.UnixMilli()
+	nextTime = strconv.Itoa(int(videoList[0].CreatedAt.UnixMilli()))
 	return videoList, nextTime, nil
 }
 
 // GetFriendVideoList 获取好友视频列表
 func (v *VideoDao) GetFriendVideoList(
 	ctx context.Context, vListDTO *dto.VideoListDTO,
-) (videoList []*models.Video, nextTime int64, err error) {
+) (videoList []*models.Video, nextTime string, err error) {
 	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
 	relations, err := v.RelationDao.GetFriendListByUserId(ctx, userId)
 	if err != nil {
-		return nil, 0, err
+		return nil, "", err
+	}
+	if len(relations) == 0 {
+		return nil, "", nil
 	}
 	var focusIds []uint
 	for _, relation := range relations {
@@ -124,10 +130,10 @@ func (v *VideoDao) GetFriendVideoList(
 	}
 	videos, _, err := v.GetVideoList(ctx, vListDTO)
 	if err != nil {
-		return nil, 0, err
+		return nil, "", err
 	}
 	if len(videos) == 0 {
-		return nil, 0, nil
+		return nil, "", nil
 	}
 	for _, video := range videos {
 		for _, focusId := range focusIds {
@@ -136,12 +142,12 @@ func (v *VideoDao) GetFriendVideoList(
 			}
 		}
 	}
-	nextTime = videoList[0].CreatedAt.UnixMilli()
+	nextTime = strconv.Itoa(int(videoList[0].CreatedAt.UnixMilli()))
 	return videoList, nextTime, nil
 }
 
 // GetVideoListByUserId 根据用户id获取视频列表
-func (v *VideoDao) GetVideoListByUserId(ctx context.Context, idDTO *dto.CommonUserIDDTO) ([]*models.Video, error) {
+func (v *VideoDao) GetVideoListByUserId(ctx context.Context, idDTO *dto.CommonIDDTO) ([]*models.Video, error) {
 	var videos []*models.Video
 	err := v.DB.Model(&models.Video{}).WithContext(ctx).Where("author_id = ?", idDTO.ID).
 		Order("id DESC").Find(&videos).Error
@@ -255,11 +261,15 @@ func (v *VideoDao) CheckUrl(accessUrl string) (bool, error) {
 // UpdateUrl 检查视频列表所有url是否失效，更新url
 func (v *VideoDao) UpdateUrl(ctx context.Context, videoList []*models.Video) error {
 	for _, video := range videoList {
-		ok, err := v.CheckUrl(video.PlayUrl)
+		firstOk, err := v.CheckUrl(video.PlayUrl)
 		if err != nil {
 			return err
 		}
-		if ok {
+		secondOk, err := v.CheckUrl(video.CoverUrl)
+		if err != nil {
+			return err
+		}
+		if firstOk && secondOk {
 			continue
 		}
 		video.PlayUrl, video.CoverUrl, err = v.GetRemoteVideoInfo(ctx, video.Title)
@@ -331,7 +341,7 @@ func (v *VideoDao) UploadCoverImage(ctx context.Context, upload *dto.VideoPublis
 // DeleteVideo 删除视频
 func (v *VideoDao) DeleteVideo(ctx context.Context, deleteDTO *dto.VideoDeleteDTO) (*models.Video, error) {
 	var video models.Video
-	err := v.DB.WithContext(ctx).Model(&models.Video{}).First(&video, deleteDTO.VideoID).Error
+	err := v.DB.WithContext(ctx).Model(&models.Video{}).First(&video, deleteDTO.ID).Error
 	if err != nil {
 		return nil, errors.New("video not found")
 	}
@@ -339,7 +349,7 @@ func (v *VideoDao) DeleteVideo(ctx context.Context, deleteDTO *dto.VideoDeleteDT
 		return nil, errors.New("no permission to delete this video")
 	}
 	err = v.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err = v.DB.WithContext(ctx).Unscoped().Delete(&models.Video{}, deleteDTO.VideoID).Error; err != nil {
+		if err = v.DB.WithContext(ctx).Unscoped().Delete(&models.Video{}, deleteDTO.ID).Error; err != nil {
 			return err
 		}
 		// 更新视频数

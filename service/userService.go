@@ -63,12 +63,8 @@ func (u *UserService) Register(ctx context.Context, userAddDTO *dto.UserAddDTO) 
 }
 
 // GetUserById 根据id获取用户
-func (u *UserService) GetUserById(ctx context.Context, idDTO *dto.CommonUserIDDTO) (*models.User, error) {
-	var id uint
-	if idDTO.ID == -1 {
-		id = ctx.Value(global.LoginUser).(models.LoginUser).ID
-	}
-	return u.Dao.GetUserById(ctx, id)
+func (u *UserService) GetUserById(ctx context.Context, idDTO *dto.CommonIDDTO) (*models.User, error) {
+	return u.Dao.GetUserById(ctx, idDTO.ID)
 }
 
 // GetUserListBySearch 模糊搜索用户列表
@@ -80,18 +76,20 @@ func (u *UserService) GetUserListBySearch(
 
 // UpdateUser 更新用户信息
 func (u *UserService) UpdateUser(ctx context.Context, updateDTO *dto.UserUpdateDTO) error {
-	if updateDTO.UserID != ctx.Value(global.LoginUser).(models.LoginUser).ID {
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	if updateDTO.ID != userId {
 		return errors.New("don't have permission")
 	}
 	return u.Dao.UpdateUser(ctx, updateDTO)
 }
 
 // DeleteUserById 删除用户
-func (u *UserService) DeleteUserById(ctx context.Context, commonIDDTO *dto.CommonUserIDDTO) error {
-	if commonIDDTO.ID != -1 {
+func (u *UserService) DeleteUserById(ctx context.Context, idDTO *dto.CommonIDDTO) error {
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	if idDTO.ID != userId {
 		return errors.New("don't have permission")
 	}
-	return u.Dao.DeleteUserById(ctx, ctx.Value(global.LoginUser).(models.LoginUser).ID)
+	return u.Dao.DeleteUserById(ctx, userId)
 }
 
 // GetUserListByIds 根据id列表获取用户列表

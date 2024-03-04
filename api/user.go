@@ -100,7 +100,15 @@ func (u UserApi) Register(ctx *gin.Context) {
 	})
 }
 
-// GetUserInfo 获取用户信息
+// GetUserInfo 获取其他用户信息
+// @Summary 获取用户信息
+// @Description 获取用户信息
+// @Param user_id query int true "用户id"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/public/user/ [get]
+
+// GetUserInfo 获取用户本人信息
 // @Summary 获取用户信息
 // @Description 获取用户信息
 // @Param token header string true "token"
@@ -108,9 +116,8 @@ func (u UserApi) Register(ctx *gin.Context) {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/user/ [get]
-// @Router /api/v1/public/user/ [get]
 func (u UserApi) GetUserInfo(ctx *gin.Context) {
-	var idDto dto.CommonUserIDDTO
+	var idDto dto.CommonIDDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDto}).GetError(); err != nil {
 		u.Logger.Error(err)
 		u.Fail(&Response{Code: ErrCodeGetUserById, Msg: err.Error()})
@@ -217,7 +224,7 @@ func (u UserApi) UpdateUser(ctx *gin.Context) {
 // @Failure 400 {string} Response
 // @Router /api/v1/user/delete [post]
 func (u UserApi) DeleteUser(ctx *gin.Context) {
-	var idDTO dto.CommonUserIDDTO
+	var idDTO dto.CommonIDDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDTO}).GetError(); err != nil {
 		u.Logger.Error(err)
 		u.Fail(&Response{Code: ErrCodeDeleteUser, Msg: err.Error()})

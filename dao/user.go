@@ -90,7 +90,7 @@ func (u *UserDao) GetUserListBySearch(
 // UpdateUser 更新用户信息
 func (u *UserDao) UpdateUser(ctx context.Context, updateDTO *dto.UserUpdateDTO) error {
 	var user models.User
-	err := u.DB.Model(&models.User{}).WithContext(ctx).First(&user, updateDTO.UserID).Error
+	err := u.DB.Model(&models.User{}).WithContext(ctx).First(&user, updateDTO.ID).Error
 	if err != nil {
 		return err
 	}

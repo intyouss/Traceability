@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/intyouss/Traceability/global"
@@ -36,23 +37,30 @@ func (m *MessageDao) AddMessage(ctx context.Context, dto *dto.AddMessageDTO) err
 
 // GetMessages 获取消息列表
 func (m *MessageDao) GetMessages(
-	ctx context.Context, dto *dto.MessageListDTO) (messages []*models.Message, preTime int64, err error) {
+	ctx context.Context, dto *dto.MessageListDTO) (messages []*models.Message, preTime string, err error) {
 	userID := ctx.Value(global.LoginUser).(models.LoginUser).ID
-	var preMsgTime time.Time
-	if dto.PreMsgTime != nil && *dto.PreMsgTime == 0 {
-		preMsgTime = time.Now()
+	if dto.PreMsgTime == "0" {
+		preMsgTime := time.Now()
 		err = m.DB.Model(&models.Message{}).WithContext(ctx).
 			Where("(to_user_id = ? AND from_user_id = ?) OR (to_user_id = ? AND from_user_id = ?)",
 				dto.ToUserID, userID, userID, dto.ToUserID).Where("created_at <= ?", preMsgTime).
 			Order("id").Find(&messages).Error
 	} else {
+		preMessageTime, err := strconv.ParseInt(dto.PreMsgTime, 10, 64)
+		if err != nil {
+			return nil, "", err
+		}
+		preMsgTime := time.UnixMilli(preMessageTime)
 		err = m.DB.Model(&models.Message{}).WithContext(ctx).
 			Where("(to_user_id = ? AND from_user_id = ?) OR (to_user_id = ? AND from_user_id = ?)",
 				dto.ToUserID, userID, userID, dto.ToUserID).
-			Where("created_at > ?", time.UnixMilli(*dto.PreMsgTime)).Order("id").Find(&messages).Error
+			Where("created_at > ?", preMsgTime).Order("id").Find(&messages).Error
+		if err != nil {
+			return nil, "", err
+		}
 	}
 	if len(messages) != 0 {
-		preTime = messages[len(messages)-1].CreatedAt.UnixMilli()
+		preTime = strconv.Itoa(int(messages[len(messages)-1].CreatedAt.UnixMilli()))
 	}
 	return
 }

@@ -44,12 +44,12 @@ func (c *CommentService) AddComment(ctx context.Context, cAddDTO *dto.AddComment
 
 // DeleteCommentById 根据id删除评论
 func (c *CommentService) DeleteCommentById(ctx context.Context, cDeleteDTO *dto.DeleteCommentDTO) error {
-	video, err := c.Dao.GetCommentById(ctx, cDeleteDTO.CommentID)
+	video, err := c.Dao.GetCommentById(ctx, cDeleteDTO.ID)
 	if err != nil {
 		return err
 	}
 	if video.UserId != ctx.Value(global.LoginUser).(models.LoginUser).ID {
 		return errors.New("permission denied")
 	}
-	return c.Dao.DeleteCommentById(ctx, cDeleteDTO.CommentID)
+	return c.Dao.DeleteCommentById(ctx, cDeleteDTO.ID)
 }
