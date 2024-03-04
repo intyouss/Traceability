@@ -77,7 +77,7 @@ const props = defineProps({
                 <v-side-bar
                     :comment-count="item.comment_count"
                     :like-count="item.like_count"
-                    :collect-count="0"
+                    :collect-count="item.collect_count"
                 />
                 <v-footer
                     :title="item.title"

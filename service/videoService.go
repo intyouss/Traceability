@@ -46,7 +46,7 @@ func (v *VideoService) GetVideoList(
 		return nil, "", err
 	}
 	if len(videos) == 0 {
-		return nil, "", nil
+		return nil, "0", nil
 	}
 	err = v.Dao.UpdateUrl(ctx, videos)
 	if err != nil {
@@ -56,7 +56,7 @@ func (v *VideoService) GetVideoList(
 }
 
 // GetVideoListByUserId 根据用户id获取视频列表
-func (v *VideoService) GetVideoListByUserId(ctx context.Context, idDTO *dto.CommonIDDTO) ([]*models.Video, error) {
+func (v *VideoService) GetVideoListByUserId(ctx context.Context, idDTO *dto.UserVideoListDTO) ([]*models.Video, error) {
 	videos, err := v.Dao.GetVideoListByUserId(ctx, idDTO)
 	if err != nil {
 		return nil, err

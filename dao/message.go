@@ -45,6 +45,9 @@ func (m *MessageDao) GetMessages(
 			Where("(to_user_id = ? AND from_user_id = ?) OR (to_user_id = ? AND from_user_id = ?)",
 				dto.ToUserID, userID, userID, dto.ToUserID).Where("created_at <= ?", preMsgTime).
 			Order("id").Find(&messages).Error
+		if err != nil {
+			return nil, "", err
+		}
 	} else {
 		preMessageTime, err := strconv.ParseInt(dto.PreMsgTime, 10, 64)
 		if err != nil {
@@ -59,8 +62,9 @@ func (m *MessageDao) GetMessages(
 			return nil, "", err
 		}
 	}
-	if len(messages) != 0 {
-		preTime = strconv.Itoa(int(messages[len(messages)-1].CreatedAt.UnixMilli()))
+	if len(messages) == 0 {
+		return nil, "0", nil
 	}
-	return
+	preTime = strconv.Itoa(int(messages[len(messages)-1].CreatedAt.UnixMilli()))
+	return messages, preTime, nil
 }

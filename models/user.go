@@ -7,17 +7,30 @@ import (
 
 type User struct {
 	gorm.Model
-	Username   string `gorm:"type:varchar(64);not null;unique" json:"username"`
-	Password   string `gorm:"type:varchar(128);not null" json:"-"`
-	Avatar     string `gorm:"type:varchar(256)" json:"avatar"`
-	Email      string `gorm:"type:varchar(128)" json:"email"`
-	Mobile     string `gorm:"type:varchar(11)" json:"mobile"`
-	FocusCount uint   `gorm:"not null;default:0" json:"follow_count"`
-	FansCount  uint   `gorm:"not null;default:0" json:"fans_count"`
-	LikeCount  uint   `gorm:"not null;default:0" json:"like_count"`
-	LikedCount uint   `gorm:"not null;default:0" json:"liked_count"`
-	VideoCount uint   `gorm:"not null;default:0" json:"video_count"`
-	Signature  string `gorm:"type:varchar(256)" json:"signature"`
+	// 用户名
+	Username string `gorm:"type:varchar(64);not null;unique" json:"username"`
+	// 密码
+	Password string `gorm:"type:varchar(128);not null" json:"-"`
+	// 头像
+	Avatar string `gorm:"type:varchar(256)" json:"avatar"`
+	// 邮箱
+	Email string `gorm:"type:varchar(128)" json:"email"`
+	// 手机号
+	Mobile string `gorm:"type:varchar(11)" json:"mobile"`
+	// 关注数
+	FocusCount uint `gorm:"not null;default:0" json:"follow_count"`
+	// 粉丝数
+	FansCount uint `gorm:"not null;default:0" json:"fans_count"`
+	// 点赞数
+	LikeCount uint `gorm:"not null;default:0" json:"like_count"`
+	// 被点赞数
+	LikedCount uint `gorm:"not null;default:0" json:"liked_count"`
+	// 视频数
+	VideoCount uint `gorm:"not null;default:0" json:"video_count"`
+	// 收藏数
+	CollectCount uint `gorm:"not null;default:0" json:"collect_count"`
+	// 个性签名
+	Signature string `gorm:"type:varchar(256)" json:"signature"`
 }
 
 // Encrypt 密码加密

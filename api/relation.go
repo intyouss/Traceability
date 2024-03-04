@@ -39,7 +39,6 @@ func NewRelationApi() RelationApi {
 func (r RelationApi) RelationAction(ctx *gin.Context) {
 	var relationDto dto.RelationActionDto
 	if err := r.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &relationDto}).GetError(); err != nil {
-		r.Logger.Error(err)
 		r.Fail(&Response{Code: ErrCodeRelationAction, Msg: err.Error()})
 		return
 	}
@@ -51,7 +50,6 @@ func (r RelationApi) RelationAction(ctx *gin.Context) {
 
 	err := r.Service.RelationAction(ctx, relationDto)
 	if err != nil {
-		r.Logger.Error(err)
 		r.Fail(&Response{Code: ErrCodeRelationAction, Msg: err.Error()})
 		return
 	}
@@ -70,14 +68,12 @@ func (r RelationApi) RelationAction(ctx *gin.Context) {
 func (r RelationApi) GetFocusList(ctx *gin.Context) {
 	var focusListDto dto.FocusListDto
 	if err := r.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &focusListDto}).GetError(); err != nil {
-		r.Logger.Error(err)
 		r.Fail(&Response{Code: ErrCodeGetFocusList, Msg: err.Error()})
 		return
 	}
 
 	total, focusList, err := r.Service.GetFocusList(ctx, focusListDto)
 	if err != nil {
-		r.Logger.Error(err)
 		r.Fail(&Response{Code: ErrCodeGetFocusList, Msg: err.Error()})
 		return
 	}
@@ -94,7 +90,6 @@ func (r RelationApi) GetFocusList(ctx *gin.Context) {
 	}
 	userList, err := r.UserApi.Service.GetUserListByIds(ctx, focusUserIDs)
 	if err != nil {
-		r.Logger.Error(err)
 		r.Fail(&Response{Code: ErrCodeGetFocusList, Msg: err.Error()})
 		return
 	}
@@ -118,14 +113,12 @@ func (r RelationApi) GetFocusList(ctx *gin.Context) {
 func (r RelationApi) GetFansList(ctx *gin.Context) {
 	var fansListDto dto.FansListDto
 	if err := r.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &fansListDto}).GetError(); err != nil {
-		r.Logger.Error(err)
 		r.Fail(&Response{Code: ErrCodeGetFansList, Msg: err.Error()})
 		return
 	}
 
 	total, fansList, err := r.Service.GetFansList(ctx, fansListDto)
 	if err != nil {
-		r.Logger.Error(err)
 		r.Fail(&Response{Code: ErrCodeGetFansList, Msg: err.Error()})
 		return
 	}
@@ -142,7 +135,6 @@ func (r RelationApi) GetFansList(ctx *gin.Context) {
 	}
 	userList, err := r.UserApi.Service.GetUserListByIds(ctx, fansUserIDs)
 	if err != nil {
-		r.Logger.Error(err)
 		r.Fail(&Response{Code: ErrCodeGetFansList, Msg: err.Error()})
 		return
 	}

@@ -38,7 +38,6 @@ func (m MessageApi) SendMessage(ctx *gin.Context) {
 	var addMsgDTO dto.AddMessageDTO
 	err := m.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &addMsgDTO}).GetError()
 	if err != nil {
-		m.Logger.Error(err)
 		m.Fail(&Response{Code: ErrCodeSendMessage, Msg: err.Error()})
 		return
 	}
@@ -49,7 +48,6 @@ func (m MessageApi) SendMessage(ctx *gin.Context) {
 	}
 
 	if err := m.Service.SendMessage(ctx, &addMsgDTO); err != nil {
-		m.Logger.Error(err)
 		m.Fail(&Response{Code: ErrCodeSendMessage, Msg: err.Error()})
 		return
 	}
@@ -69,7 +67,6 @@ func (m MessageApi) GetMessages(ctx *gin.Context) {
 	var msgListDTO dto.MessageListDTO
 	err := m.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &msgListDTO}).GetError()
 	if err != nil {
-		m.Logger.Error(err)
 		m.Fail(&Response{Code: ErrCodeGetMessage, Msg: err.Error()})
 		return
 	}
@@ -81,7 +78,6 @@ func (m MessageApi) GetMessages(ctx *gin.Context) {
 
 	msgDao, preMsgTime, err := m.Service.GetMessages(ctx, &msgListDTO)
 	if err != nil {
-		m.Logger.Error(err)
 		m.Fail(&Response{Code: ErrCodeGetMessage, Msg: err.Error()})
 		return
 	}

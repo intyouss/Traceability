@@ -40,7 +40,6 @@ func NewLikeApi() LikeApi {
 func (l LikeApi) GetLikeList(ctx *gin.Context) {
 	var kListDto dto.LikeListDTO
 	if err := l.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &kListDto}).GetError(); err != nil {
-		l.Logger.Error(err)
 		l.Fail(&Response{Code: ErrCodeGetLikeList, Msg: err.Error()})
 		return
 	}
@@ -52,7 +51,6 @@ func (l LikeApi) GetLikeList(ctx *gin.Context) {
 
 	likeListDao, err := l.Service.GetLikeList(ctx, &kListDto)
 	if err != nil {
-		l.Logger.Error(err)
 		l.Fail(&Response{Code: ErrCodeGetLikeList, Msg: err.Error()})
 		return
 	}
@@ -64,7 +62,6 @@ func (l LikeApi) GetLikeList(ctx *gin.Context) {
 
 		likeVideoListDao, err := l.VideoApi.Service.GetVideoListByVideoId(ctx, likeVideoIdList)
 		if err != nil {
-			l.Logger.Error(err)
 			l.Fail(&Response{Code: ErrCodeGetLikeList, Msg: err.Error()})
 			return
 		}
@@ -81,7 +78,6 @@ func (l LikeApi) GetLikeList(ctx *gin.Context) {
 
 		likeUserList, err := l.UserApi.Service.GetUserListByIds(ctx, likeVideoUserIdList)
 		if err != nil {
-			l.Logger.Error(err)
 			l.Fail(&Response{Code: ErrCodeGetLikeList, Msg: err.Error()})
 			return
 		}
@@ -124,7 +120,6 @@ func (l LikeApi) GetLikeList(ctx *gin.Context) {
 func (l LikeApi) LikeAction(ctx *gin.Context) {
 	var likeActionDto dto.LikeActionDTO
 	if err := l.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &likeActionDto}).GetError(); err != nil {
-		l.Logger.Error(err)
 		l.Fail(&Response{Code: ErrCodeLikeAction, Msg: err.Error()})
 		return
 	}
@@ -135,7 +130,6 @@ func (l LikeApi) LikeAction(ctx *gin.Context) {
 	}
 
 	if err := l.Service.LikeAction(ctx, &likeActionDto); err != nil {
-		l.Logger.Error(err)
 		l.Fail(&Response{Code: ErrCodeLikeAction, Msg: err.Error()})
 		return
 	}

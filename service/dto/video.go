@@ -17,6 +17,8 @@ type Video struct {
 	CoverUrl string `json:"cover_url"`
 	// 用户喜爱数
 	LikeCount uint `json:"like_count"`
+	// 用户收藏数
+	CollectCount uint `json:"collect_count"`
 	// 用户评论数
 	CommentCount uint `json:"comment_count"`
 	// 用户喜爱状态
@@ -28,6 +30,10 @@ type Video struct {
 type VideoListDTO struct {
 	Type       uint   `json:"type" form:"type" binding:"required" message:"type cannot be empty"`
 	LatestTime string `json:"latest_time" form:"latest_time" binding:"required" message:"latest_time cannot be empty"`
+}
+
+type UserVideoListDTO struct {
+	UserID uint `json:"user_id" form:"user_id" binding:"required" message:"user_id cannot be empty"`
 }
 
 type VideoPublishDTO struct {

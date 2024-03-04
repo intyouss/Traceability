@@ -8,6 +8,7 @@ import {
   getAuthVideo, getVideoSearch, getUserVideoList,
 } from '~/api/video.js';
 import {getLikeList} from '~/api/like.js';
+import {getCollectList} from '~/api/collect.js';
 
 export function useRePassword() {
   const rePasswordForm = ref(false);
@@ -174,6 +175,13 @@ export function useOwnerVideos() {
       Videos.value = res.data.videos;
     });
   };
+  const getCollectVideos = () => {
+    getCollectList({
+      'user_id': store.state.user.id,
+    }).then((res)=>{
+      Videos.value = res.data.videos;
+    });
+  };
 
   const getVideoList = (type) => {
     // 根据路由获取视频列表
@@ -183,7 +191,7 @@ export function useOwnerVideos() {
       case '喜爱':
         return getLikeVideos();
       case '收藏':
-        return Videos.value = [];
+        return getCollectVideos();
     }
   };
   return {

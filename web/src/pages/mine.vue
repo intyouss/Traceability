@@ -26,7 +26,7 @@ const tagList = ref([
   },
   {
     'name': '收藏',
-    'count': 0,
+    'count': store.state.user.collect_count,
   },
 ]);
 

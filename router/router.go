@@ -101,6 +101,7 @@ func InitBaseRoutes() {
 	InitLikeRoutes()
 	InitRelationRoutes()
 	InitMessageRoutes()
+	InitCollectRoutes()
 }
 
 //func registerValidation() {

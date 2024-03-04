@@ -72,7 +72,7 @@ func (v *VideoDao) GetVideoList(
 	err = v.DB.Model(&models.Video{}).WithContext(ctx).Where("created_at > ?", time.UnixMilli(latestTime)).
 		Order("id DESC").Find(&videos).Error
 	if len(videos) == 0 {
-		return nil, "", nil
+		return nil, "0", nil
 	}
 	nextTime = strconv.Itoa(int(videos[0].CreatedAt.UnixMilli()))
 	return videos, nextTime, err
@@ -88,7 +88,7 @@ func (v *VideoDao) GetFocusVideoList(
 		return nil, "", err
 	}
 	if len(relations) == 0 {
-		return nil, "", nil
+		return nil, "0", nil
 	}
 	var focusIds []uint
 	for _, relation := range relations {
@@ -99,7 +99,7 @@ func (v *VideoDao) GetFocusVideoList(
 		return nil, "", err
 	}
 	if len(videos) == 0 {
-		return nil, "", nil
+		return nil, "0", nil
 	}
 	for _, video := range videos {
 		for _, focusId := range focusIds {
@@ -122,7 +122,7 @@ func (v *VideoDao) GetFriendVideoList(
 		return nil, "", err
 	}
 	if len(relations) == 0 {
-		return nil, "", nil
+		return nil, "0", nil
 	}
 	var focusIds []uint
 	for _, relation := range relations {
@@ -133,7 +133,7 @@ func (v *VideoDao) GetFriendVideoList(
 		return nil, "", err
 	}
 	if len(videos) == 0 {
-		return nil, "", nil
+		return nil, "0", nil
 	}
 	for _, video := range videos {
 		for _, focusId := range focusIds {
@@ -147,9 +147,9 @@ func (v *VideoDao) GetFriendVideoList(
 }
 
 // GetVideoListByUserId 根据用户id获取视频列表
-func (v *VideoDao) GetVideoListByUserId(ctx context.Context, idDTO *dto.CommonIDDTO) ([]*models.Video, error) {
+func (v *VideoDao) GetVideoListByUserId(ctx context.Context, vListDTO *dto.UserVideoListDTO) ([]*models.Video, error) {
 	var videos []*models.Video
-	err := v.DB.Model(&models.Video{}).WithContext(ctx).Where("author_id = ?", idDTO.ID).
+	err := v.DB.Model(&models.Video{}).WithContext(ctx).Where("author_id = ?", vListDTO.UserID).
 		Order("id DESC").Find(&videos).Error
 	return videos, err
 }
@@ -383,6 +383,13 @@ func (v *VideoDao) UpdateCommentCount(ctx context.Context, videoId uint, count i
 // UpdateVideoLikeCount 更新点赞数
 func (v *VideoDao) UpdateVideoLikeCount(ctx context.Context, videoId uint, count int) error {
 	value := map[string]interface{}{"like_count": gorm.Expr("like_count + ?", count)}
+	return v.DB.Model(&models.Video{}).WithContext(ctx).Where("id = ?", videoId).
+		Updates(value).Error
+}
+
+// UpdateVideoCollectCount 更新收藏数
+func (v *VideoDao) UpdateVideoCollectCount(ctx context.Context, videoId uint, count int) error {
+	value := map[string]interface{}{"collect_count": gorm.Expr("collect_count + ?", count)}
 	return v.DB.Model(&models.Video{}).WithContext(ctx).Where("id = ?", videoId).
 		Updates(value).Error
 }

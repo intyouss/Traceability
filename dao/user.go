@@ -150,3 +150,10 @@ func (u *UserDao) UpdateVideoCount(ctx context.Context, id uint, count int) erro
 	return u.DB.Model(&models.User{}).WithContext(ctx).Where("id = ?", id).
 		Updates(value).Error
 }
+
+// UpdateCollectCount 更新收藏数
+func (u *UserDao) UpdateCollectCount(ctx context.Context, id uint, count int) error {
+	value := map[string]interface{}{"collect_count": gorm.Expr("collect_count + ?", count)}
+	return u.DB.Model(&models.User{}).WithContext(ctx).Where("id = ?", id).
+		Updates(value).Error
+}

@@ -16,4 +16,6 @@ type Video struct {
 	LikeCount uint `gorm:"not null" json:"like_count"`
 	// 用户评论数
 	CommentCount uint `gorm:"not null" json:"comment_count"`
+	// 用户收藏数
+	CollectCount uint `gorm:"not null" json:"collect_count"`
 }

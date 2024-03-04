@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"reflect"
 
+	"github.com/intyouss/Traceability/global"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,9 +40,17 @@ func Success(ctx *gin.Context, resp *Response) {
 	resp.Code = SuccessCode
 	resp.Msg = SuccessMsg
 	HttpResponse(ctx, resp)
+	global.Logger.Infof(
+		"Request: (Method) %v | (Path) %v | (Code) %v | (Msg) %v | (Data) %+v",
+		ctx.Request.Method, ctx.Request.RequestURI, resp.Code, resp.Msg, resp.Data,
+	)
 }
 
 // Fail 失败响应
 func Fail(ctx *gin.Context, resp *Response) {
 	HttpResponse(ctx, resp)
+	global.Logger.Errorf(
+		"Request: (Method) %v | (Path) %v | (ErrorCode) %v | (ErrorMsg) %v",
+		ctx.Request.Method, ctx.Request.RequestURI, resp.Code, resp.Msg,
+	)
 }

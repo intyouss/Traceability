@@ -25,6 +25,8 @@ type User struct {
 	LikedCount uint `json:"liked_count"`
 	// 视频数
 	VideoCount uint `json:"video_count"`
+	// 收藏数
+	CollectCount uint `json:"collect_count"`
 	// 个性签名
 	Signature string `json:"signature"`
 }
