@@ -32,6 +32,7 @@ const swiperOption = reactive({
 
 onBeforeMount(() => {
   getVideoList();
+  console.log(Videos);
 });
 const props = defineProps({
   sideBarDisplay: String,
@@ -74,13 +75,14 @@ const props = defineProps({
                   </vue-plyr>
                 </div>
                 <v-side-bar
-                    class="absolute text-light-50 right-50px bottom-100px"
+                    :comment-count="item.comment_count"
+                    :like-count="item.like_count"
+                    :collect-count="0"
                 />
                 <v-footer
                     :title="item.title"
                     :author="item.author.username"
                     :created-at="item.created_at"
-                    class="absolute text-light-50 left-50px bottom-100px"
                 />
               </div>
             </swiper-slide>

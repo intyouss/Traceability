@@ -40,38 +40,34 @@ const asideMenus = [{
 
 const handleSelect =(e)=>{
   if (e === '/') {
-    return router.push(e);
-  }
-  if (!getToken()) {
+    return router.push('/');
+  } else if (!getToken()) {
     notify('请先登录', 'warning');
     return router.push('/login');
   }
   return router.push(e);
 };
 </script>
-<script>
-
-</script>
 
 <template>
   <div class="f-menu" :style="{ width:$store.state.asideWidth }">
-    <el-menu
-        :default-active="defaultActive"
-        class="el-menu-vertical-demo border-0"
-        :collapse="isCollapse"
-        @select="handleSelect"
-    >
-      <template v-for="(item, index) in asideMenus" :key="index">
-        <el-menu-item :index="item.path">
-          <el-icon><component :is="item.icon"></component></el-icon>
+      <el-menu
+          :default-active="defaultActive"
+          class="el-menu-vertical-demo border-0"
+          :collapse="isCollapse"
+          @select="handleSelect"
+      >
+        <template v-for="(item, index) in asideMenus" :key="index">
+          <el-menu-item :index="item.path">
+            <el-icon><component :is="item.icon"></component></el-icon>
             <span>{{ item.name }}</span>
+          </el-menu-item>
+        </template>
+        <el-menu-item>
+          <el-icon><Sunny /></el-icon>
+          <span>切换</span>
         </el-menu-item>
-      </template>
-      <el-menu-item>
-        <el-icon><Sunny /></el-icon>
-        <span>切换</span>
-      </el-menu-item>
-    </el-menu>
+      </el-menu>
   </div>
 </template>
 

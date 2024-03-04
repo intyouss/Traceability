@@ -5,13 +5,11 @@ import {useRouter} from 'vue-router';
 import {useStore} from 'vuex';
 import {
   getIndexVideo,
-  getAuthVideo, getVideoSearch,
+  getAuthVideo, getVideoSearch, getUserVideoList,
 } from '~/api/video.js';
-import {getToken} from '~/composables/auth.js';
+import {getLikeList} from '~/api/like.js';
 
 export function useRePassword() {
-  // const router = useRouter();
-  // const store = useStore();
   const rePasswordForm = ref(false);
   const formLabelWidth = '140px';
   const form = reactive({
@@ -66,7 +64,7 @@ export function useLogout() {
   const router = useRouter();
   const store = useStore();
   function handleLogout() {
-    confirm('确定退出登录吗?').then((res)=>{
+    confirm('确定退出登录吗?').then(()=>{
       logout()
           .finally(()=>{
             store.dispatch('logout');
@@ -151,6 +149,41 @@ export function useVideos() {
         return getRecommendVideos();
       case 'friend':
         return getFriendVideos();
+    }
+  };
+  return {
+    Videos,
+    getVideoList,
+  };
+}
+
+export function useOwnerVideos() {
+  const store = useStore();
+  const Videos = ref([]);
+  const getSelfVideos = () => {
+    getUserVideoList({
+      'user_id': store.state.user.id,
+    }).then((res)=>{
+      Videos.value = res.data.videos;
+    });
+  };
+  const getLikeVideos = () => {
+    getLikeList({
+      'user_id': store.state.user.id,
+    }).then((res)=>{
+      Videos.value = res.data.videos;
+    });
+  };
+
+  const getVideoList = (type) => {
+    // 根据路由获取视频列表
+    switch (type) {
+      case '作品':
+        return getSelfVideos();
+      case '喜爱':
+        return getLikeVideos();
+      case '收藏':
+        return Videos.value = [];
     }
   };
   return {

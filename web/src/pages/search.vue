@@ -2,12 +2,12 @@
 import VSearchPlayer from '~/layouts/components/video/VSearchPlayer.vue';
 import {onMounted, reactive, ref, watch} from 'vue';
 import {useVideoAndUserSearch} from '~/composables/useManager.js';
-import {useRouter} from 'vue-router';
+import {useRoute} from 'vue-router';
 import USearchCard from '~/layouts/components/user/USearchCard.vue';
 import NoResult from '~/assets/icon/no-result.svg';
 
 const {getSearch} = useVideoAndUserSearch();
-const router = useRouter();
+const route = useRoute();
 const tag = reactive({
   '综合': {
     result: [],
@@ -33,7 +33,7 @@ const handleTag = (t, value) => {
     return;
   }
 
-  const key = router.currentRoute.value.query.key;
+  const key = route.query.key;
   if (tag[t].result.length === 0 && !tag[t].isEmpty) {
     loading.value = true;
     getSearch(t, key).then((res) => {
@@ -56,7 +56,7 @@ const handleTag = (t, value) => {
 
 onMounted(() => {
   enTag.value = '综合';
-  const key = router.currentRoute.value.query.key;
+  const key = route.query.key;
   getSearch(enTag.value, key).then((res) => {
     tag[enTag.value].isEmpty = res.length === 0;
     isEmpty.value = res.length === 0;
@@ -68,10 +68,14 @@ onMounted(() => {
     loading.value = false;
   }, 1000);
 });
-watch(() => router.currentRoute.value.query.key, (key) => {
+watch(() => route.query.key, (key) => {
+  if (route.path !== '/search') {
+    return;
+  }
   if (key === '') {
     return;
   }
+  console.log(key);
   loading.value = true;
   enTag.value = '综合';
   for (const i in tag) {

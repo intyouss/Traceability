@@ -44,12 +44,21 @@ export function deleteVideo(data) {
 }
 
 /**
- * 获取用户发布视频列表
+ * 获取其他用户发布视频列表
+ * @param {Object} params
+ * @return {Promise<AxiosResponse<any>>}
+ */
+export function getOtherUserVideoList(params) {
+  return publicAPI.get('/video/list', {params: params});
+}
+
+/**
+ * 获取用户本人发布视频列表
  * @param {Object} params
  * @return {Promise<AxiosResponse<any>>}
  */
 export function getUserVideoList(params) {
-  return publicAPI.get('/video/list', {params: params});
+  return authAPI.get('/video/list', {params: params});
 }
 
 /**

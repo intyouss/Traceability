@@ -4,14 +4,16 @@ import {
   useRePassword, useLogout,
   useMessage, useVideoUpload,
 } from '~/composables/useManager.js';
-import {reactive, ref} from 'vue';
+import {ref} from 'vue';
+import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
 import {Search} from '@element-plus/icons-vue';
 import MContainer from '~/layouts/components/message/MContainer.vue';
 import MMenu from '~/layouts/components/message/MMenu.vue';
 import VUpload from '~/layouts/components/video/VUpload.vue';
 import {getToken} from '~/composables/auth.js';
-import {useRouter} from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 const router = useRouter();
+const route = useRoute();
 const {handleLogout} = useLogout();
 const {
   rePasswordForm,
@@ -35,25 +37,28 @@ const handleRefresh = () => {
   location.reload();
 };
 
-const from = reactive({
-  key: '',
-});
+const key = ref('');
+const enKey = ref('');
 
 const showSearch = ref(false);
 
 const handleSearch = () => {
   if (showSearch.value) {
-    from.search = '';
+    key.value = '';
     return showSearch.value = false;
   }
   showSearch.value = true;
 };
 
 const search = () => {
-  if (from.key === '') {
+  if (key.value === '') {
     return;
   }
-  router.push({path: '/search', query: {key: from.key}});
+  if (key.value === enKey.value && route.path === '/search') {
+    return;
+  }
+  router.push({path: '/search', query: {key: key.value}});
+  enKey.value = key.value;
 };
 </script>
 
@@ -78,7 +83,7 @@ const search = () => {
       </el-icon>
     </el-tooltip>
     <el-input
-        v-model="from.key"
+        v-model="key"
         placeholder="Every day is great."
         class="ml-auto animated fadeInLeft"
         clearable v-else
@@ -126,7 +131,7 @@ const search = () => {
       </el-dropdown>
       <el-dropdown class="dropdown">
         <span class="mr-2 flex items-center" style="outline: none;">
-          <el-avatar :size="40" :src="$store.state.user.avatar" />
+          <el-avatar :size="40" :src="$store.state.user.avatar === ''?DefaultAvatar:$store.state.user.avatar" />
         </span>
         <template #dropdown>
         <el-dropdown-menu v-if="!getToken()">
@@ -247,10 +252,6 @@ const search = () => {
   }
   .el-input {
     width: 360px;
-  }
-
-  .showInput {
-    transition: 0.4s;
   }
   .d-item {
     @apply font-bold;

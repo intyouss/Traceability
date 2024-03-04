@@ -1,21 +1,54 @@
 <script setup>
+import {onBeforeMount, ref} from 'vue';
+import VUserCard from '~/layouts/components/video/VUserCard.vue';
 import {useStore} from 'vuex';
+import {useOwnerVideos} from '~/composables/useManager.js';
+import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
 const store = useStore();
+const {
+  Videos,
+  getVideoList,
+} = useOwnerVideos();
+const handleClick = (tab) => {
+  getVideoList(tab.props.name);
+};
+onBeforeMount(() => {
+  getVideoList('作品');
+});
+const tagList = ref([
+  {
+    'name': '作品',
+    'count': store.state.user.video_count,
+  },
+  {
+    'name': '喜爱',
+    'count': store.state.user.like_count,
+  },
+  {
+    'name': '收藏',
+    'count': 0,
+  },
+]);
 
+const isDefaultAvatar = () => {
+  return store.state.user.avatar === '' ? DefaultAvatar : store.state.user.avatar;
+};
 
 </script>
 
 <template>
-  <el-scrollbar>
-  <div class="shadow-xl rounded-2xl">
-      <div class="background ml-2 mr-2">
+  <div>
+    <div
+          class="ml-2 mr-2"
+          :style="{ background: 'linear-gradient(40deg,white,transparent),url('+ isDefaultAvatar() +') center center'}"
+      >
         <div class="p-6" style="backdrop-filter: blur(5px);">
           <el-row :gutter="20">
             <el-col :span="4">
               <el-avatar
                   class="avatar"
                   :size="25"
-                  src="http://www.quazero.com/uploads/allimg/140303/1-140303215045.jpg"
+                  :src="isDefaultAvatar()"
               />
             </el-col>
             <el-col :span="20">
@@ -57,27 +90,32 @@ const store = useStore();
                 </p>
                 <div class="introduction" >
                   <div class="flex relative">
-                      <span
-                          style="
-                          text-overflow:ellipsis;
-                          width: 20em;
-                          white-space: nowrap;
-                          overflow: hidden;"
-                      >
-                        {{ $store.state.user.signature}}
-                      </span>
-                    <el-tooltip
-                        class="box-item"
-                        effect="dark"
-                        placement="bottom-end"
-                    >
-                      <template #content>
-                        {{ $store.state.user.signature}}
-                      </template>
-                      <div class="flex ml-4px">
-                        <span class="more">更多</span>
+                    <div class="signature">
+                      <div class="signature1">
+                        <span style="
+                          max-width: 300px;
+                          overflow: hidden;
+                          text-overflow: ellipsis;
+                          white-space: nowrap;"
+                        >
+                          {{ $store.state.user.signature}}
+                        </span>
+                        <el-tooltip
+                            v-if="$store.state.user.signature.length > 25"
+                            class="box-item"
+                            effect="light"
+                            placement="bottom-end"
+                        >
+                          <template #content>
+                            {{$store.state.user.signature}}
+                          </template>
+                          <div class="flex ml-4px">
+                            <span class="more">更多</span>
+                          </div>
+                        </el-tooltip>
                       </div>
-                    </el-tooltip>
+                    </div>
+
                   </div>
                 </div>
               </div>
@@ -85,110 +123,29 @@ const store = useStore();
           </el-row>
         </div>
       </div>
-          <el-tabs  model-value="first" class="p-2">
-            <el-scrollbar>
-            <el-tab-pane name="first" style="z-index: -1;">
-              <template #label>
-
-                <span class="text-lg p-2 font-medium">
-                  <span class="mr-2">作品</span>
-                  <span>{{$store.state.user.video_count}}</span>
-                </span>
-
-              </template>
-              <el-row
-                  :gutter="20"
-                  v-for="item in 4"
-                  :key="item"
-              >
-                <el-col
-                    v-for="item in 4"
-                    :key="item"
-                    :span="6"
-                >
-                  <el-card>
-                    <img
-                        src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"
-                        class="image"
-                        alt=""
-                    />
-                    <div style="padding: 14px">
-                      <span>Yummy hamburger</span>
-                    </div>
-                  </el-card>
-                </el-col>
-              </el-row>
-            </el-tab-pane>
-            <el-tab-pane name="second">
-              <template #label>
-                <span class="text-lg  p-2 font-medium">
-                  <span class="mr-2">喜爱</span>
-                  <span>{{$store.state.user.like_count}}</span>
-                </span>
-              </template>
-              <el-row :gutter="20">
-                <el-col span="6">1</el-col>
-                <el-col span="6">2</el-col>
-                <el-col span="6">3</el-col>
-                <el-col span="6">4</el-col>
-              </el-row>
-              <el-row :gutter="20">
-                <el-col span="6">1</el-col>
-                <el-col span="6">2</el-col>
-                <el-col span="6">3</el-col>
-                <el-col span="6">4</el-col>
-              </el-row>
-              <el-row :gutter="20">
-                <el-col span="6">1</el-col>
-                <el-col span="6">2</el-col>
-                <el-col span="6">3</el-col>
-                <el-col span="6">4</el-col>
-              </el-row>
-              <el-row :gutter="20">
-                <el-col span="6">1</el-col>
-                <el-col span="6">2</el-col>
-                <el-col span="6">3</el-col>
-                <el-col span="6">4</el-col>
-              </el-row>
-            </el-tab-pane>
-              <!--TODO: 后端需要写一个收藏API-->
-            <el-tab-pane label="收藏" name="third">
-              <template #label>
-                <span class="text-lg p-2 font-medium">
-                  <span class="mr-2">收藏</span>
-                  <span>32</span>
-                </span>
-              </template>
-              <el-row :gutter="20">
-                <el-col span="6">1</el-col>
-                <el-col span="6">2</el-col>
-                <el-col span="6">3</el-col>
-                <el-col span="6">4</el-col>
-              </el-row>
-              <el-row :gutter="20">
-                <el-col span="6">1</el-col>
-                <el-col span="6">2</el-col>
-                <el-col span="6">3</el-col>
-                <el-col span="6">4</el-col>
-              </el-row>
-              <el-row :gutter="20">
-                <el-col span="6">1</el-col>
-                <el-col span="6">2</el-col>
-                <el-col span="6">3</el-col>
-                <el-col span="6">4</el-col>
-              </el-row>
-              <el-row :gutter="20">
-                <el-col span="6">1</el-col>
-                <el-col span="6">2</el-col>
-                <el-col span="6">3</el-col>
-                <el-col span="6">4</el-col>
-              </el-row>
-            </el-tab-pane>
-              </el-scrollbar>
-          </el-tabs>
-
+      <el-tabs model-value="作品" class="tab p-2" @tab-click="handleClick">
+        <el-scrollbar>
+        <el-tab-pane
+            v-for="item in tagList"
+            :key="item.name"
+            :name="item.name"
+            style="z-index: -1;"
+        >
+          <template #label>
+            <span class="text-lg p-2 font-medium">
+              <span class="mr-2">{{item.name}}</span>
+              <span>{{item.count}}</span>
+            </span>
+          </template>
+          <el-row :gutter="10">
+            <el-col :span="6" v-for="item in Videos" :key="item.id">
+              <v-user-card :cover-url="item.cover_url" :title="item.title"/>
+            </el-col>
+          </el-row>
+        </el-tab-pane>
+        </el-scrollbar>
+    </el-tabs>
   </div>
-  </el-scrollbar>
 </template>
 
 <style scoped>
@@ -202,7 +159,7 @@ const store = useStore();
 }
 
 .nameSpan {
-  color: #161823;
+  color: #000000;
   display: block;
   flex: none;
   font-size: 20px;
@@ -247,13 +204,13 @@ const store = useStore();
   width: 0;
 }
 .title {
-  color: rgba(22,24,35,.6);
+  color: #000000;
   font-size: 14px;
   line-height: 22px;
   margin-right: 6px;
 }
 .number {
-  color: #161823;
+  color: #000000;
   font-size: 16px;
   line-height: 24px;
 }
@@ -287,14 +244,28 @@ const store = useStore();
   font-size: 12px;
   line-height: 20px;
 }
+.signature {
+  width: 100%;
+  height: 20px;
+  color: #000000;
+  margin-top: 4px;
+  display: flex;
+  position: relative;
+}
+.signature1 {
+  display: flex;
+  position: relative;
+}
+.signature1 span {
+  font-size: 12px;
+  line-height: 20px;
+  font-family: PingFang SC, DFPKingGothicGB-Regular, sans-serif;
+}
 .more {
-  color: rgba(22,24,35,.34);
+  color: #000000;
   cursor: default;
   margin-left: 4px;
   position: relative;
-}
-.background {
-  background: url('http://www.quazero.com/uploads/allimg/140303/1-140303215045.jpg') no-repeat center center;
 }
 :deep(.el-tabs__active-bar){
   display: none;
