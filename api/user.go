@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/intyouss/Traceability/service"
 	"github.com/intyouss/Traceability/service/dto"
-	"github.com/jinzhu/copier"
 )
 
 const (
@@ -17,12 +16,12 @@ const (
 )
 
 type UserApi struct {
-	BaseApi
+	*BaseApi
 	Service *service.UserService
 }
 
-func NewUserApi() UserApi {
-	return UserApi{
+func NewUserApi() *UserApi {
+	return &UserApi{
 		BaseApi: NewBaseApi(),
 		Service: service.NewUserService(),
 	}
@@ -46,15 +45,13 @@ func (u UserApi) Login(ctx *gin.Context) {
 	}
 
 	// 调用service
-	userDao, token, err := u.Service.Login(ctx, loginDto)
+	user, token, err := u.Service.Login(ctx, loginDto)
 	if err != nil {
 		u.Fail(&Response{
 			Code: ErrCodeLogin,
 			Msg:  err.Error()})
 		return
 	}
-	var user = new(dto.User)
-	_ = copier.Copy(user, userDao)
 
 	u.Success(&Response{
 		Data: gin.H{
@@ -80,13 +77,11 @@ func (u UserApi) Register(ctx *gin.Context) {
 		u.Fail(&Response{Code: ErrCodeRegister, Msg: err.Error()})
 		return
 	}
-	userDao, token, err := u.Service.Register(ctx, &userAddDto)
+	user, token, err := u.Service.Register(ctx, &userAddDto)
 	if err != nil {
 		u.Fail(&Response{Code: ErrCodeRegister, Msg: err.Error()})
 		return
 	}
-	var user = new(dto.User)
-	_ = copier.Copy(user, userDao)
 
 	u.Success(&Response{
 		Data: gin.H{
@@ -119,13 +114,11 @@ func (u UserApi) GetUserInfo(ctx *gin.Context) {
 		return
 	}
 
-	userDao, err := u.Service.GetUserById(ctx, &idDto)
+	user, err := u.Service.GetUserById(ctx, &idDto)
 	if err != nil {
 		u.Fail(&Response{Code: ErrCodeGetUserById, Msg: err.Error()})
 		return
 	}
-	var user = new(dto.User)
-	_ = copier.Copy(user, userDao)
 
 	u.Success(&Response{
 		Data: gin.H{
@@ -150,13 +143,11 @@ func (u UserApi) GetUserListBySearch(ctx *gin.Context) {
 		return
 	}
 
-	usersDao, total, err := u.Service.GetUserListBySearch(ctx, &userListDto)
+	users, total, err := u.Service.GetUserListBySearch(ctx, &userListDto)
 	if err != nil {
 		u.Fail(&Response{Code: ErrCodeGetUserList, Msg: err.Error()})
 		return
 	}
-	var users = make([]*dto.User, len(usersDao))
-	_ = copier.Copy(&users, &usersDao)
 
 	u.Success(&Response{
 		Data: gin.H{

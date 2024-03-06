@@ -25,6 +25,10 @@ type Video struct {
 	LikeStatus bool `json:"like_status"`
 	// 创建时间
 	CreatedAt string `json:"created_at"`
+	// 是否点赞
+	IsLike bool `json:"is_like"`
+	// 是否收藏
+	IsCollect bool `json:"is_collect"`
 }
 
 type VideoListDTO struct {

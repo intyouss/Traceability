@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/intyouss/Traceability/service"
 	"github.com/intyouss/Traceability/service/dto"
-	"github.com/jinzhu/copier"
 )
 
 const (
@@ -14,15 +13,13 @@ const (
 )
 
 type RelationApi struct {
-	BaseApi
-	UserApi UserApi
+	*BaseApi
 	Service *service.RelationService
 }
 
-func NewRelationApi() RelationApi {
-	return RelationApi{
+func NewRelationApi() *RelationApi {
+	return &RelationApi{
 		BaseApi: NewBaseApi(),
-		UserApi: NewUserApi(),
 		Service: service.NewRelationService(),
 	}
 }
@@ -40,11 +37,6 @@ func (r RelationApi) RelationAction(ctx *gin.Context) {
 	var relationDto dto.RelationActionDto
 	if err := r.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &relationDto}).GetError(); err != nil {
 		r.Fail(&Response{Code: ErrCodeRelationAction, Msg: err.Error()})
-		return
-	}
-
-	if !r.UserApi.Service.IsExist(ctx, relationDto.UserID) {
-		r.Fail(&Response{Code: ErrCodeRelationAction, Msg: "user not exist"})
 		return
 	}
 
@@ -81,25 +73,18 @@ func (r RelationApi) GetFocusList(ctx *gin.Context) {
 		r.Success(&Response{
 			Data: gin.H{
 				"users": []dto.User{},
-			}, Total: 0})
+			},
+			Total: 0,
+		})
 		return
 	}
-	var focusUserIDs []uint
-	for _, focus := range focusList {
-		focusUserIDs = append(focusUserIDs, focus.FocusID)
-	}
-	userList, err := r.UserApi.Service.GetUserListByIds(ctx, focusUserIDs)
-	if err != nil {
-		r.Fail(&Response{Code: ErrCodeGetFocusList, Msg: err.Error()})
-		return
-	}
-	var users []dto.User
-	_ = copier.Copy(&users, &userList)
 
 	r.Success(&Response{
 		Data: gin.H{
-			"users": users,
-		}, Total: total})
+			"users": focusList,
+		},
+		Total: total,
+	})
 }
 
 // GetFansList 粉丝列表
@@ -126,23 +111,16 @@ func (r RelationApi) GetFansList(ctx *gin.Context) {
 		r.Success(&Response{
 			Data: gin.H{
 				"users": []dto.User{},
-			}, Total: 0})
+			},
+			Total: 0,
+		})
 		return
 	}
-	var fansUserIDs []uint
-	for _, fans := range fansList {
-		fansUserIDs = append(fansUserIDs, fans.UserID)
-	}
-	userList, err := r.UserApi.Service.GetUserListByIds(ctx, fansUserIDs)
-	if err != nil {
-		r.Fail(&Response{Code: ErrCodeGetFansList, Msg: err.Error()})
-		return
-	}
-	var users []dto.User
-	_ = copier.Copy(&users, &userList)
 
 	r.Success(&Response{
 		Data: gin.H{
-			"users": users,
-		}, Total: total})
+			"users": fansList,
+		},
+		Total: total,
+	})
 }

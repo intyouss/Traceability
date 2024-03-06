@@ -1,17 +1,9 @@
 package api
 
 import (
-	"strconv"
-	"strings"
-	"time"
-
-	"github.com/intyouss/Traceability/global"
-
 	"github.com/gin-gonic/gin"
-	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service"
 	"github.com/intyouss/Traceability/service/dto"
-	"github.com/jinzhu/copier"
 )
 
 const (
@@ -23,15 +15,13 @@ const (
 )
 
 type VideoApi struct {
-	BaseApi
-	UserApi UserApi
+	*BaseApi
 	Service *service.VideoService
 }
 
-func NewVideoApi() VideoApi {
-	return VideoApi{
+func NewVideoApi() *VideoApi {
+	return &VideoApi{
 		BaseApi: NewBaseApi(),
-		UserApi: NewUserApi(),
 		Service: service.NewVideoService(),
 	}
 }
@@ -66,7 +56,6 @@ func (v VideoApi) GetVideoFeed(ctx *gin.Context) {
 	// 调用service
 	videos, nextTime, err := v.Service.GetVideoList(ctx, &vListDTO)
 	if err != nil {
-
 		v.Fail(&Response{Code: ErrCodeGetVideoFeed, Msg: err.Error()})
 		return
 	}
@@ -79,41 +68,10 @@ func (v VideoApi) GetVideoFeed(ctx *gin.Context) {
 		})
 		return
 	}
-	authorMap := make(map[uint]*models.User)
-	for _, video := range videos {
-		authorMap[video.AuthorID] = nil
-	}
-	var authorIds []uint
-	for authorId := range authorMap {
-		authorIds = append(authorIds, authorId)
-	}
-
-	// 调用userApi
-	authors, err := v.UserApi.Service.GetUserListByIds(ctx, authorIds)
-	if err != nil {
-
-		v.Fail(&Response{Code: ErrCodeGetVideoFeed, Msg: err.Error()})
-		return
-	}
-	for _, author := range authors {
-		authorMap[author.ID] = author
-	}
-
-	// 组装数据
-	var videoList = make([]*dto.Video, 0, len(videos))
-	for _, video := range videos {
-		var videoDTO = new(dto.Video)
-		_ = copier.Copy(videoDTO, video)
-		videoDTO.CreatedAt = timeFormat(video.CreatedAt)
-		var user = new(dto.User)
-		_ = copier.Copy(user, authorMap[video.AuthorID])
-		videoDTO.Author = user
-		videoList = append(videoList, videoDTO)
-	}
 
 	v.Success(&Response{
 		Data: gin.H{
-			"videos":    videoList,
+			"videos":    videos,
 			"next_time": nextTime,
 		},
 	})
@@ -142,42 +100,18 @@ func (v VideoApi) GetUserVideoList(ctx *gin.Context) {
 		return
 	}
 
-	if !v.UserApi.Service.IsExist(ctx, vListDTO.UserID) && ctx.
-		Value(global.LoginUser).(models.LoginUser).ID != vListDTO.UserID {
-		v.Fail(&Response{Code: ErrCodeGetUserVideoList, Msg: "user not exist"})
-		return
-	}
-
-	videosDao, err := v.Service.GetVideoListByUserId(ctx, &vListDTO)
+	videos, err := v.Service.GetVideoListByUserId(ctx, &vListDTO)
 	if err != nil {
 		v.Fail(&Response{Code: ErrCodeGetUserVideoList, Msg: err.Error()})
 		return
 	}
-	if len(videosDao) == 0 {
+	if len(videos) == 0 {
 		v.Success(&Response{
 			Data: gin.H{
 				"videos": []*dto.Video{},
 			},
 		})
 		return
-	}
-	var idDTO = dto.CommonIDDTO{ID: &vListDTO.UserID}
-	var userDao *models.User
-	userDao, err = v.UserApi.Service.GetUserById(ctx, &idDTO)
-	if err != nil {
-		v.Fail(&Response{Code: ErrCodeGetUserVideoList, Msg: err.Error()})
-		return
-	}
-	var user = new(dto.User)
-	_ = copier.Copy(user, userDao)
-
-	var videos = make([]*dto.Video, 0, len(videosDao))
-	for _, video := range videosDao {
-		var videoDTO = new(dto.Video)
-		_ = copier.Copy(videoDTO, video)
-		videoDTO.CreatedAt = timeFormat(video.CreatedAt)
-		videoDTO.Author = user
-		videos = append(videos, videoDTO)
 	}
 
 	v.Success(&Response{
@@ -202,44 +136,18 @@ func (v VideoApi) GetVideoSearch(ctx *gin.Context) {
 		return
 	}
 
-	videosDao, err := v.Service.GetVideoSearch(ctx, &videoSearchDTO)
+	videos, err := v.Service.GetVideoSearch(ctx, &videoSearchDTO)
 	if err != nil {
 		v.Fail(&Response{Code: ErrCodeGetVideoSearch, Msg: err.Error()})
 		return
 	}
-	if len(videosDao) == 0 {
+	if len(videos) == 0 {
 		v.Success(&Response{
 			Data: gin.H{
 				"videos": []*dto.Video{},
 			},
 		})
 		return
-	}
-	var authorIds = make([]uint, 0, len(videosDao))
-	for _, video := range videosDao {
-		authorIds = append(authorIds, video.AuthorID)
-	}
-	var authorIdsMap = make(map[uint]*models.User)
-	for _, video := range videosDao {
-		authorIdsMap[video.AuthorID] = nil
-	}
-	authors, err := v.UserApi.Service.GetUserListByIds(ctx, authorIds)
-	if err != nil {
-		v.Fail(&Response{Code: ErrCodeGetVideoSearch, Msg: err.Error()})
-		return
-	}
-	for _, author := range authors {
-		authorIdsMap[author.ID] = author
-	}
-	var videos = make([]*dto.Video, 0, len(videosDao))
-	for _, video := range videosDao {
-		var videoDTO = new(dto.Video)
-		_ = copier.Copy(videoDTO, video)
-		videoDTO.CreatedAt = timeFormat(video.CreatedAt)
-		var user = new(dto.User)
-		_ = copier.Copy(user, authorIdsMap[video.AuthorID])
-		videoDTO.Author = user
-		videos = append(videos, videoDTO)
 	}
 
 	v.Success(&Response{
@@ -298,25 +206,4 @@ func (v VideoApi) DeleteVideo(ctx *gin.Context) {
 	}
 
 	v.Success(&Response{})
-}
-
-// timeFormat 时间格式化
-func timeFormat(t time.Time) string {
-	since := time.Since(t)
-	switch {
-	case since < time.Minute: // 如果是一分钟内的时间，返回刚刚
-		return "刚刚"
-	case since < time.Hour: // 如果是一小时内的时间，返回是几分钟前
-		return strings.Split(since.String(), "m")[0] + "分钟前"
-	case since < 24*time.Hour: // 如果是超过一个小时的时间，返回是几小时前
-		return strings.Split(since.String(), "h")[0] + "小时前"
-	case since < 7*24*time.Hour: // 如果超过一天但是在一周内，返回是几天前
-		x, _ := strconv.Atoi(strings.Split(since.String(), "h")[0])
-		return strconv.Itoa(x/24) + "天前"
-	case since < 21*24*time.Hour: // 如果超过一周，但不超过三周，返回是几周前
-		x, _ := strconv.Atoi(strings.Split(since.String(), "h")[0])
-		return strconv.Itoa(x/(7*24)) + "周前"
-	default: // 如果超过三周，返回年月日
-		return t.Format("2006-01-02")
-	}
 }

@@ -38,7 +38,7 @@ func (l *LikeDao) GetLikeListByUserId(ctx context.Context, dto *dto.LikeListDTO)
 }
 
 // IsLiked 是否已经点赞
-func (l *LikeDao) isLiked(ctx context.Context, like models.Like) bool {
+func (l *LikeDao) IsLiked(ctx context.Context, like models.Like) bool {
 	err := l.DB.Model(&models.Like{}).WithContext(ctx).
 		First(&like).Error
 	return !errors.Is(err, gorm.ErrRecordNotFound)
@@ -50,7 +50,7 @@ func (l *LikeDao) AddLike(ctx context.Context, dto *dto.LikeActionDTO) error {
 		UserID:  ctx.Value(global.LoginUser).(models.LoginUser).ID,
 		VideoID: dto.VideoID,
 	}
-	if l.isLiked(ctx, like) {
+	if l.IsLiked(ctx, like) {
 		return errors.New("already liked")
 	}
 	AuthorId, err := l.VideoDao.GetAuthorIdByVideoId(ctx, dto.VideoID)

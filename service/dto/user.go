@@ -29,6 +29,8 @@ type User struct {
 	CollectCount uint `json:"collect_count"`
 	// 个性签名
 	Signature string `json:"signature"`
+	// 是否关注
+	IsFollow bool `json:"is_follow"`
 }
 
 type UserLoginDto struct {

@@ -12,15 +12,13 @@ const (
 )
 
 type MessageApi struct {
-	BaseApi
-	UserApi UserApi
+	*BaseApi
 	Service *service.MessageService
 }
 
-func NewMessageApi() MessageApi {
-	return MessageApi{
+func NewMessageApi() *MessageApi {
+	return &MessageApi{
 		BaseApi: NewBaseApi(),
-		UserApi: NewUserApi(),
 		Service: service.NewMessageService(),
 	}
 }
@@ -39,11 +37,6 @@ func (m MessageApi) SendMessage(ctx *gin.Context) {
 	err := m.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &addMsgDTO}).GetError()
 	if err != nil {
 		m.Fail(&Response{Code: ErrCodeSendMessage, Msg: err.Error()})
-		return
-	}
-
-	if !m.UserApi.Service.IsExist(ctx, addMsgDTO.ToUserID) {
-		m.Fail(&Response{Code: ErrCodeSendMessage, Msg: "user not exist"})
 		return
 	}
 
@@ -71,17 +64,12 @@ func (m MessageApi) GetMessages(ctx *gin.Context) {
 		return
 	}
 
-	if !m.UserApi.Service.IsExist(ctx, msgListDTO.ToUserID) {
-		m.Fail(&Response{Code: ErrCodeSendMessage, Msg: "user not exist"})
-		return
-	}
-
-	msgDao, preMsgTime, err := m.Service.GetMessages(ctx, &msgListDTO)
+	msgList, preMsgTime, err := m.Service.GetMessages(ctx, &msgListDTO)
 	if err != nil {
 		m.Fail(&Response{Code: ErrCodeGetMessage, Msg: err.Error()})
 		return
 	}
-	if len(msgDao) == 0 {
+	if len(msgList) == 0 {
 		m.Success(&Response{
 			Data: gin.H{
 				"messages":     []*dto.Message{},
@@ -90,15 +78,7 @@ func (m MessageApi) GetMessages(ctx *gin.Context) {
 		})
 		return
 	}
-	var msgList []*dto.Message
-	for _, msg := range msgDao {
-		msgList = append(msgList, &dto.Message{
-			FromUserID: msg.FromUserID,
-			ToUserID:   msg.ToUserID,
-			Content:    msg.Content,
-			CreatedAt:  msg.CreatedAt.Unix(),
-		})
-	}
+
 	m.Success(&Response{
 		Data: gin.H{
 			"messages":     msgList,

@@ -2,10 +2,8 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service"
 	"github.com/intyouss/Traceability/service/dto"
-	"github.com/jinzhu/copier"
 )
 
 const (
@@ -15,18 +13,14 @@ const (
 )
 
 type CommentApi struct {
-	BaseApi
-	UserApi  UserApi
-	VideoApi VideoApi
-	Service  *service.CommentService
+	*BaseApi
+	Service *service.CommentService
 }
 
-func NewCommentApi() CommentApi {
-	return CommentApi{
-		BaseApi:  NewBaseApi(),
-		UserApi:  NewUserApi(),
-		VideoApi: NewVideoApi(),
-		Service:  service.NewCommentService(),
+func NewCommentApi() *CommentApi {
+	return &CommentApi{
+		BaseApi: NewBaseApi(),
+		Service: service.NewCommentService(),
 	}
 }
 
@@ -46,12 +40,7 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 		return
 	}
 
-	if !c.VideoApi.Service.IsExist(ctx, cListDto.VideoID) {
-		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: "video not exist"})
-		return
-	}
-
-	commentsDao, total, err := c.Service.GetCommentList(ctx, &cListDto)
+	comments, total, err := c.Service.GetCommentList(ctx, &cListDto)
 	if err != nil {
 		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
 		return
@@ -64,36 +53,6 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 			Total: 0,
 		})
 		return
-	}
-
-	commentUserMap := make(map[uint]*models.User)
-	for _, comment := range commentsDao {
-		commentUserMap[comment.UserId] = nil
-	}
-
-	var userIds []uint
-	for userId := range commentUserMap {
-		userIds = append(userIds, userId)
-	}
-
-	users, err := c.UserApi.Service.GetUserListByIds(ctx, userIds)
-	if err != nil {
-		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: err.Error()})
-		return
-	}
-
-	for _, user := range users {
-		commentUserMap[user.ID] = user
-	}
-
-	var comments = make([]dto.Comment, len(commentsDao))
-	for i, comment := range commentsDao {
-		comments[i].ID = comment.ID
-		comments[i].Content = comment.Content
-		comments[i].CreatedAt = comment.CreatedAt.Format("2006-01-02 15:04:05")
-		var user = new(dto.User)
-		_ = copier.Copy(user, commentUserMap[comment.UserId])
-		comments[i].User = user
 	}
 
 	c.Success(&Response{
@@ -120,33 +79,11 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 		return
 	}
 
-	if !c.VideoApi.Service.IsExist(ctx, cAddDto.VideoId) {
-		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: "video not exist"})
-		return
-	}
-
-	// 添加评论
-	commentDao, err := c.Service.AddComment(ctx, &cAddDto)
+	comment, err := c.Service.AddComment(ctx, &cAddDto)
 	if err != nil {
 		c.Fail(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
 		return
 	}
-
-	// 获取用户信息
-	var IdDTO dto.CommonIDDTO
-	IdDTO.ID = &commentDao.UserId
-	userDao, err := c.UserApi.Service.GetUserById(ctx, &IdDTO)
-	if err != nil {
-		c.Fail(&Response{Code: ErrCodeAddComment, Msg: err.Error()})
-		return
-	}
-
-	var comment = new(dto.Comment)
-	_ = copier.Copy(comment, commentDao)
-	comment.CreatedAt = commentDao.CreatedAt.Format("2006-01-02 15:04:05")
-	var user = new(dto.User)
-	_ = copier.Copy(user, userDao)
-	comment.User = user
 
 	c.Success(&Response{
 		Data: gin.H{

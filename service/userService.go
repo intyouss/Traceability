@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/jinzhu/copier"
+
 	"github.com/intyouss/Traceability/dao"
 	"github.com/intyouss/Traceability/global"
 	"github.com/intyouss/Traceability/models"
@@ -29,28 +31,30 @@ func NewUserService() *UserService {
 }
 
 // Login 用户登录
-func (u *UserService) Login(ctx context.Context, userDTO dto.UserLoginDto) (*models.User, string, error) {
+func (u *UserService) Login(ctx context.Context, userDTO dto.UserLoginDto) (*dto.User, string, error) {
 	var token string
-	user, err := u.Dao.GetUserByName(ctx, userDTO.Username)
-	if err != nil || !utils.ComparePassword(user.Password, userDTO.Password) {
+	userDao, err := u.Dao.GetUserByName(ctx, userDTO.Username)
+	if err != nil || !utils.ComparePassword(userDao.Password, userDTO.Password) {
 		return nil, "", errors.New("invalid username or password")
 	} else {
 		// 生成token
-		token, err = utils.GenerateToken(user.ID, user.Username)
+		token, err = utils.GenerateToken(userDao.ID, userDao.Username)
 		if err != nil {
 			return nil, "", fmt.Errorf("generate token error: %s", err.Error())
 		}
 	}
+	var user = new(dto.User)
+	_ = copier.Copy(user, userDao)
 	return user, token, nil
 }
 
 // Register 用户注册
-func (u *UserService) Register(ctx context.Context, userAddDTO *dto.UserAddDTO) (*models.User, string, error) {
+func (u *UserService) Register(ctx context.Context, userAddDTO *dto.UserAddDTO) (*dto.User, string, error) {
 	var token string
 	if u.Dao.CheckUserNameExist(userAddDTO.Username) {
 		return nil, "", errors.New("username already exists")
 	}
-	user, err := u.Dao.AddUser(ctx, userAddDTO)
+	userDao, err := u.Dao.AddUser(ctx, userAddDTO)
 	if err != nil {
 		return nil, "", fmt.Errorf("add user error: %s", err.Error())
 	}
@@ -59,23 +63,37 @@ func (u *UserService) Register(ctx context.Context, userAddDTO *dto.UserAddDTO) 
 	if err != nil {
 		return nil, "", fmt.Errorf("generate token error: %s", err.Error())
 	}
+	var user = new(dto.User)
+	_ = copier.Copy(user, userDao)
 	return user, token, nil
 }
 
 // GetUserById 根据id获取用户
-func (u *UserService) GetUserById(ctx context.Context, idDTO *dto.CommonIDDTO) (*models.User, error) {
+func (u *UserService) GetUserById(ctx context.Context, idDTO *dto.CommonIDDTO) (*dto.User, error) {
 	var userId = *idDTO.ID
 	if *idDTO.ID == 0 {
 		userId = ctx.Value(global.LoginUser).(models.LoginUser).ID
 	}
-	return u.Dao.GetUserById(ctx, userId)
+	userDao, err := u.Dao.GetUserById(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+	var user = new(dto.User)
+	_ = copier.Copy(user, userDao)
+	return user, nil
 }
 
 // GetUserListBySearch 模糊搜索用户列表
 func (u *UserService) GetUserListBySearch(
 	ctx context.Context, userListDTO *dto.UserSearchListDTO,
-) ([]*models.User, int64, error) {
-	return u.Dao.GetUserListBySearch(ctx, userListDTO)
+) ([]*dto.User, int64, error) {
+	usersDao, total, err := u.Dao.GetUserListBySearch(ctx, userListDTO)
+	if err != nil {
+		return nil, 0, err
+	}
+	var users = make([]*dto.User, len(usersDao))
+	_ = copier.Copy(&users, &usersDao)
+	return users, total, nil
 }
 
 // UpdateUser 更新用户信息
@@ -90,14 +108,4 @@ func (u *UserService) DeleteUserById(ctx context.Context, idDTO *dto.CommonIDDTO
 		return errors.New("don't have permission")
 	}
 	return u.Dao.DeleteUserById(ctx, userId)
-}
-
-// GetUserListByIds 根据id列表获取用户列表
-func (u *UserService) GetUserListByIds(ctx context.Context, ids []uint) ([]*models.User, error) {
-	return u.Dao.GetUserListByIds(ctx, ids)
-}
-
-// IsExist 用户是否存在
-func (u *UserService) IsExist(ctx context.Context, id uint) bool {
-	return u.Dao.IsExist(ctx, id)
 }
