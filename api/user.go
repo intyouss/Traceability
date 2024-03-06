@@ -137,7 +137,7 @@ func (u UserApi) GetUserInfo(ctx *gin.Context) {
 // GetUserListBySearch 获取用户列表
 // @Summary 获取用户列表
 // @Description 获取用户列表
-// @Param key formData string false "关键字"
+// @Param key formData string true "关键字"
 // @Param page formData int false "页码"
 // @Param limit formData int false "每页数量"
 // @Success 200 {string} Response
@@ -170,7 +170,6 @@ func (u UserApi) GetUserListBySearch(ctx *gin.Context) {
 // @Summary 更新用户信息
 // @Description 更新用户信息
 // @Param token header string true "token"
-// @Param username formData string false "用户名"
 // @Param password formData string false "密码"
 // @Param email formData string false "邮箱"
 // @Param mobile formData string false "手机号"

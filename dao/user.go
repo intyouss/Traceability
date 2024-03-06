@@ -52,7 +52,7 @@ func (u *UserDao) AddUser(ctx context.Context, userAddDTO *dto.UserAddDTO) (*mod
 	userAddDTO.ToModel(user)
 	err := u.DB.WithContext(ctx).Create(&user).Error
 	if err == nil {
-		userAddDTO.ID = user.ID
+		userAddDTO.ID = &user.ID
 		userAddDTO.Password = ""
 	}
 	return user, err
@@ -89,8 +89,9 @@ func (u *UserDao) GetUserListBySearch(
 
 // UpdateUser 更新用户信息
 func (u *UserDao) UpdateUser(ctx context.Context, updateDTO *dto.UserUpdateDTO) error {
+	userId := ctx.Value("login_user").(models.LoginUser).ID
 	var user models.User
-	err := u.DB.Model(&models.User{}).WithContext(ctx).First(&user, updateDTO.ID).Error
+	err := u.DB.Model(&models.User{}).WithContext(ctx).First(&user, userId).Error
 	if err != nil {
 		return err
 	}

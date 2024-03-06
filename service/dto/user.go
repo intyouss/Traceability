@@ -54,16 +54,14 @@ func (u *UserAddDTO) ToModel(user *models.User) {
 }
 
 type UserUpdateDTO struct {
-	CommonIDDTO
-	Username string `json:"username" form:"username"`
-	Avatar   string `json:"avatar"`
+	Password string `json:"password" form:"password"`
+	Avatar   string `json:"avatar" form:"avatar"`
 	Mobile   string `json:"mobile" form:"mobile"`
 	Email    string `json:"email" form:"email"`
 }
 
 func (u *UserUpdateDTO) ToModel(user *models.User) {
-	user.ID = u.ID
-	user.Username = u.Username
+	user.Password = u.Password
 	user.Avatar = u.Avatar
 	user.Email = u.Email
 	user.Mobile = u.Mobile

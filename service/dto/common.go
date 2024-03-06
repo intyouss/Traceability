@@ -2,7 +2,7 @@ package dto
 
 // CommonIDDTO 通用ID数据传输对象
 type CommonIDDTO struct {
-	ID uint `json:"id" form:"id" binding:"required" message:"id cannot be empty"`
+	ID *uint `json:"id" form:"id" binding:"required" message:"id cannot be empty"`
 }
 
 // CommonPageDTO 通用分页数据传输对象

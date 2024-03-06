@@ -161,7 +161,7 @@ func (v VideoApi) GetUserVideoList(ctx *gin.Context) {
 		})
 		return
 	}
-	var idDTO = dto.CommonIDDTO{ID: vListDTO.UserID}
+	var idDTO = dto.CommonIDDTO{ID: &vListDTO.UserID}
 	var userDao *models.User
 	userDao, err = v.UserApi.Service.GetUserById(ctx, &idDTO)
 	if err != nil {

@@ -42,9 +42,8 @@ func Auth() func(c *gin.Context) {
 			tokenError(c, ErrCodeTokenParse)
 			return
 		}
-
 		if claims.ExpiresAt.Time.Before(time.Now().Add(
-			-viper.GetDuration("jwt.tokenExpire")*time.Minute + 20*time.Minute),
+			viper.GetDuration("jwt.tokenExpire")*time.Minute + 20*time.Minute),
 		) {
 			newToken, err := utils.GenerateToken(claims.ID, claims.Name)
 			if err != nil {

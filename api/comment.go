@@ -120,7 +120,7 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 		return
 	}
 
-	if !c.VideoApi.Service.IsExist(ctx, cAddDto.ID) {
+	if !c.VideoApi.Service.IsExist(ctx, cAddDto.VideoId) {
 		c.Fail(&Response{Code: ErrCodeGetCommentList, Msg: "video not exist"})
 		return
 	}
@@ -134,7 +134,7 @@ func (c CommentApi) AddComment(ctx *gin.Context) {
 
 	// 获取用户信息
 	var IdDTO dto.CommonIDDTO
-	IdDTO.ID = commentDao.UserId
+	IdDTO.ID = &commentDao.UserId
 	userDao, err := c.UserApi.Service.GetUserById(ctx, &IdDTO)
 	if err != nil {
 		c.Fail(&Response{Code: ErrCodeAddComment, Msg: err.Error()})

@@ -8,8 +8,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var secretKey = []byte(viper.GetString("jwt.secretKey"))
-
 type JwtClaims struct {
 	ID   uint
 	Name string
@@ -18,6 +16,7 @@ type JwtClaims struct {
 
 // GenerateToken 生成token
 func GenerateToken(id uint, name string) (string, error) {
+	var secretKey = []byte(viper.GetString("jwt.secretKey"))
 	jwtClaim := JwtClaims{
 		ID:   id,
 		Name: name,
@@ -33,6 +32,7 @@ func GenerateToken(id uint, name string) (string, error) {
 
 // ParseToken 解析token
 func ParseToken(tokenStr string) (*JwtClaims, error) {
+	var secretKey = []byte(viper.GetString("jwt.secretKey"))
 	jwtClaim := &JwtClaims{}
 	token, err := jwt.ParseWithClaims(tokenStr, jwtClaim, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
