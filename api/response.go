@@ -41,8 +41,8 @@ func Success(ctx *gin.Context, resp *Response) {
 	resp.Msg = SuccessMsg
 	HttpResponse(ctx, resp)
 	global.Logger.Infof(
-		"Request: (Method) %v | (Path) %v | (Code) %v | (Msg) %v | (Data) %+v",
-		ctx.Request.Method, ctx.Request.RequestURI, resp.Code, resp.Msg, resp.Data,
+		"Request: (Method) %v | (Path) %v | (Form) %v | (Code) %v | (Msg) %v | (Data) %+v",
+		ctx.Request.Method, ctx.Request.RequestURI, ctx.Request.Form, resp.Code, resp.Msg, resp.Data,
 	)
 }
 
@@ -50,7 +50,7 @@ func Success(ctx *gin.Context, resp *Response) {
 func Fail(ctx *gin.Context, resp *Response) {
 	HttpResponse(ctx, resp)
 	global.Logger.Errorf(
-		"Request: (Method) %v | (Path) %v | (ErrorCode) %v | (ErrorMsg) %v",
-		ctx.Request.Method, ctx.Request.RequestURI, resp.Code, resp.Msg,
+		"Request: (Method) %v | (Path) %v | (Form) %v | (ErrorCode) %v | (ErrorMsg) %v",
+		ctx.Request.Method, ctx.Request.RequestURI, ctx.Request.Form, resp.Code, resp.Msg,
 	)
 }
