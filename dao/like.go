@@ -38,10 +38,37 @@ func (l *LikeDao) GetLikeListByUserId(ctx context.Context, dto *dto.LikeListDTO)
 }
 
 // IsLiked 是否已经点赞
-func (l *LikeDao) IsLiked(ctx context.Context, like models.Like) bool {
+func (l *LikeDao) IsLiked(ctx context.Context, videoId uint) (bool, error) {
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	err := l.DB.Model(&models.Like{}).WithContext(ctx).Where("user_id = ? AND video_id = ?", userId, videoId).
+		First(&models.Like{}).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// IsLikedByList 是否已经点赞
+func (l *LikeDao) IsLikedByList(ctx context.Context, videoIds []uint) (map[uint]bool, error) {
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	var likesDao []*models.Like
+	likeMap := make(map[uint]bool)
 	err := l.DB.Model(&models.Like{}).WithContext(ctx).
-		First(&like).Error
-	return !errors.Is(err, gorm.ErrRecordNotFound)
+		Where("user_id = ? AND video_id IN ?", userId, videoIds).
+		Find(&likesDao).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(likesDao) == 0 {
+		return nil, nil
+	}
+	for _, like := range likesDao {
+		likeMap[like.VideoID] = true
+	}
+	return likeMap, nil
 }
 
 // AddLike 点赞操作
@@ -50,7 +77,11 @@ func (l *LikeDao) AddLike(ctx context.Context, dto *dto.LikeActionDTO) error {
 		UserID:  ctx.Value(global.LoginUser).(models.LoginUser).ID,
 		VideoID: dto.VideoID,
 	}
-	if l.IsLiked(ctx, like) {
+	isLiked, err := l.IsLiked(ctx, dto.VideoID)
+	if err != nil {
+		return err
+	}
+	if isLiked {
 		return errors.New("already liked")
 	}
 	AuthorId, err := l.VideoDao.GetAuthorIdByVideoId(ctx, dto.VideoID)
@@ -80,6 +111,13 @@ func (l *LikeDao) AddLike(ctx context.Context, dto *dto.LikeActionDTO) error {
 // CancelLike 取消点赞操作
 func (l *LikeDao) CancelLike(ctx context.Context, dto *dto.LikeActionDTO) error {
 	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	isLiked, err := l.IsLiked(ctx, dto.VideoID)
+	if err != nil {
+		return err
+	}
+	if !isLiked {
+		return errors.New("do not have this like relation")
+	}
 	AuthorId, err := l.VideoDao.GetAuthorIdByVideoId(ctx, dto.VideoID)
 	if err != nil {
 		return err

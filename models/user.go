@@ -18,7 +18,7 @@ type User struct {
 	// 手机号
 	Mobile string `gorm:"type:varchar(11)" json:"mobile"`
 	// 关注数
-	FocusCount uint `gorm:"not null;default:0" json:"follow_count"`
+	FocusCount uint `gorm:"not null;default:0" json:"focus_count"`
 	// 粉丝数
 	FansCount uint `gorm:"not null;default:0" json:"fans_count"`
 	// 点赞数

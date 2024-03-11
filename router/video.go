@@ -27,6 +27,8 @@ func InitVideoRoutes() {
 			videoAuthGroup.POST("/publish", videoApi.PublishVideo)
 			// 删除视频
 			videoAuthGroup.POST("/delete", videoApi.DeleteVideo)
+			// 获取单个视频
+			videoAuthGroup.GET("/info", videoApi.GetVideoInfo)
 		}
 	})
 }

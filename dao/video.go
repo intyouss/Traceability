@@ -54,6 +54,13 @@ func (v *VideoDao) GetAuthorIdByVideoId(ctx context.Context, videoId uint) (uint
 	return video.AuthorID, err
 }
 
+// GetVideoByVideoId 根据视频id获取视频信息
+func (v *VideoDao) GetVideoByVideoId(ctx context.Context, videoId uint) (*models.Video, error) {
+	var video models.Video
+	err := v.DB.Model(&models.Video{}).WithContext(ctx).First(&video, videoId).Error
+	return &video, err
+}
+
 // GetVideoList 获取视频列表
 func (v *VideoDao) GetVideoList(
 	ctx context.Context, vListDTO *dto.VideoListDTO,
@@ -126,7 +133,7 @@ func (v *VideoDao) GetFriendVideoList(
 	}
 	var focusIds []uint
 	for _, relation := range relations {
-		focusIds = append(focusIds, relation.FocusID)
+		focusIds = append(focusIds, relation.UserID)
 	}
 	videos, _, err := v.GetVideoList(ctx, vListDTO)
 	if err != nil {

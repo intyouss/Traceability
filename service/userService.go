@@ -18,13 +18,15 @@ var UserServiceIns *UserService
 
 type UserService struct {
 	BaseService
-	Dao *dao.UserDao
+	Dao         *dao.UserDao
+	RelationDao *dao.RelationDao
 }
 
 func NewUserService() *UserService {
 	if UserServiceIns == nil {
 		UserServiceIns = &UserService{
-			Dao: dao.NewUserDao(),
+			Dao:         dao.NewUserDao(),
+			RelationDao: dao.NewRelationDao(),
 		}
 	}
 	return UserServiceIns
@@ -71,15 +73,26 @@ func (u *UserService) Register(ctx context.Context, userAddDTO *dto.UserAddDTO) 
 // GetUserById 根据id获取用户
 func (u *UserService) GetUserById(ctx context.Context, idDTO *dto.CommonIDDTO) (*dto.User, error) {
 	var userId = *idDTO.ID
+	// 如果id为0，则获取当前登录用户
 	if *idDTO.ID == 0 {
 		userId = ctx.Value(global.LoginUser).(models.LoginUser).ID
 	}
+	// 获取用户信息
 	userDao, err := u.Dao.GetUserById(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 	var user = new(dto.User)
 	_ = copier.Copy(user, userDao)
+	user.IsFocus = false
+	// 如果登录用户不为空，且id不为0，则判断是否关注
+	if ctx.Value(global.LoginUser) != nil && *idDTO.ID != 0 {
+		isFocus, err := u.RelationDao.IsFocused(ctx, *idDTO.ID)
+		if err != nil {
+			return nil, err
+		}
+		user.IsFocus = isFocus
+	}
 	return user, nil
 }
 
@@ -87,12 +100,38 @@ func (u *UserService) GetUserById(ctx context.Context, idDTO *dto.CommonIDDTO) (
 func (u *UserService) GetUserListBySearch(
 	ctx context.Context, userListDTO *dto.UserSearchListDTO,
 ) ([]*dto.User, int64, error) {
+	// 获取用户列表
 	usersDao, total, err := u.Dao.GetUserListBySearch(ctx, userListDTO)
 	if err != nil {
 		return nil, 0, err
 	}
-	var users = make([]*dto.User, len(usersDao))
-	_ = copier.Copy(&users, &usersDao)
+	if len(usersDao) == 0 {
+		return nil, 0, nil
+	}
+	// 如果登录用户不为空，且id不为0，则判断是否关注
+	focusMap := make(map[uint]bool)
+	if ctx.Value(global.LoginUser) != nil {
+		fmt.Println("1")
+		userIds := make([]uint, 0, len(usersDao))
+		for _, user := range usersDao {
+			userIds = append(userIds, user.ID)
+		}
+		focusMap, err = u.RelationDao.IsFocusedByList(ctx, userIds)
+		if err != nil {
+			return nil, 0, err
+		}
+	}
+	var users = make([]*dto.User, 0, len(usersDao))
+	for _, user := range usersDao {
+		var userDTO = new(dto.User)
+		_ = copier.Copy(userDTO, user)
+		if ctx.Value(global.LoginUser) != nil && user.ID != ctx.Value(global.LoginUser).(models.LoginUser).ID {
+			userDTO.IsFocus = focusMap[user.ID]
+		} else {
+			userDTO.IsFocus = false
+		}
+		users = append(users, userDTO)
+	}
 	return users, total, nil
 }
 

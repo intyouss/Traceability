@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"sync"
@@ -21,15 +22,21 @@ var VideoServiceIns *VideoService
 
 type VideoService struct {
 	BaseService
-	UserDao *dao.UserDao
-	Dao     *dao.VideoDao
+	UserDao     *dao.UserDao
+	LikeDao     *dao.LikeDao
+	CollectDao  *dao.CollectDao
+	RelationDao *dao.RelationDao
+	Dao         *dao.VideoDao
 }
 
 func NewVideoService() *VideoService {
 	if VideoServiceIns == nil {
 		VideoServiceIns = &VideoService{
-			Dao:     dao.NewVideoDao(),
-			UserDao: dao.NewUserDao(),
+			Dao:         dao.NewVideoDao(),
+			UserDao:     dao.NewUserDao(),
+			LikeDao:     dao.NewLikeDao(),
+			CollectDao:  dao.NewCollectDao(),
+			RelationDao: dao.NewRelationDao(),
 		}
 	}
 	return VideoServiceIns
@@ -40,6 +47,7 @@ func (v *VideoService) GetVideoList(
 	ctx context.Context, vListDTO *dto.VideoListDTO,
 ) (videos []*dto.Video, nextTime string, err error) {
 	var videosDao []*models.Video
+	// 分类获取视频列表
 	switch vListDTO.Type {
 	case 1:
 		videosDao, nextTime, err = v.Dao.GetVideoList(ctx, vListDTO)
@@ -63,16 +71,17 @@ func (v *VideoService) GetVideoList(
 		return nil, "", err
 	}
 
+	// 获取作者信息
 	authorMap := make(map[uint]*models.User)
 	for _, video := range videosDao {
 		authorMap[video.AuthorID] = nil
 	}
+
 	var authorIds []uint
 	for authorId := range authorMap {
 		authorIds = append(authorIds, authorId)
 	}
 
-	// 调用userApi
 	authors, err := v.UserDao.GetUserListByIds(ctx, authorIds)
 	if err != nil {
 		return nil, "", err
@@ -80,6 +89,32 @@ func (v *VideoService) GetVideoList(
 	for _, author := range authors {
 		authorMap[author.ID] = author
 	}
+
+	// 视频判断是否已点赞 是否已收藏， 作者判断是否已关注
+	likeMap := make(map[uint]bool)
+	collectMap := make(map[uint]bool)
+	focusMap := make(map[uint]bool)
+	if ctx.Value(global.LoginUser) != nil {
+		videoIds := make([]uint, 0, len(videosDao))
+		for _, video := range videosDao {
+			videoIds = append(videoIds, video.ID)
+		}
+		likeMap, err = v.LikeDao.IsLikedByList(ctx, videoIds)
+		if err != nil {
+			return nil, "", err
+		}
+
+		collectMap, err = v.CollectDao.IsCollectedByList(ctx, videoIds)
+		if err != nil {
+			return nil, "", err
+		}
+
+		focusMap, err = v.RelationDao.IsFocusedByList(ctx, authorIds)
+		if err != nil {
+			return nil, "", err
+		}
+	}
+	fmt.Println(likeMap)
 
 	// 组装数据
 	for _, video := range videosDao {
@@ -89,6 +124,15 @@ func (v *VideoService) GetVideoList(
 		var user = new(dto.User)
 		_ = copier.Copy(user, authorMap[video.AuthorID])
 		videoDTO.Author = user
+		if ctx.Value(global.LoginUser) != nil {
+			videoDTO.IsLike = likeMap[video.ID]
+			videoDTO.IsCollect = collectMap[video.ID]
+			videoDTO.Author.IsFocus = focusMap[video.AuthorID]
+		} else {
+			videoDTO.IsLike = false
+			videoDTO.IsCollect = false
+			videoDTO.Author.IsFocus = false
+		}
 		videos = append(videos, videoDTO)
 	}
 	return videos, nextTime, nil
@@ -102,6 +146,7 @@ func (v *VideoService) GetVideoListByUserId(
 		Value(global.LoginUser).(models.LoginUser).ID != uVideoListDto.UserID {
 		return nil, errors.New("user not exist")
 	}
+	// 获取视频列表
 	videosDao, err := v.Dao.GetVideoListByUserId(ctx, uVideoListDto)
 	if err != nil {
 		return nil, err
@@ -114,6 +159,7 @@ func (v *VideoService) GetVideoListByUserId(
 		return nil, err
 	}
 
+	// 获取作者信息
 	var userDao *models.User
 	userDao, err = v.UserDao.GetUserById(ctx, uVideoListDto.UserID)
 	if err != nil {
@@ -122,12 +168,46 @@ func (v *VideoService) GetVideoListByUserId(
 	var user = new(dto.User)
 	_ = copier.Copy(user, userDao)
 
+	// 视频判断是否已点赞 是否已收藏， 作者判断是否已关注
+	likeMap := make(map[uint]bool)
+	collectMap := make(map[uint]bool)
+	var isFocus bool
+	if ctx.Value(global.LoginUser) != nil {
+		videoIds := make([]uint, 0, len(videosDao))
+		for _, video := range videosDao {
+			videoIds = append(videoIds, video.ID)
+		}
+		likeMap, err = v.LikeDao.IsLikedByList(ctx, videoIds)
+		if err != nil {
+			return nil, err
+		}
+
+		collectMap, err = v.CollectDao.IsCollectedByList(ctx, videoIds)
+		if err != nil {
+			return nil, err
+		}
+
+		isFocus, err = v.RelationDao.IsFocused(ctx, uVideoListDto.UserID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	var videos = make([]*dto.Video, 0, len(videosDao))
 	for _, video := range videosDao {
 		var videoDTO = new(dto.Video)
 		_ = copier.Copy(videoDTO, video)
 		videoDTO.CreatedAt = timeFormat(video.CreatedAt)
 		videoDTO.Author = user
+		if ctx.Value(global.LoginUser) != nil {
+			videoDTO.IsLike = likeMap[video.ID]
+			videoDTO.IsCollect = collectMap[video.ID]
+			videoDTO.Author.IsFocus = isFocus
+		} else {
+			videoDTO.IsLike = false
+			videoDTO.IsCollect = false
+			videoDTO.Author.IsFocus = false
+		}
 		videos = append(videos, videoDTO)
 	}
 	return videos, nil
@@ -138,6 +218,7 @@ func (v *VideoService) GetVideoSearch(
 	ctx context.Context, searchDTO *dto.VideoSearchDTO,
 ) (videos []*dto.Video, err error) {
 	var videosDao []*models.Video
+	// 分类获取视频列表
 	switch searchDTO.Type {
 	case 1:
 		videosDao, err = v.Dao.GetVideoSearchByAuthorAndTitle(ctx, searchDTO)
@@ -155,6 +236,7 @@ func (v *VideoService) GetVideoSearch(
 		return nil, err
 	}
 
+	// 获取作者信息
 	var authorIds = make([]uint, 0, len(videosDao))
 	for _, video := range videosDao {
 		authorIds = append(authorIds, video.AuthorID)
@@ -170,6 +252,32 @@ func (v *VideoService) GetVideoSearch(
 	for _, author := range authors {
 		authorIdsMap[author.ID] = author
 	}
+
+	// 视频判断是否已点赞 是否已收藏， 作者判断是否已关注
+	likeMap := make(map[uint]bool)
+	collectMap := make(map[uint]bool)
+	focusMap := make(map[uint]bool)
+	if ctx.Value(global.LoginUser) != nil {
+		videoIds := make([]uint, 0, len(videosDao))
+		for _, video := range videosDao {
+			videoIds = append(videoIds, video.ID)
+		}
+		likeMap, err = v.LikeDao.IsLikedByList(ctx, videoIds)
+		if err != nil {
+			return nil, err
+		}
+
+		collectMap, err = v.CollectDao.IsCollectedByList(ctx, videoIds)
+		if err != nil {
+			return nil, err
+		}
+
+		focusMap, err = v.RelationDao.IsFocusedByList(ctx, authorIds)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	for _, video := range videosDao {
 		var videoDTO = new(dto.Video)
 		_ = copier.Copy(videoDTO, video)
@@ -177,9 +285,58 @@ func (v *VideoService) GetVideoSearch(
 		var user = new(dto.User)
 		_ = copier.Copy(user, authorIdsMap[video.AuthorID])
 		videoDTO.Author = user
+		if ctx.Value(global.LoginUser) != nil {
+			videoDTO.IsLike = likeMap[video.ID]
+			videoDTO.IsCollect = collectMap[video.ID]
+			videoDTO.Author.IsFocus = focusMap[video.AuthorID]
+		} else {
+			videoDTO.IsLike = false
+			videoDTO.IsCollect = false
+			videoDTO.Author.IsFocus = false
+		}
 		videos = append(videos, videoDTO)
 	}
 	return videos, nil
+}
+
+func (v *VideoService) GetVideoInfo(ctx context.Context, idDto *dto.CommonIDDTO) (*dto.Video, error) {
+	video, err := v.Dao.GetVideoByVideoId(ctx, *idDto.ID)
+	if err != nil {
+		return nil, err
+	}
+	var videoDTO = new(dto.Video)
+	_ = copier.Copy(videoDTO, video)
+	author, err := v.UserDao.GetUserById(ctx, video.AuthorID)
+	if err != nil {
+		return nil, err
+	}
+	var user = new(dto.User)
+	_ = copier.Copy(user, author)
+	videoDTO.Author = user
+	videoDTO.CreatedAt = timeFormat(video.CreatedAt)
+	if ctx.Value(global.LoginUser) != nil {
+		like, err := v.LikeDao.IsLiked(ctx, *idDto.ID)
+		if err != nil {
+			return nil, err
+		}
+		collect, err := v.CollectDao.IsCollected(ctx, *idDto.ID)
+		if err != nil {
+			return nil, err
+		}
+		focus, err := v.RelationDao.IsFocused(ctx, video.AuthorID)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println(like, collect, focus)
+		videoDTO.IsLike = like
+		videoDTO.IsCollect = collect
+		videoDTO.Author.IsFocus = focus
+	} else {
+		videoDTO.IsLike = false
+		videoDTO.IsCollect = false
+		videoDTO.Author.IsFocus = false
+	}
+	return videoDTO, nil
 }
 
 // PublishVideo 发布视频

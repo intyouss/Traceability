@@ -28,10 +28,39 @@ func NewRelationDao() *RelationDao {
 	return RelationDaoIns
 }
 
-// isFocused 是否已经关注
-func (r *RelationDao) isFocused(ctx context.Context, relation models.Relation) bool {
-	err := r.DB.Model(&models.Relation{}).WithContext(ctx).First(&relation).Error
-	return !errors.Is(err, gorm.ErrRecordNotFound)
+// IsFocused 是否已经关注
+func (r *RelationDao) IsFocused(ctx context.Context, id uint) (bool, error) {
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	err := r.DB.Model(&models.Relation{}).WithContext(ctx).
+		Where("user_id = ? and focus_id = ?", userId, id).
+		First(&models.Relation{}).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// IsFocusedByList 是否已经关注
+func (r *RelationDao) IsFocusedByList(ctx context.Context, ids []uint) (map[uint]bool, error) {
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	var relations []*models.Relation
+	err := r.DB.Model(&models.Relation{}).WithContext(ctx).
+		Where("user_id = ? and focus_id in ?", userId, ids).
+		Find(&relations).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(relations) == 0 {
+		return nil, nil
+	}
+	relationMap := make(map[uint]bool)
+	for _, relation := range relations {
+		relationMap[relation.FocusID] = true
+	}
+	return relationMap, nil
 }
 
 // Focus 关注
@@ -40,7 +69,11 @@ func (r *RelationDao) Focus(ctx context.Context, dto dto.RelationActionDto) erro
 		UserID:  ctx.Value(global.LoginUser).(models.LoginUser).ID,
 		FocusID: dto.UserID,
 	}
-	if r.isFocused(ctx, relation) {
+	isFocus, err := r.IsFocused(ctx, dto.UserID)
+	if err != nil {
+		return err
+	}
+	if isFocus {
 		return errors.New("already focused")
 	}
 	return r.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {

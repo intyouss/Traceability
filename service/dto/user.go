@@ -16,7 +16,7 @@ type User struct {
 	// 手机号
 	Mobile string `json:"mobile"`
 	// 关注数
-	FollowCount uint `json:"follow_count"`
+	FocusCount uint `json:"focus_count"`
 	// 粉丝数
 	FansCount uint `json:"fans_count"`
 	// 视频点赞数
@@ -30,7 +30,7 @@ type User struct {
 	// 个性签名
 	Signature string `json:"signature"`
 	// 是否关注
-	IsFollow bool `json:"is_follow"`
+	IsFocus bool `json:"is_focus"`
 }
 
 type UserLoginDto struct {
