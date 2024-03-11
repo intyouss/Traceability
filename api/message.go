@@ -12,12 +12,12 @@ const (
 )
 
 type MessageApi struct {
-	*BaseApi
+	BaseApi
 	Service *service.MessageService
 }
 
-func NewMessageApi() *MessageApi {
-	return &MessageApi{
+func NewMessageApi() MessageApi {
+	return MessageApi{
 		BaseApi: NewBaseApi(),
 		Service: service.NewMessageService(),
 	}

@@ -13,12 +13,12 @@ const (
 )
 
 type RelationApi struct {
-	*BaseApi
+	BaseApi
 	Service *service.RelationService
 }
 
-func NewRelationApi() *RelationApi {
-	return &RelationApi{
+func NewRelationApi() RelationApi {
+	return RelationApi{
 		BaseApi: NewBaseApi(),
 		Service: service.NewRelationService(),
 	}

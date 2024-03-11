@@ -16,12 +16,12 @@ const (
 )
 
 type UserApi struct {
-	*BaseApi
+	BaseApi
 	Service *service.UserService
 }
 
-func NewUserApi() *UserApi {
-	return &UserApi{
+func NewUserApi() UserApi {
+	return UserApi{
 		BaseApi: NewBaseApi(),
 		Service: service.NewUserService(),
 	}
@@ -136,6 +136,17 @@ func (u UserApi) GetUserInfo(ctx *gin.Context) {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/public/user/search [get]
+
+// GetUserListBySearch 获取用户列表
+// @Summary 获取用户列表
+// @Description 获取用户列表
+// @Param token header string true "token"
+// @Param key formData string true "关键字"
+// @Param page formData int false "页码"
+// @Param limit formData int false "每页数量"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/user/search [get]
 func (u UserApi) GetUserListBySearch(ctx *gin.Context) {
 	var userListDto dto.UserSearchListDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &userListDto}).GetError(); err != nil {
@@ -146,6 +157,14 @@ func (u UserApi) GetUserListBySearch(ctx *gin.Context) {
 	users, total, err := u.Service.GetUserListBySearch(ctx, &userListDto)
 	if err != nil {
 		u.Fail(&Response{Code: ErrCodeGetUserList, Msg: err.Error()})
+		return
+	}
+	if len(users) == 0 {
+		u.Success(&Response{
+			Data: gin.H{
+				"users": []*dto.User{},
+			},
+		})
 		return
 	}
 

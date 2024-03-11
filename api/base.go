@@ -17,8 +17,8 @@ type BaseApi struct {
 	Logger *zap.SugaredLogger
 }
 
-func NewBaseApi() *BaseApi {
-	return &BaseApi{
+func NewBaseApi() BaseApi {
+	return BaseApi{
 		Logger: global.Logger,
 	}
 }

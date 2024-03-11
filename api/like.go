@@ -12,12 +12,12 @@ const (
 )
 
 type LikeApi struct {
-	*BaseApi
+	BaseApi
 	Service *service.LikeService
 }
 
-func NewLikeApi() *LikeApi {
-	return &LikeApi{
+func NewLikeApi() LikeApi {
+	return LikeApi{
 		BaseApi: NewBaseApi(),
 		Service: service.NewLikeService(),
 	}

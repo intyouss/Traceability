@@ -15,12 +15,12 @@ const (
 )
 
 type VideoApi struct {
-	*BaseApi
+	BaseApi
 	Service *service.VideoService
 }
 
-func NewVideoApi() *VideoApi {
-	return &VideoApi{
+func NewVideoApi() VideoApi {
+	return VideoApi{
 		BaseApi: NewBaseApi(),
 		Service: service.NewVideoService(),
 	}
@@ -206,4 +206,32 @@ func (v VideoApi) DeleteVideo(ctx *gin.Context) {
 	}
 
 	v.Success(&Response{})
+}
+
+// GetVideoInfo 获取视频信息
+// @Summary 获取视频信息
+// @Description 获取视频信息
+// @Param token header string true "token"
+// @Param id query int true "视频id"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/video/info [get]
+func (v VideoApi) GetVideoInfo(ctx *gin.Context) {
+	var videoDTO dto.CommonIDDTO
+	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoDTO}).GetError(); err != nil {
+		v.Fail(&Response{Code: ErrCodeDeleteVideo, Msg: err.Error()})
+		return
+	}
+
+	video, err := v.Service.GetVideoInfo(ctx, &videoDTO)
+	if err != nil {
+		v.Fail(&Response{Code: ErrCodeDeleteVideo, Msg: err.Error()})
+		return
+	}
+
+	v.Success(&Response{
+		Data: gin.H{
+			"video": video,
+		},
+	})
 }

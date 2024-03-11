@@ -12,12 +12,12 @@ const (
 )
 
 type CollectApi struct {
-	*BaseApi
+	BaseApi
 	Service *service.CollectService
 }
 
-func NewCollectApi() *CollectApi {
-	return &CollectApi{
+func NewCollectApi() CollectApi {
+	return CollectApi{
 		BaseApi: NewBaseApi(),
 		Service: service.NewCollectService(),
 	}

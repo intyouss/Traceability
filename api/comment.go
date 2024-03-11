@@ -13,12 +13,12 @@ const (
 )
 
 type CommentApi struct {
-	*BaseApi
+	BaseApi
 	Service *service.CommentService
 }
 
-func NewCommentApi() *CommentApi {
-	return &CommentApi{
+func NewCommentApi() CommentApi {
+	return CommentApi{
 		BaseApi: NewBaseApi(),
 		Service: service.NewCommentService(),
 	}
