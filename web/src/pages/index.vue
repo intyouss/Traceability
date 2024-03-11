@@ -2,13 +2,13 @@
 import FTagList from '~/layouts/components/FTagList.vue';
 import VCard from '~/layouts/components/video/VCard.vue';
 import {onBeforeMount} from 'vue';
-import {useVideos} from '~/composables/useManager.js';
+import {useVideoByPage} from '~/composables/VideoManager.js';
 const {
   Videos,
-  getVideoList,
-} = useVideos();
+  getVideos,
+} = useVideoByPage();
 onBeforeMount(() => {
-  getVideoList();
+  getVideos();
 });
 </script>
 <style scoped>

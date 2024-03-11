@@ -1,47 +1,63 @@
 <script setup>
-import {ref} from 'vue';
-import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
+import {ref, watch} from 'vue';
+import {useLike} from '~/composables/likeManager.js';
+import {useCollect} from '~/composables/collectManager.js';
+import {getVideoInfo} from '~/api/video.js';
+import UAvatar from '~/layouts/components/user/UAvatar.vue';
 
-const isFavorite = ref(false);
-const handleFavorite = ()=>{
-  if (isFavorite.value) {
-    isFavorite.value = false;
-    return;
-  }
-  isFavorite.value = true;
-};
 
-const isCollect = ref(false);
-const handleCollect = ()=>{
-  if (isCollect.value) {
-    isCollect.value = false;
-    return;
-  }
-  isCollect.value = true;
-};
 const props = defineProps({
+  videoId: Number,
+  userId: Number,
+  avatar: String,
+  isLike: Boolean,
+  isCollect: Boolean,
   likeCount: Number,
   commentCount: Number,
   collectCount: Number,
+  clickFunc: Function,
 });
+
+const emits = defineEmits(['click']);
+const handleClick = () => {
+  emits('click', 'true');
+};
+const {
+  IsLiked,
+  handleLikeAction,
+} = useLike(props.isLike);
+
+const {
+  IsCollected,
+  handleCollectAction,
+} = useCollect(props.isCollect);
+
+
+watch([() => IsLiked.value, () => IsCollected.value], () => {
+  getVideoInfo(props.videoId).then((res) => {
+    likeCount.value = res.data.video.like_count;
+    commentCount.value = res.data.video.comment_count;
+    collectCount.value = res.data.video.collect_count;
+  });
+});
+
+const likeCount = ref(props.likeCount);
+const commentCount = ref(props.commentCount);
+const collectCount = ref(props.collectCount);
 </script>
 <template>
   <div class="k" style="height: auto; bottom: 80px;">
     <div class="k1">
       <div class="icon">
-        <el-avatar
-            class="avatar"
-            :size="40"
-            :src="$store.state.user.avatar === ''?DefaultAvatar:$store.state.user.avatar"
-        />
+        <u-avatar :user-id="props.userId" :avatar="props.avatar"/>
       </div>
-      <div class="icon" @click="handleFavorite">
+      <div class="icon" @click="handleLikeAction(props.videoId)">
         <font-awesome-icon
             class="f-icon"
             :icon="['fas', 'heart']"
             size="2xl"
             style="color: #ffffff;"
-            v-if="!isFavorite"
+            v-if="!IsLiked"
         />
         <font-awesome-icon
             class="f-icon"
@@ -51,10 +67,10 @@ const props = defineProps({
             v-else
         />
         <div class="count">
-          {{ props.likeCount }}
+          {{ likeCount}}
         </div>
       </div>
-      <div class="icon">
+      <div class="icon" @click="handleClick">
         <font-awesome-icon
             class="f-icon"
             :icon="['fas', 'comment-dots']"
@@ -62,16 +78,16 @@ const props = defineProps({
             style="color: #ffffff;"
         />
         <div class="count">
-          {{ props.commentCount }}
+          {{ commentCount }}
         </div>
       </div>
-      <div class="icon" @click="handleCollect">
+      <div class="icon" @click="handleCollectAction(props.videoId)">
         <font-awesome-icon
             class="f-icon"
             :icon="['fas', 'star']"
             size="2xl"
             style="color: #ffffff;"
-            v-if="!isCollect"
+            v-if="!IsCollected"
         />
         <font-awesome-icon
             class="f-icon"
@@ -81,13 +97,12 @@ const props = defineProps({
             v-else
         />
         <div class="count">
-          {{ props.collectCount }}
+          {{ collectCount }}
         </div>
       </div>
 
     </div>
   </div>
-
 </template>
 
 <style>
@@ -122,12 +137,6 @@ const props = defineProps({
     position: relative;
     vertical-align: bottom;
     padding-bottom: 15px;
-  }
-  .icon .avatar {
-    margin-top: 24px;
-    margin-bottom: 23px;
-    position: relative;
-    vertical-align: bottom;
   }
   .icon .count {
     font-weight: 400;

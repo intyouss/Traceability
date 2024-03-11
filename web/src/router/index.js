@@ -12,6 +12,7 @@ import Mine from '~/pages/mine.vue';
 import Friend from '~/pages/friend.vue';
 import Recommend from '~/pages/recommend.vue';
 import Search from '~/pages/search.vue';
+import userMine from '~/pages/userMine.vue';
 
 const routes = [{
   path: '/',
@@ -36,6 +37,13 @@ const routes = [{
     name: 'mine',
     meta: {
       title: '我的',
+    },
+  }, {
+    path: '/user/:id',
+    component: userMine,
+    name: 'userMine',
+    meta: {
+      title: '用户详情',
     },
   }, {
     path: '/friend',

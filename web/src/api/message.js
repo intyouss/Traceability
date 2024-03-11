@@ -4,19 +4,25 @@ import {
 
 /**
  * 发送消息
- * @param {Object} data
+ * @param {Number} toUserId
+ * @param {String} content
  * @return {Promise<AxiosResponse<any>>}
  */
-export function sendMessage(data) {
-  return authAPI.post('/message/send', data);
+export function sendMessage(toUserId, content) {
+  return authAPI.post('/message/send', {
+    'to_user_id': toUserId,
+    'content': content,
+  });
 }
 
 /**
  * 获取消息列表
- * @param {Object} params
+ * @param {Number} toUserId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getMessageList(params) {
-  return authAPI.get('/message/chat', {params: params});
+export function getMessageList(toUserId) {
+  return authAPI.get('/message/chat', {params: {
+    'to_user_id': toUserId,
+  }});
 }
 

@@ -1,6 +1,9 @@
 <script setup>
+import UAvatar from '~/layouts/components/user/UAvatar.vue';
+
 const props = defineProps({
   avatar: String,
+  userId: Number,
   username: String,
   title: String,
   createdAt: String,
@@ -45,9 +48,7 @@ const props = defineProps({
         <div>
           <div class="a" >
             <div class="b">
-              <a href="" >
-                <el-avatar class="avatar" :size="50" :src="props.avatar" />
-              </a>
+              <u-avatar :user-id="props.userId" :avatar="props.avatar"/>
             </div>
             <div class="c">
               <div class="d">
@@ -104,14 +105,6 @@ const props = defineProps({
   @apply w-[100%];
   align-items: center;
   display: flex;
-}
-.avatar {
-  @apply rounded-1/2 relative;
-  border: 1px solid rgba(22,24,35,.06)!important;
-  box-sizing: content-box;
-  flex-grow: 0;
-  flex-shrink: 0;
-  overflow: hidden;
 }
 .videoPlayer {
   width: 100%;

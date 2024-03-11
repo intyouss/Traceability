@@ -5,13 +5,16 @@ import {
   useMessage, useVideoUpload,
 } from '~/composables/useManager.js';
 import {ref} from 'vue';
-import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
 import {Search} from '@element-plus/icons-vue';
 import MContainer from '~/layouts/components/message/MContainer.vue';
 import MMenu from '~/layouts/components/message/MMenu.vue';
 import VUpload from '~/layouts/components/video/VUpload.vue';
 import {getToken} from '~/composables/auth.js';
 import {useRoute, useRouter} from 'vue-router';
+import {inject} from 'vue';
+import UAvatar from '~/layouts/components/user/UAvatar.vue';
+const reload = inject('reload');
+
 const router = useRouter();
 const route = useRoute();
 const {handleLogout} = useLogout();
@@ -34,7 +37,7 @@ const {
   UploadOpen,
 } = useVideoUpload();
 const handleRefresh = () => {
-  location.reload();
+  reload();
 };
 
 const key = ref('');
@@ -130,9 +133,11 @@ const search = () => {
         </template>
       </el-dropdown>
       <el-dropdown class="dropdown">
-        <span class="mr-2 flex items-center" style="outline: none;">
-          <el-avatar :size="40" :src="$store.state.user.avatar === ''?DefaultAvatar:$store.state.user.avatar" />
-        </span>
+        <u-avatar
+            class="avatar"
+            :avatar="$store.state.user.avatar"
+            :mine="true"
+        />
         <template #dropdown>
         <el-dropdown-menu v-if="!getToken()">
           <el-dropdown-item class="d-item" @click="$router.push('/login')">
@@ -249,6 +254,9 @@ const search = () => {
     height: 60px;
     cursor: pointer;
     @apply flex justify-center items-center mx-5;
+  }
+  .f-header .dropdown .avatar {
+    @apply h-[40px] w-[40px] mr-4;
   }
   .el-input {
     width: 360px;

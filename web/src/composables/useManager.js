@@ -1,14 +1,10 @@
 import {reactive, ref} from 'vue';
-import {getUserSearch, logout} from '~/api/user.js';
+import {getAuthUserSearch, getPublicUserSearch, logout} from '~/api/user.js';
 import {confirm, notify} from '~/composables/util.js';
-import {useRouter} from 'vue-router';
+import {useRouter, useRoute} from 'vue-router';
 import {useStore} from 'vuex';
-import {
-  getIndexVideo,
-  getAuthVideo, getVideoSearch, getUserVideoList,
-} from '~/api/video.js';
-import {getLikeList} from '~/api/like.js';
-import {getCollectList} from '~/api/collect.js';
+import {getVideoSearch} from '~/api/video.js';
+import {getToken} from '~/composables/auth.js';
 
 export function useRePassword() {
   const rePasswordForm = ref(false);
@@ -63,13 +59,16 @@ export function useRePassword() {
 
 export function useLogout() {
   const router = useRouter();
+  const route = useRoute();
   const store = useStore();
   function handleLogout() {
     confirm('确定退出登录吗?').then(()=>{
       logout()
           .finally(()=>{
             store.dispatch('logout');
-            router.push('/login');
+            if (route.path !== '/') {
+              router.push('/login');
+            }
             notify('退出成功');
           });
     });
@@ -98,131 +97,24 @@ export function useVideoUpload() {
   };
 }
 
-export function useVideos() {
-  const router = useRouter();
-  const routerName = router.currentRoute.value.name;
-  const Videos = ref([]);
-  const getIndexVideos = () => {
-    getIndexVideo({
-      'type': 1,
-      'latest_time': 0,
-    }).then((res)=>{
-      Videos.value = res.data.videos;
-      console.log(Videos.value);
-    });
-  };
-  const getFocusVideos = () => {
-    getAuthVideo({
-      'type': 2,
-      'latest_time': 0,
-    }).then((res)=>{
-      Videos.value = res.data.videos;
-      console.log(Videos.value);
-    });
-  };
-  const getFriendVideos = () => {
-    getAuthVideo({
-      'type': 3,
-      'latest_time': 0,
-    }).then((res)=>{
-      Videos.value = res.data.videos;
-      console.log(Videos.value);
-    });
-  };
-  const getRecommendVideos = () => {
-    getAuthVideo({
-      'type': 4,
-      'latest_time': 0,
-    }).then((res)=>{
-      Videos.value = res.data.videos;
-      console.log(Videos.value);
-    });
-  };
-
-  const getVideoList = () => {
-    // 根据路由获取视频列表
-    switch (routerName) {
-      case 'index':
-        return getIndexVideos();
-      case 'focus':
-        return getFocusVideos();
-      case 'recommend':
-        return getRecommendVideos();
-      case 'friend':
-        return getFriendVideos();
-    }
-  };
-  return {
-    Videos,
-    getVideoList,
-  };
-}
-
-export function useOwnerVideos() {
-  const store = useStore();
-  const Videos = ref([]);
-  const getSelfVideos = () => {
-    getUserVideoList({
-      'user_id': store.state.user.id,
-    }).then((res)=>{
-      Videos.value = res.data.videos;
-    });
-  };
-  const getLikeVideos = () => {
-    getLikeList({
-      'user_id': store.state.user.id,
-    }).then((res)=>{
-      Videos.value = res.data.videos;
-    });
-  };
-  const getCollectVideos = () => {
-    getCollectList({
-      'user_id': store.state.user.id,
-    }).then((res)=>{
-      Videos.value = res.data.videos;
-    });
-  };
-
-  const getVideoList = (type) => {
-    // 根据路由获取视频列表
-    switch (type) {
-      case '作品':
-        return getSelfVideos();
-      case '喜爱':
-        return getLikeVideos();
-      case '收藏':
-        return getCollectVideos();
-    }
-  };
-  return {
-    Videos,
-    getVideoList,
-  };
-}
-
-export function useVideoAndUserSearch() {
-  const getSearch = (tag, key, page=1, limit=10) => {
+export function useSearch() {
+  const getSearch = (tag, key) => {
     switch (tag) {
       case '综合':
-        return getVideoSearch({
-          'key': key,
-          'type': 1,
-        }).then((res)=>{
+        return getVideoSearch(key, 1).then((res)=>{
           return res.data.videos;
         });
       case '视频':
-        return getVideoSearch({
-          'key': key,
-          'type': 2,
-        }).then((res)=>{
+        return getVideoSearch(key, 2).then((res)=>{
           return res.data.videos;
         });
       case '用户':
-        return getUserSearch({
-          'key': key,
-          'page': page,
-          'limit': limit,
-        }).then((res)=>{
+        if (getToken()) {
+          return getAuthUserSearch(key).then((res)=>{
+            return res.data.users;
+          });
+        }
+        return getPublicUserSearch(key).then((res)=>{
           return res.data.users;
         });
     }

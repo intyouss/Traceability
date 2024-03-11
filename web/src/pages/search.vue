@@ -1,12 +1,12 @@
 <script setup>
 import VSearchPlayer from '~/layouts/components/video/VSearchPlayer.vue';
 import {onMounted, reactive, ref, watch} from 'vue';
-import {useVideoAndUserSearch} from '~/composables/useManager.js';
+import {useSearch} from '~/composables/useManager.js';
 import {useRoute} from 'vue-router';
 import USearchCard from '~/layouts/components/user/USearchCard.vue';
 import NoResult from '~/assets/icon/no-result.svg';
 
-const {getSearch} = useVideoAndUserSearch();
+const {getSearch} = useSearch();
 const route = useRoute();
 const tag = reactive({
   '综合': {
@@ -122,6 +122,7 @@ watch(() => route.query.key, (key) => {
                 :username="item.author.username"
                 :play-url="item.play_url"
                 :loading="loading"
+                :user-id="item.author.id"
             />
           </div>
           <div style="margin-left: 35%" v-else>
@@ -139,6 +140,8 @@ watch(() => route.query.key, (key) => {
                     :fans-count="item.fans_count"
                     :liked-count="item.liked_count"
                     :loading="loading"
+                    :is-focus="item.is_focus"
+                    :userId="item.id"
                 />
               </el-col>
             </el-row>

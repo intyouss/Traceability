@@ -10,7 +10,6 @@ const store = createStore({
       user: {},
       // 侧边栏宽度
       asideWidth: '120px',
-      focusAsideWidth: '190px',
       tagListWidth: '150px',
     };
   },
@@ -29,7 +28,7 @@ const store = createStore({
     // 用户登录, 保留token，保存用户信息
     login({commit}, {username, password}) {
       return new Promise((resolve, reject) => {
-        login({username, password}).then((res) => {
+        login(username, password).then((res) => {
           setToken(res.data.token);
           commit('setUserInfo', res.data.user);
           resolve(res);
@@ -39,7 +38,7 @@ const store = createStore({
     // 获取用户信息并保存
     getUserInfo({commit}) {
       return new Promise((resolve, reject) => {
-        getInfo({user_id: -1}).then((res) => {
+        getInfo(0).then((res) => {
           commit('setUserInfo', res.data.user);
           resolve(res);
         }).catch((err) => reject(err));

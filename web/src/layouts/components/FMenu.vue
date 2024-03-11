@@ -1,16 +1,21 @@
 <script setup>
-import {computed, ref} from 'vue';
+import {computed, ref, watch} from 'vue';
 import {useRouter, useRoute} from 'vue-router';
 import {useStore} from 'vuex';
 import {Sunny} from '@element-plus/icons-vue';
 import {getToken} from '~/composables/auth.js';
 import {notify} from '~/composables/util.js';
+import {useUserByOwner} from '~/composables/userManager.js';
 
 const router = useRouter();
 const store = useStore();
 const route = useRoute();
+const {getUserInfo} = useUserByOwner();
 
 const defaultActive = ref(route.path);
+watch(() => route.path, (val) => {
+  defaultActive.value = val;
+});
 
 const isCollapse = computed(() => {
   return store.state.asideWidth === '64px';
@@ -44,6 +49,9 @@ const handleSelect =(e)=>{
   } else if (!getToken()) {
     notify('请先登录', 'warning');
     return router.push('/login');
+  } else if (e === '/mine') {
+    getUserInfo();
+    return router.replace('/mine');
   }
   return router.push(e);
 };
@@ -58,7 +66,7 @@ const handleSelect =(e)=>{
           @select="handleSelect"
       >
         <template v-for="(item, index) in asideMenus" :key="index">
-          <el-menu-item :index="item.path">
+          <el-menu-item :index="item.path" :route="{path: item.path}">
             <el-icon><component :is="item.icon"></component></el-icon>
             <span>{{ item.name }}</span>
           </el-menu-item>

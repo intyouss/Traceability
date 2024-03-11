@@ -4,27 +4,35 @@ import {
 
 /**
  * 关注/取关
- * @param {Object} data
+ * @param {Number} userId
+ * @param {Number} actionType
  * @return {Promise<AxiosResponse<any>>}
  */
-export function relationAction(data) {
-  return authAPI.post('/relation/action', data);
+export function relationAction(userId, actionType) {
+  return authAPI.post('/relation/action', {
+    'user_id': userId,
+    'action_type': actionType,
+  });
 }
 
 /**
  * 获取关注列表
- * @param {Object} params
+ * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getFocusList(params) {
-  return authAPI.get('/relation/focus/list', {params: params});
+export function getFocusList(userId) {
+  return authAPI.get('/relation/focus/list', {params: {
+    'user_id': userId,
+  }});
 }
 
 /**
  * 获取粉丝列表
- * @param {Object} params
+ * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getFansList(params) {
-  return authAPI.get('/relation/fans/list', {params: params});
+export function getFansList(userId) {
+  return authAPI.get('/relation/fans/list', {params: {
+    'user_id': userId,
+  }});
 }

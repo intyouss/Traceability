@@ -6,11 +6,15 @@ import {
 
 /**
  * 登录
- * @param {Object} data
+ * @param {string} username 用户名
+ * @param {string} password 密码
  * @return {Promise<AxiosResponse<any>>}
  */
-export function login(data) {
-  return publicAPI.post('/user/login', data);
+export function login(username, password) {
+  return publicAPI.post('/user/login', {
+    'username': username,
+    'password': password,
+  });
 }
 
 /**
@@ -24,71 +28,105 @@ export function logout() {
 
 /**
  * 注册
- * @param {Object} data
+ * @param {string} username 用户名
+ * @param {string} password 密码
+ * @param {string} email 邮箱
+ * @param {string} mobile 手机号
  * @return {Promise<AxiosResponse<any>>}
  */
-export function register(data) {
-  return publicAPI.post('/user/register', data);
+export function register(username, password, email='', mobile='') {
+  return publicAPI.post('/user/register', {
+    'username': username,
+    'password': password,
+    'email': email,
+    'mobile': mobile,
+  });
 }
 
 /**
  * 获取用户信息（公共）
- * @param {object} params
+ * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getPublicInfo(params) {
+export function getPublicInfo(userId) {
   return publicAPI.get('/public/user/', {
-    params: params,
+    params: {
+      'user_id': userId,
+    },
   });
 }
 
 /**
  * 获取用户信息 (私有)
- * @param {object} params
+ * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getInfo(params) {
+export function getInfo(userId) {
   return authAPI.get('/user/', {
-    params: params,
-  });
-}
-
-/**
- * 获取用户列表
- * @param {object} params
- * @return {Promise<AxiosResponse<any>>}
- */
-export function getUserList(params) {
-  return authAPI.get('/user/list', {
-    params: params,
+    params: {
+      'id': userId,
+    },
   });
 }
 
 /**
  * 更新用户信息
- * @param {object} data
+ * @param {string} password 密码
+ * @param {string} email 邮箱
+ * @param {string} mobile 手机号
+ * @param {string} avatar 头像
  * @return {Promise<AxiosResponse<any>>}
  */
-export function updateUser(data) {
-  return authAPI.post('/user/update', data);
+export function updateUser(password='', email='', mobile='', avatar='') {
+  return authAPI.post('/user/update', {
+    'password': password,
+    'email': email,
+    'mobile': mobile,
+    'avatar': avatar,
+  });
 }
 
 /**
  * 删除用户
- * @param {Object} data
+ * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function deleteUser(data) {
-  return authAPI.post('/user/delete', data);
+export function deleteUser(userId) {
+  return authAPI.post('/user/delete', {
+    'user_id': userId,
+  });
 }
 
 /**
- * 获取用户搜索结果
- * @param {Object} params
+ * 获取未登录用户搜索结果
+ * @param {string} key
+ * @param {Number} page
+ * @param {Number} limit
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getUserSearch(params) {
+export function getPublicUserSearch(key, page=0, limit=0) {
   return publicAPI.get('/user/search', {
-    params: params,
+    params: {
+      'key': key,
+      'page': page,
+      'limit': limit,
+    },
+  });
+}
+
+/**
+ * 获取登录用户搜索结果
+ * @param {string} key
+ * @param {Number} page
+ * @param {Number} limit
+ * @return {Promise<AxiosResponse<any>>}
+ */
+export function getAuthUserSearch(key, page=0, limit=0) {
+  return authAPI.get('/user/search', {
+    params: {
+      'key': key,
+      'page': page,
+      'limit': limit,
+    },
   });
 }

@@ -1,32 +1,44 @@
 <script setup>
 import {onBeforeMount} from 'vue';
 import VUserCard from '~/layouts/components/video/VUserCard.vue';
-import {useStore} from 'vuex';
-import {useVideoByOwner} from '~/composables/videoManager.js';
+import {useVideoByOther} from '~/composables/videoManager.js';
+import {useUserByOther} from '~/composables/userManager.js';
 import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
-const store = useStore();
+import {useRoute} from 'vue-router';
+const route = useRoute();
 const {
   Videos,
   getVideos,
-} = useVideoByOwner();
+} = useVideoByOther(route.params.id);
+const {
+  User,
+  getUserInfo,
+} = useUserByOther(route.params.id);
+
 const handleClick = (tab) => {
+  if (tab.props.name !== '作品') {
+    return Videos.value = [];
+  }
   getVideos(tab.props.name);
 };
 onBeforeMount(() => {
   getVideos('作品');
+  getUserInfo();
 });
+
 const count = (name) => {
   if (name === '作品') {
-    return store.state.user.video_count;
+    return User.value.video_count;
   } else if (name === '喜爱') {
-    return store.state.user.like_count;
+    return User.value.like_count;
   }
-  return store.state.user.collect_count;
+  return User.value.collect_count;
 };
+
 const tagList = ['作品', '喜爱', '收藏'];
 
 const isDefaultAvatar = () => {
-  return store.state.user.avatar === '' ? DefaultAvatar : store.state.user.avatar;
+  return User.value.avatar === '' ? DefaultAvatar : User.value.avatar;
 };
 
 </script>
@@ -34,42 +46,42 @@ const isDefaultAvatar = () => {
 <template>
   <div>
     <div
-          class="ml-2 mr-2"
-          :style="{ background: 'linear-gradient(40deg,white,transparent),url('+ isDefaultAvatar() +') center center'}"
-      >
-        <div class="p-6" style="backdrop-filter: blur(5px);">
-          <el-row :gutter="20">
-            <el-col :span="4">
-              <el-avatar
-                  class="avatar"
-                  :size="25"
-                  :src="isDefaultAvatar()"
-              />
-            </el-col>
-            <el-col :span="20">
-              <div class="introduce">
-                <div class="username">
-                  <h1 class="text-xl m-0">
+        class="ml-2 mr-2"
+        :style="{ background: 'linear-gradient(40deg,white,transparent),url('+ isDefaultAvatar() +') center center'}"
+    >
+      <div class="p-6" style="backdrop-filter: blur(5px);">
+        <el-row :gutter="20">
+          <el-col :span="4">
+            <el-avatar
+                class="avatar"
+                :size="25"
+                :src="isDefaultAvatar()"
+            />
+          </el-col>
+          <el-col :span="20">
+            <div class="introduce">
+              <div class="username">
+                <h1 class="text-xl m-0">
                   <span class="nameSpan">
-                    {{ $store.state.user.username }}
+                    {{ User.username }}
                   </span>
-                  </h1>
+                </h1>
+              </div>
+              <div class="count">
+                <div class="option other">
+                  <div class="title">关注</div>
+                  <div class="number">{{User.focus_count}}</div>
                 </div>
-                <div class="count">
-                  <div class="option other">
-                    <div class="title">关注</div>
-                    <div class="number">{{$store.state.user.focus_count}}</div>
-                  </div>
-                  <div class="option other">
-                    <div class="title">粉丝</div>
-                    <div class="number">{{$store.state.user.fans_count}}</div>
-                  </div>
-                  <div class="option">
-                    <div class="title">获赞</div>
-                    <div class="number">{{$store.state.user.liked_count}}</div>
-                  </div>
+                <div class="option other">
+                  <div class="title">粉丝</div>
+                  <div class="number">{{User.fans_count}}</div>
                 </div>
-                <p class="info">
+                <div class="option">
+                  <div class="title">获赞</div>
+                  <div class="number">{{User.liked_count}}</div>
+                </div>
+              </div>
+              <p class="info">
                 <span class="age">
                   <font-awesome-icon
                       :icon="['fas', 'mars']"
@@ -79,71 +91,71 @@ const isDefaultAvatar = () => {
                     22岁
                   </span>
                 </span>
-                  <span class="city">
+                <span class="city">
                   衡阳
                 </span>
-                </p>
-                <div class="introduction" >
-                  <div class="flex relative">
-                    <div class="signature">
-                      <div class="signature1">
+              </p>
+              <div class="introduction" >
+                <div class="flex relative">
+                  <div class="signature">
+                    <div class="signature1">
                         <span style="
                           max-width: 300px;
                           overflow: hidden;
                           text-overflow: ellipsis;
                           white-space: nowrap;"
                         >
-                          {{ $store.state.user.signature}}
+                          {{User.signature}}
                         </span>
-                        <el-tooltip
-                            v-if="$store.state.user.signature.length > 25"
-                            class="box-item"
-                            effect="light"
-                            placement="bottom-end"
-                        >
-                          <template #content>
-                            {{$store.state.user.signature}}
-                          </template>
-                          <div class="flex ml-4px">
-                            <span class="more">更多</span>
-                          </div>
-                        </el-tooltip>
-                      </div>
+                      <el-tooltip
+                          v-if="User.signature && User.signature.length > 25"
+                          class="box-item"
+                          effect="light"
+                          placement="bottom-end"
+                      >
+                        <template #content>
+                          {{User.signature}}
+                        </template>
+                        <div class="flex ml-4px">
+                          <span class="more">更多</span>
+                        </div>
+                      </el-tooltip>
                     </div>
-
                   </div>
+
                 </div>
               </div>
-            </el-col>
-          </el-row>
-        </div>
+            </div>
+          </el-col>
+        </el-row>
       </div>
-      <el-tabs model-value="作品" class="tab p-2" @tab-click="handleClick">
-        <el-scrollbar>
-          <template v-for="item in tagList" :key="item">
-            <el-tab-pane
-                :name="item"
-                style="z-index: -1;"
-            >
-              <template #label>
+    </div>
+    <el-tabs model-value="作品" class="tab p-2" @tab-click="handleClick">
+      <el-scrollbar>
+        <template v-for="item in tagList" :key="item">
+          <el-tab-pane
+              :name="item"
+              style="z-index: -1;"
+          >
+            <template #label>
             <span class="text-lg p-2 font-medium">
               <span class="mr-2">{{item}}</span>
               <span>{{count(item)}}</span>
             </span>
+            </template>
+            <el-row :gutter="10">
+              <template v-for="item in Videos" :key="item.id">
+                <el-col :span="6" >
+                  <v-user-card
+                      :cover-url="item.cover_url"
+                      :title="item.title"
+                  />
+                </el-col>
               </template>
-              <el-row :gutter="10">
-                <template v-for="item in Videos" :key="item.id">
-                  <el-col :span="6" >
-                    <v-user-card
-                        :cover-url="item.cover_url"
-                        :title="item.title"
-                    />
-                  </el-col>
-                </template>
-              </el-row>
-            </el-tab-pane>
-          </template>
-        </el-scrollbar>
+            </el-row>
+          </el-tab-pane>
+        </template>
+      </el-scrollbar>
     </el-tabs>
   </div>
 </template>

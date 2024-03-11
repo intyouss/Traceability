@@ -29,10 +29,13 @@ const props = defineProps({
 </template>
 
 <style scoped>
-.el-card {
+.v-card {
+  cursor: pointer;
+}
+.v-card .el-card {
   @apply rounded-2xl mb-4;
 }
-.img {
+.v-card .el-card .img {
   height: 200px;
   width: 100%;
 }

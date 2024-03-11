@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {getToken} from '~/composables/auth.js';
+import {getToken, setToken} from '~/composables/auth.js';
 import {notify} from '~/composables/util.js';
 
 export const publicAPI = axios.create({
@@ -30,6 +30,9 @@ authAPI.interceptors.response.use(
         notify(msg, 'error');
         return Promise.reject(new Error(response.data.msg));
       }
+      if (response.headers['token']) {
+        setToken(response.headers['token']);
+      }
       return response.data;
     }, (error) =>{
       return Promise.reject(error);
@@ -39,7 +42,8 @@ authAPI.interceptors.response.use(
 publicAPI.interceptors.response.use(
     function(response) {
       if (response.data.code !== 0) {
-        notify(response.data.msg, 'error');
+        const msg = response.data.msg || '请求失败';
+        notify(msg, 'error');
         return Promise.reject(new Error(response.data.msg));
       }
       return response.data;
