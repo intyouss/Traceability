@@ -1,8 +1,6 @@
 <script setup>
-import {useVideoByPage} from '~/composables/VideoManager.js';
 import {
-  onBeforeMount,
-  reactive, ref,
+  reactive, ref, watch,
 } from 'vue';
 import SwiperCore, {
   Navigation,
@@ -15,11 +13,6 @@ import VFooter from '~/layouts/components/video/VFooter.vue';
 import VSideBar from '~/layouts/components/video/VSideBar.vue';
 import CDrawer from '~/layouts/components/comment/CDrawer.vue';
 
-const {
-  Videos,
-  getVideos,
-} = useVideoByPage();
-
 const swiperOption = reactive({
   slidesPerView: 1,
   direction: 'vertical',
@@ -30,28 +23,32 @@ const swiperOption = reactive({
     prevEl: '.swiper-button-prev',
   },
 });
-
-onBeforeMount(() => {
-  getVideos();
-  console.log(Videos);
-});
 const props = defineProps({
   sideBarDisplay: String,
+  userId: Number,
+  videos: ref([]),
 });
-const openComment = ref(false);
-const handleClick = (val) => {
+
+const Videos = ref(props.videos);
+
+watch(() => props.videos, (val) => {
+  Videos.value = val;
+});
+
+const openComment = ref([]);
+const handleClick = (val, index) => {
   if (val === 'true') {
-    openComment.value = !openComment.value;
+    openComment.value[index] = !openComment.value[index];
   }
 };
-const handleClose = (val) => {
+const handleClose = (val, index) => {
   if (val === 'close') {
-    openComment.value = false;
+    openComment.value[index] = false;
   }
 };
 
-const setWidth = () => {
-  return openComment.value ? 'calc(100% - 336px)' : '100%';
+const setWidth = (index) => {
+  return openComment.value[index] ? 'calc(100% - 336px)' : '100%';
 };
 </script>
 
@@ -64,21 +61,22 @@ const setWidth = () => {
               :mousewheel="swiperOption.mousewheel"
               :thresholdTime="swiperOption.thresholdTime"
               :navigation="swiperOption.navigation"
-              class="swiper"
+              class="swiper swiper-no-swiping"
           >
-            <!--          <div class="swiper-wrapper" style="z-index: 0">-->
-            <swiper-slide v-for="item in Videos" :key="item" >
-<!--              class="flex justify-center items-center relative"-->
+            <swiper-slide
+                v-for="(item,index) in Videos"
+                :key="item.id"
+            >
               <div class="ribvri">
                 <div class="grgwh">
                   <div class="breoi">
                     <div class="fegew">
-                      <div class="breinrb" :style="{width: setWidth()}">
+                      <div class="breinrb" :style="{width: setWidth(index)}">
                         <vue-plyr
-                            class="plyr"
-                            :data-poster="item.cover_url"
-                        >
-                          <div :style="{ background: 'linear-gradient(40deg,gray,transparent),url(' + item.cover_url + ') center center'}">
+                              class="plyr"
+                              :data-poster="item.cover_url"
+                          >
+                            <div :style="{ background: 'linear-gradient(40deg,gray,transparent),url(' + item.cover_url + ') center center'}">
                               <video
                                   controls
                                   crossorigin
@@ -90,10 +88,8 @@ const setWidth = () => {
                                     type="video/mp4"
                                 />
                               </video>
-
-                          </div>
-
-                        </vue-plyr>
+                            </div>
+                          </vue-plyr>
                         <v-side-bar
                             :comment-count="item.comment_count"
                             :collect-count="item.collect_count"
@@ -103,7 +99,7 @@ const setWidth = () => {
                             :video-id="item.id"
                             :avatar="item.author.avatar"
                             :user-id="item.author.id"
-                            @click="handleClick"
+                            @click="handleClick($event, index)"
                         />
                         <v-footer
                             :title="item.title"
@@ -112,14 +108,18 @@ const setWidth = () => {
                         />
                       </div>
                       <div class="dadwdwad">
-                        <c-drawer :open-comment="openComment" :comment-count="item.comment_count" @close="handleClose"/>
+                        <c-drawer
+                            :video-id="item.id"
+                            :open-comment="openComment[index]"
+                            :comment-count="item.comment_count"
+                            @close="handleClose($event, index)"
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </swiper-slide>
-            <!--          </div>-->
           </swiper>
       </el-col>
       <el-col :span="1">
@@ -156,10 +156,7 @@ const setWidth = () => {
   z-index: 2;
   vertical-align: top;
   display: inline-block;
-  transition: 0.4s;
-}
-.videoPlayer video{
-  border-radius: 20px;
+  transition: 0.3s;
 }
 .swiper-wrapper {
   transition: 0.3s !important;
@@ -184,11 +181,10 @@ const setWidth = () => {
   height: 640px !important;
   z-index: 0;
 }
-.plyr {
+.breinrb .plyr {
   --plyr-color-main: write;
-  --plyr-video-background: blur(20px);
 }
-.plyr--full-ui {
+:deep(.plyr--full-ui) {
   border-radius: 20px;
 }
 .ribvri {
@@ -220,11 +216,11 @@ const setWidth = () => {
   position: relative;
 }
 .fegew {
-  border-radius: 16px;
+  @apply border border-gray-500 shadow-xl;
+  border-radius: 20px;
   width: 100%;
   height: 100%;
   opacity: 1;
-  background-color: #000;
   white-space: nowrap;
   background-clip: content-box;
   flex-grow: 1;

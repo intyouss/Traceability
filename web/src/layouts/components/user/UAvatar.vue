@@ -14,6 +14,9 @@ const handleClick = (id=0) => {
   if (props.mine) {
     return router.replace('/mine');
   }
+  if (id === 0) {
+    return;
+  }
   router.replace('/user/' + id);
 };
 

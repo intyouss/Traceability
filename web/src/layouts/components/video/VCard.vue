@@ -30,6 +30,7 @@ const props = defineProps({
 
 <style scoped>
 .v-card {
+  z-index: 0;
   cursor: pointer;
 }
 .v-card .el-card {

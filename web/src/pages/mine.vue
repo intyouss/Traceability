@@ -1,9 +1,26 @@
 <script setup>
-import {onBeforeMount} from 'vue';
+import {onBeforeMount, ref, watch} from 'vue';
 import VUserCard from '~/layouts/components/video/VUserCard.vue';
 import {useStore} from 'vuex';
 import {useVideoByOwner} from '~/composables/videoManager.js';
 import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
+import RRelationDialog from '~/layouts/components/relation/RRelationDialog.vue';
+import {useRelationList} from '~/composables/relationManager.js';
+import {useUserByOwner} from '~/composables/userManager.js';
+
+const {
+  getUserInfo,
+} = useUserByOwner();
+
+const {
+  RelationList,
+  getRelationList,
+  OpenRelationList,
+  OpenRelationType,
+  openRelationList,
+  closeRelationList,
+} = useRelationList();
+
 const store = useStore();
 const {
   Videos,
@@ -14,6 +31,7 @@ const handleClick = (tab) => {
 };
 onBeforeMount(() => {
   getVideos('作品');
+  getUserInfo();
 });
 const count = (name) => {
   if (name === '作品') {
@@ -29,6 +47,16 @@ const isDefaultAvatar = () => {
   return store.state.user.avatar === '' ? DefaultAvatar : store.state.user.avatar;
 };
 
+const handleRelation = (type) => {
+  getRelationList(store.state.user.id, type);
+  getUserInfo();
+};
+
+const User = ref(store.state.user);
+
+watch(() => store.state.user, (value) => {
+  User.value = value;
+});
 </script>
 
 <template>
@@ -56,11 +84,17 @@ const isDefaultAvatar = () => {
                   </h1>
                 </div>
                 <div class="count">
-                  <div class="option other">
+                  <div
+                      class="option other"
+                      @click="openRelationList($store.state.user.id, 1)"
+                  >
                     <div class="title">关注</div>
                     <div class="number">{{$store.state.user.focus_count}}</div>
                   </div>
-                  <div class="option other">
+                  <div
+                      class="option other"
+                      @click="openRelationList($store.state.user.id,2)"
+                  >
                     <div class="title">粉丝</div>
                     <div class="number">{{$store.state.user.fans_count}}</div>
                   </div>
@@ -110,7 +144,6 @@ const isDefaultAvatar = () => {
                         </el-tooltip>
                       </div>
                     </div>
-
                   </div>
                 </div>
               </div>
@@ -118,7 +151,7 @@ const isDefaultAvatar = () => {
           </el-row>
         </div>
       </div>
-      <el-tabs model-value="作品" class="tab p-2" @tab-click="handleClick">
+    <el-tabs model-value="作品" class="tab p-2" @tab-click="handleClick">
         <el-scrollbar>
           <template v-for="item in tagList" :key="item">
             <el-tab-pane
@@ -145,6 +178,14 @@ const isDefaultAvatar = () => {
           </template>
         </el-scrollbar>
     </el-tabs>
+    <r-relation-dialog
+        :open="OpenRelationList"
+        :type="OpenRelationType"
+        :close="closeRelationList"
+        :user="User"
+        :list="RelationList"
+        @click="handleRelation"
+    />
   </div>
 </template>
 

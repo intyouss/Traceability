@@ -123,10 +123,11 @@ watch(() => route.query.key, (key) => {
                 :play-url="item.play_url"
                 :loading="loading"
                 :user-id="item.author.id"
+                :cover-url="item.cover_url"
             />
           </div>
           <div style="margin-left: 35%" v-else>
-            <img style="height: 400px" :src="NoResult" alt="" />
+            <el-empty :image="NoResult" style="height: 400px"/>
           </div>
         </div>
         <div v-else>

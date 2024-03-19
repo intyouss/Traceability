@@ -19,7 +19,6 @@
 <style scoped>
 .f-tag-list {
   @apply flex items-center fixed right-0 bg-light-100;
-  z-index: 100;
   transition: 0.4s;
 }
 .f-tag-list__tag {

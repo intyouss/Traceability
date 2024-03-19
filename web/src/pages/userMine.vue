@@ -1,30 +1,44 @@
 <script setup>
-import {onBeforeMount} from 'vue';
+import {onBeforeMount, watch} from 'vue';
 import VUserCard from '~/layouts/components/video/VUserCard.vue';
 import {useVideoByOther} from '~/composables/videoManager.js';
 import {useUserByOther} from '~/composables/userManager.js';
 import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
 import {useRoute} from 'vue-router';
+import {useRelation} from '~/composables/relationManager.js';
+import {useMessageDialog} from '~/composables/messageManager.js';
+import MDialog from '~/layouts/components/message/MDialog.vue';
 const route = useRoute();
 const {
   Videos,
   getVideos,
-} = useVideoByOther(route.params.id);
+} = useVideoByOther();
 const {
   User,
   getUserInfo,
 } = useUserByOther(route.params.id);
+const {
+  Message,
+  MessageOpen,
+  MessageClose,
+} = useMessageDialog();
 
 const handleClick = (tab) => {
   if (tab.props.name !== '作品') {
     return Videos.value = [];
   }
-  getVideos(tab.props.name);
+  getVideos(tab.props.name, route.params.id);
 };
-onBeforeMount(() => {
-  getVideos('作品');
+onBeforeMount(async () => {
+  getVideos('作品', route.params.id);
   getUserInfo();
 });
+
+const {
+  IsFocus,
+  setFocus,
+  handleRelation,
+} = useRelation();
 
 const count = (name) => {
   if (name === '作品') {
@@ -41,6 +55,9 @@ const isDefaultAvatar = () => {
   return User.value.avatar === '' ? DefaultAvatar : User.value.avatar;
 };
 
+watch(() => User.value, (value) => {
+  setFocus(value.is_focus);
+});
 </script>
 
 <template>
@@ -58,7 +75,7 @@ const isDefaultAvatar = () => {
                 :src="isDefaultAvatar()"
             />
           </el-col>
-          <el-col :span="20">
+          <el-col :span="17">
             <div class="introduce">
               <div class="username">
                 <h1 class="text-xl m-0">
@@ -127,6 +144,40 @@ const isDefaultAvatar = () => {
               </div>
             </div>
           </el-col>
+          <el-col :span="3">
+            <div class="flex">
+              <el-button
+                  class="button"
+                  type="primary"
+                  size="default"
+                  round
+                  @click="handleRelation(User.id)"
+                  v-if="!IsFocus"
+              >
+                关注
+              </el-button>
+              <el-button
+                  class="button"
+                  type="primary"
+                  size="default"
+                  round
+                  disabled
+                  v-else
+              >
+                已关注
+              </el-button>
+              <el-button
+                  class="button"
+                  type="info"
+                  size="default"
+                  round
+                  v-if="IsFocus"
+                  @click="MessageOpen"
+              >
+                私信
+              </el-button>
+            </div>
+          </el-col>
         </el-row>
       </div>
     </div>
@@ -157,6 +208,7 @@ const isDefaultAvatar = () => {
         </template>
       </el-scrollbar>
     </el-tabs>
+    <m-dialog :message="Message" @message-close="MessageClose" :private-emile="true" :user="User"/>
   </div>
 </template>
 

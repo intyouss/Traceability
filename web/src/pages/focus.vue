@@ -1,80 +1,103 @@
 <script setup>
-import {onBeforeMount} from 'vue';
+import {onBeforeMount, ref} from 'vue';
 import VPlayer from '~/layouts/components/video/VPlayer.vue';
 import {useUserByOwner} from '~/composables/userManager.js';
-import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
+import UAvatar from '~/layouts/components/user/UAvatar.vue';
+import {useVideoByPage} from '~/composables/videoManager.js';
+import {useVideoByOther} from '~/composables/videoManager.js';
 
 const {
   Users,
   getUserFocusList,
 } = useUserByOwner();
 
+const {
+  Videos: userVideos,
+  getPublishVideos,
+} = useVideoByOther();
+
+const {
+  Videos,
+  getFocusVideos,
+} = useVideoByPage();
+
 onBeforeMount(() => {
   getUserFocusList();
+  getFocusVideos();
 });
+
+const activeIndex = ref(null);
+
+const handleClick = (index, userId) => {
+  activeIndex.value = index;
+  getPublishVideos(userId);
+};
 </script>
 
 <template>
   <div>
-    <el-row :gutter="20">
-      <el-col :span="3">
-        <div class="menu">
-          <el-menu class="border-0">
-            <template v-for="(item, index) in Users" :key="index">
-              <el-menu-item class="dawdaff">
-                  <el-avatar class="adw broder-2 border-gray-500"
-                             :src="item.avatar === ''?DefaultAvatar:item.avatar"
-                  />
+    <el-empty
+        v-if="Users.length === 0"
+        description="你还没有关注其他用户哦"
+    />
+    <el-row v-else :gutter="20">
+      <el-col :span="4">
+          <ul
+              class="hwedg"
+          >
+            <li
+                v-for="(item,index) in Users"
+                :key="item.id"
+            >
+              <div
+                  class="dawdaff"
+                  :style="activeIndex === index?{boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',backgroundColor: 'white'}:''"
+                  @click="handleClick(index, item.id)"
+              >
+                <u-avatar
+                    :user-id="item.id"
+                    :avatar="item.avatar"
+                    :mine="false"
+                    class="h-[40px] w-[40px]"
+                />
                 <div class="dwad">
                   <span class="awdfw">{{ item.username }}</span>
                 </div>
-
-              </el-menu-item>
-            </template>
-          </el-menu>
-        </div>
+              </div>
+            </li>
+          </ul>
       </el-col>
-      <el-col :span="21">
-        <v-player />
+      <el-col :span="20">
+        <v-player :videos="activeIndex !== null?userVideos:Videos"/>
       </el-col>
     </el-row>
   </div>
 </template>
 
 <style scoped>
-.menu{
+.hwedg{
   overflow-y: auto;
   overflow-x: hidden;
-  border-bottom-left-radius: 22px;
-  border-top-left-radius: 22px;
-  @apply shadow-2xl bg-light-100 w-[181px] h-[600px];
-}
-.menu::-webkit-scrollbar{
-  width: 0;
+  flex-direction: column;
+  display: flex;
+  @apply bg-gray-300 shadow-lg h-[600px] border rounded-2xl;
 }
 .dawdaff {
-  @apply rounded-2xl ml-2 mr-3;
-  height: 48px;
-  margin: 10px;
-  -webkit-user-select: none;
-  -ms-user-select: none;
+  @apply rounded-xl ml-2 mr-3;
+  height: 55px;
+  margin: 10px 10px 5px 10px;
+  cursor: pointer;
   user-select: none;
   align-items: center;
-  padding-left: 4px;
+  padding-left: 10px;
   display: flex;
   position: relative;
   list-style: none;
 }
-.adw {
-  flex-shrink: 0;
-  position: relative;
-  width: 32px;
-  height: 32px;
-  box-sizing: content-box;
-  border-radius: 50%;
-  flex-grow: 0;
-  overflow: hidden;
-  border: 1px solid rgba(22, 24, 35, .06) !important;
+.dawdaff:hover {
+  @apply shadow-sm;
+  background-color: white;
+  transition: 0.4s;
 }
 .dwad {
   flex-direction: column;

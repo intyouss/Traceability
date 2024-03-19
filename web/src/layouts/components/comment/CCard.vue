@@ -21,19 +21,16 @@ const props = defineProps({
           <div class="gewfa">
             <div class="hrgeuif">
               {{props.username}}
-              哈哈哈哈哈哈
             </div>
           </div>
           <div class="brwefe">
           <span class="grwefs">
             {{props.content}}
-            真的不失误啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊，好家伙
           </span>
           </div>
           <div class="bregw">
             <span>
               {{ props.time }}
-              2月前
             </span>
           </div>
         </div>
@@ -101,5 +98,8 @@ const props = defineProps({
 .veu {
   width: 40px;
   height: 40px;
+}
+:deep(.el-card__body) {
+  padding: 5px 10px 5px 10px;
 }
 </style>

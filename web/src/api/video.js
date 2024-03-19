@@ -19,12 +19,14 @@ export function getIndexVideo(type, latestTime=0) {
 /**
  * 获取推荐,关注,朋友视频
  * @param {Number} type
+ * @param {Number} userId
  * @param {String} latestTime
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getAuthVideo(type, latestTime=0) {
+export function getAuthVideo(type, userId=0, latestTime=0) {
   return authAPI.get('/video/feed', {params: {
     'type': type,
+    'user_id': userId,
     'latest_time': latestTime,
   }});
 }
@@ -33,30 +35,56 @@ export function getAuthVideo(type, latestTime=0) {
 /**
  * 上传视频
  * @param {String} title
- * @param {Data} coverImageData
- * @param {Data} Data
+ * @param {Data} data
  * @return {Promise<AxiosResponse<any>>}
  */
-export function uploadVideo(title, coverImageData, Data) {
+export function uploadVideo(title, data) {
   return authAPI.post(
-      '/video/upload',
+      '/video/upload/video',
       {
         'title': title,
-        'cover_image_data': coverImageData,
-        'data': Data,
+        'data': data,
       }, {headers: {'content-type': 'multipart/form-data'}},
   );
 }
 
 /**
- * 删除视频
- * @param {Number} videoId
+ * 上传视频封面
+ * @param {String} title
+ * @param {Data} data
  * @return {Promise<AxiosResponse<any>>}
  */
-export function deleteVideo(videoId) {
-  return authAPI.post('/video/delete', {params: {
-    'video_id': videoId,
-  }});
+export function uploadImage(title, data) {
+  return authAPI.post(
+      '/video/upload/image',
+      {
+        'title': title,
+        'cover_image_data': data,
+      }, {headers: {'content-type': 'multipart/form-data'}},
+  );
+}
+
+export function publishVideo(title, playUrl, coverUrl) {
+  return authAPI.post('/video/publish', {
+    'title': title,
+    'video_url': playUrl,
+    'cover_image_url': coverUrl,
+  });
+}
+
+/**
+ * 删除视频
+ * @Param {String} title
+ * @Param {Boolean} haveVideo
+ * @Param {Boolean} haveImage
+ * @return {Promise<AxiosResponse<any>>}
+ */
+export function abolishVideoUpload(title, haveVideo, haveImage) {
+  return authAPI.post('/video/upload/abolish', {
+    'title': title,
+    'have_video': haveVideo,
+    'have_cover_image': haveImage,
+  });
 }
 
 /**

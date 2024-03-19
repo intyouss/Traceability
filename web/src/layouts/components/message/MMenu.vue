@@ -1,25 +1,46 @@
 <script setup>
-const asideMenus = [{
-  'name': 'intyou',
-  'avatar': 'https://img.zcool.cn/community/01e79c554be56e000001bf72f7cc20.jpg?x-oss-process=image/auto-orient,1/resize,m_lfit,w_1280,limit_1/sharpen,100/quality,q_100/format,webp',
-}, {
-  'name': 'intyou专用测试bot',
-  'avatar': 'https://img.zcool.cn/community/0121595ae3530ca801214a6172f04a.jpg?x-oss-process=image/auto-orient,1/resize,m_lfit,w_1280,limit_1/sharpen,100/quality,q_100/format,webp',
-}, {
-  'name': '奇异生物逮捕者',
-  'avatar': 'https://img.zcool.cn/community/014fa45f033f5aa801215aa0494bed.jpg?x-oss-process=image/auto-orient,1/resize,m_lfit,w_1280,limit_1/sharpen,100/quality,q_100/format,webp',
-}];
+import UAvatar from '~/layouts/components/user/UAvatar.vue';
+import {ref, watch} from 'vue';
+
+const props = defineProps({
+  users: ref([]),
+});
+
+const emit = defineEmits(['select']);
+
+const handleSelect = (index) => {
+  emit('select', index);
+};
+
+const Users = ref(props.users);
+
+watch(() => props.users, (value) => {
+  console.log(value);
+  Users.value = value;
+});
+
 </script>
 
 <template>
   <div class="f-message-menu">
     <el-menu
-        class="el-menu-vertical-demo border-0"
+        class="fwewf border-0"
+        @select="handleSelect"
+        active-text-color="#ffffff"
     >
-      <template v-for="(item, index) in asideMenus" :key="index">
-        <el-menu-item class="m-1 rounded-lg">
-          <el-avatar class="mr-2" :size="40" :src="item.avatar" />
-          <span style="text-overflow:ellipsis; width: 8em;white-space: nowrap;overflow: hidden;">{{ item.name }}</span>
+      <template v-for="(item, index) in Users" :key="item.id">
+        <el-menu-item class="bre m-1 rounded-lg" :index="index">
+          <u-avatar
+              :user-id="0"
+              :avatar="item.avatar"
+              :mine="false"
+              class="w-[40px] h-[40px] mr-2"
+          />
+          <span
+              style="text-overflow:ellipsis; width: 8em;white-space: nowrap;overflow: hidden;"
+          >
+            {{ item.username }}
+          </span>
         </el-menu-item>
       </template>
     </el-menu>
@@ -34,5 +55,8 @@ const asideMenus = [{
 }
 .f-message-menu::-webkit-scrollbar{
   width: 0;
+}
+.fwewf .el-menu-item.is-active {
+  background: linear-gradient(to bottom, #33ccff 0%, #99ccff 100%);
 }
 </style>

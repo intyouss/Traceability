@@ -1,6 +1,7 @@
 <script setup>
 import {useRelation} from '~/composables/relationManager.js';
 import UAvatar from '~/layouts/components/user/UAvatar.vue';
+import {onMounted} from 'vue';
 
 const props = defineProps({
   userId: Number,
@@ -15,8 +16,13 @@ const props = defineProps({
 
 const {
   IsFocus,
+  setFocus,
   handleRelation,
-} = useRelation(props.isFocus);
+} = useRelation();
+
+onMounted(() => {
+  setFocus(props.isFocus);
+});
 </script>
 <template>
   <el-skeleton

@@ -5,10 +5,10 @@ import {onBeforeMount} from 'vue';
 import {useVideoByPage} from '~/composables/VideoManager.js';
 const {
   Videos,
-  getVideos,
+  getIndexVideos,
 } = useVideoByPage();
 onBeforeMount(() => {
-  getVideos();
+  getIndexVideos();
 });
 </script>
 <style scoped>
@@ -20,25 +20,24 @@ onBeforeMount(() => {
 }
 </style>
 <template>
-  <div>
-    <div class="tag-list">
-      <f-tag-list class="tag-list"/>
-    </div>
-    <el-scrollbar>
-      <el-container>
-        <el-main>
-          <el-row :gutter="15">
-            <el-col :span="6" v-for="item in Videos" :key="item.id">
-              <v-card
-                  :title="item.title"
-                  :author="item.author.username"
-                  :cover-url="item.cover_url"
-                  :created-at="item.created_at"
-              />
-            </el-col>
-          </el-row>
-        </el-main>
-      </el-container>
-    </el-scrollbar>
+  <div class="tag-list">
+  <f-tag-list class="tag-list"/>
   </div>
+  <el-scrollbar>
+    <div style="padding: 5px 20px 5px 20px;">
+      <el-row :gutter="15">
+        <el-col :span="6" v-for="item in Videos" :key="item.id">
+          <v-card
+              :title="item.title"
+              :author="item.author.username"
+              :cover-url="item.cover_url"
+              :created-at="item.created_at"
+          />
+        </el-col>
+      </el-row>
+    </div>
+  </el-scrollbar>
 </template>
+
+<style scoped>
+</style>

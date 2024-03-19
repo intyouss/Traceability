@@ -10,11 +10,11 @@ import FMenu from './components/FMenu.vue';
     <el-header style="z-index: 1">
       <f-header/>
     </el-header>
-    <el-container class="main">
+    <el-container class="gwefdq">
       <el-aside :width="$store.state.asideWidth">
         <f-menu/>
       </el-aside>
-      <el-main>
+      <el-main class="greer">
           <router-view v-slot="{ Component }">
             <transition name="fade">
               <keep-alive :max="4">
@@ -52,10 +52,10 @@ import FMenu from './components/FMenu.vue';
 body {
   overflow: hidden;
 }
-.main {
+.gwefdq {
   height: 647px;
 }
-.el-main {
+.gwefdq .greer {
   overflow: hidden;
   min-width: 860px
 }

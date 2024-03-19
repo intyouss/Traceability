@@ -9,6 +9,7 @@ const props = defineProps({
   createdAt: String,
   playUrl: String,
   loading: Boolean,
+  coverUrl: String,
 });
 </script>
 
@@ -21,45 +22,45 @@ const props = defineProps({
     <template #template>
       <el-card class="mb-4">
         <div>
-          <div class="a" >
-            <el-skeleton-item variant="circle" />
+          <div class="a">
+            <el-skeleton-item variant="circle"/>
             <div class="c" style="white-space: normal">
               <div class="d">
                 <el-skeleton-item
                     variant="h1"
                     style="width: 6%;margin-right: 5px"
                 />
-                <el-skeleton-item variant="h1" style="width: 5%" />
+                <el-skeleton-item variant="h1" style="width: 5%"/>
               </div>
             </div>
           </div>
           <div class="h">
-            <el-skeleton-item variant="h1" style="width: 100%" />
+            <el-skeleton-item variant="h1" style="width: 100%"/>
           </div>
-            <el-skeleton-item
-                variant="caption"
-                style="width: 100%;height: 600px;border-radius: 20px;"
-            />
-          </div>
+          <el-skeleton-item
+              variant="caption"
+              style="width: 100%;height: 600px;border-radius: 20px;"
+          />
+        </div>
       </el-card>
     </template>
     <template #default>
       <el-card class="mb-4">
-        <div>
-          <div class="a" >
+        <div class="gwewf">
+          <div class="a">
             <div class="b">
               <u-avatar :user-id="props.userId" :avatar="props.avatar"/>
             </div>
             <div class="c">
-              <div class="d">
-                <a href="" class="e">
+              <div class="gewvfuyf">
+                <a href="" class="ntr">
                   <p class="f">
-                    {{props.username}}
+                    {{ props.username }}
                   </p>
                 </a>
                 <p class="g">
             <span style="margin: 0 4px;">
-                · {{props.createdAt}}
+                · {{ props.createdAt }}
               </span>
                 </p>
               </div>
@@ -67,30 +68,29 @@ const props = defineProps({
             </div>
           </div>
           <div class="h">
-      <span class="i">
-        {{props.title}}
-      </span>
+            <span class="i">
+              {{ props.title }}
+            </span>
           </div>
-          <div class="flex justify-center items-center relative">
+          <div class="herwge">
             <div class="videoPlayer">
-              <vue-plyr class="plyr">
-                <video
-                    controls
-                    crossorigin
-                    playsinline
-                >
-                  <source
-                      :src="props.playUrl"
-                      type="video/mp4"
-                  />
-                  <!--                        <track-->
-                  <!--                            default-->
-                  <!--                            kind="captions"-->
-                  <!--                            label="English captions"-->
-                  <!--                            src="/path/to/english.vtt"-->
-                  <!--                            srclang="en"-->
-                  <!--                        />-->
-                </video>
+              <vue-plyr
+                  class="plyr"
+                  :data-poster="props.coverUrl"
+              >
+                <div :style="{ background: 'linear-gradient(40deg,gray,transparent),url(' + props.coverUrl + ') center center'}">
+                  <video
+                      controls
+                      crossorigin
+                      playsinline
+                      style="backdrop-filter: blur(10px);"
+                  >
+                    <source
+                        :src="props.playUrl"
+                        type="video/mp4"
+                    />
+                  </video>
+                </div>
               </vue-plyr>
             </div>
           </div>
@@ -101,58 +101,78 @@ const props = defineProps({
 </template>
 
 <style scoped>
-.a {
+.gwewf .a {
   @apply w-[100%];
   align-items: center;
   display: flex;
 }
-.videoPlayer {
+
+.herwge .videoPlayer {
   width: 100%;
   height: 600px;
+  margin-bottom: 12px;
+  user-select: none;
+  flex-shrink: 0;
+  flex-direction: column;
+  display: flex;
   border-radius: 20px;
-  @apply shadow-md shadow-gray-500;
+  opacity: 1;
+  white-space: nowrap;
+  background-clip: content-box;
+  flex-grow: 1;
+  transition: all .15s linear;
+  position: relative;
+  overflow: hidden;
+  @apply shadow-lg border border-gray-500;
 }
-.videoPlayer video{
+
+.herwge .videoPlayer video {
   border-radius: 20px;
 }
-.b {
+
+.gwewf .a .b {
   align-items: center;
   display: flex;
 }
-.c {
+
+.gwewf .a .c {
   flex: 1 1;
   margin-left: 12px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  justify-content:center;
+  justify-content: center;
   align-items: center;
 }
-.d {
+
+.gewvfuyf {
   align-items: center;
   display: flex;
 }
-.e {
+
+.ntr {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   position: relative;
   text-decoration: none;
 }
+
 .f {
   color: #161823;
   font-size: 16px;
   line-height: 24px;
-  font-family: PingFang SC,DFPKingGothicGB-Medium,sans-serif;
+  font-family: PingFang SC, DFPKingGothicGB-Medium, sans-serif;
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .g {
   color: #161823;
   flex-shrink: 0;
-  font-family: PingFang SC,DFPKingGothicGB-Regular,sans-serif;
+  font-family: PingFang SC, DFPKingGothicGB-Regular, sans-serif;
   font-size: 12px;
   font-weight: 400;
   letter-spacing: .6px;
@@ -161,20 +181,23 @@ const props = defineProps({
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .h {
   margin: 16px 0;
   display: flex;
   position: relative;
   width: 100%;
-  font-family: PingFang SC,DFPKingGothicGB-Regular,sans-serif;
+  font-family: PingFang SC, DFPKingGothicGB-Regular, sans-serif;
   font-weight: 500;
   overflow: hidden;
   max-height: 48px;
   font-size: 18px;
 }
+
 .plyr {
   --plyr-color-main: write;
 }
+
 .plyr--full-ui {
   border-radius: 20px;
 }

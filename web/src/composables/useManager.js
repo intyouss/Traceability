@@ -78,25 +78,6 @@ export function useLogout() {
   };
 }
 
-
-export function useMessage() {
-  const Message = ref(false);
-  const MessageOpen = () =>Message.value = true;
-  return {
-    Message,
-    MessageOpen,
-  };
-}
-
-export function useVideoUpload() {
-  const Upload = ref(false);
-  const UploadOpen = () => Upload.value = true;
-  return {
-    Upload,
-    UploadOpen,
-  };
-}
-
 export function useSearch() {
   const getSearch = (tag, key) => {
     switch (tag) {
