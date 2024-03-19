@@ -48,7 +48,7 @@ func (c CommentApi) GetCommentList(ctx *gin.Context) {
 	if total == 0 {
 		c.Success(&Response{
 			Data: gin.H{
-				"comment": []dto.Comment{},
+				"comments": []dto.Comment{},
 			},
 			Total: 0,
 		})

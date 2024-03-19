@@ -4,12 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
-	"strings"
 	"sync"
-	"time"
 
 	"github.com/intyouss/Traceability/global"
+	"github.com/intyouss/Traceability/utils"
 
 	"github.com/jinzhu/copier"
 
@@ -120,7 +118,7 @@ func (v *VideoService) GetVideoList(
 	for _, video := range videosDao {
 		var videoDTO = new(dto.Video)
 		_ = copier.Copy(videoDTO, video)
-		videoDTO.CreatedAt = timeFormat(video.CreatedAt)
+		videoDTO.CreatedAt = utils.TimeFormat(video.CreatedAt)
 		var user = new(dto.User)
 		_ = copier.Copy(user, authorMap[video.AuthorID])
 		videoDTO.Author = user
@@ -197,7 +195,7 @@ func (v *VideoService) GetVideoListByUserId(
 	for _, video := range videosDao {
 		var videoDTO = new(dto.Video)
 		_ = copier.Copy(videoDTO, video)
-		videoDTO.CreatedAt = timeFormat(video.CreatedAt)
+		videoDTO.CreatedAt = utils.TimeFormat(video.CreatedAt)
 		videoDTO.Author = user
 		if ctx.Value(global.LoginUser) != nil {
 			videoDTO.IsLike = likeMap[video.ID]
@@ -281,7 +279,7 @@ func (v *VideoService) GetVideoSearch(
 	for _, video := range videosDao {
 		var videoDTO = new(dto.Video)
 		_ = copier.Copy(videoDTO, video)
-		videoDTO.CreatedAt = timeFormat(video.CreatedAt)
+		videoDTO.CreatedAt = utils.TimeFormat(video.CreatedAt)
 		var user = new(dto.User)
 		_ = copier.Copy(user, authorIdsMap[video.AuthorID])
 		videoDTO.Author = user
@@ -313,7 +311,7 @@ func (v *VideoService) GetVideoInfo(ctx context.Context, idDto *dto.CommonIDDTO)
 	var user = new(dto.User)
 	_ = copier.Copy(user, author)
 	videoDTO.Author = user
-	videoDTO.CreatedAt = timeFormat(video.CreatedAt)
+	videoDTO.CreatedAt = utils.TimeFormat(video.CreatedAt)
 	if ctx.Value(global.LoginUser) != nil {
 		like, err := v.LikeDao.IsLiked(ctx, *idDto.ID)
 		if err != nil {
@@ -339,28 +337,56 @@ func (v *VideoService) GetVideoInfo(ctx context.Context, idDto *dto.CommonIDDTO)
 	return videoDTO, nil
 }
 
-// PublishVideo 发布视频
-func (v *VideoService) PublishVideo(ctx context.Context, upload *dto.VideoPublishDTO) error {
+// UploadVideo 上传视频
+func (v *VideoService) UploadVideo(ctx context.Context, upload *dto.VideoUploadDTO) (string, error) {
+	err := v.Dao.UploadVideo(ctx, upload)
+	if err != nil {
+		return "", err
+	}
+	// 获取视频和封面的url
+	return v.Dao.GetRemoteVideoUrl(ctx, upload.Title)
+}
+
+// UploadImage 上传视频封面
+func (v *VideoService) UploadImage(ctx context.Context, upload *dto.ImageUploadDTO) (string, error) {
+	err := v.Dao.UploadCoverImage(ctx, upload)
+	if err != nil {
+		return "", err
+	}
+	return v.Dao.GetRemoteCoverImageUrl(ctx, upload.Title)
+}
+
+// SaveVideoInfo 保存视频
+func (v *VideoService) SaveVideoInfo(ctx context.Context, publishDTO *dto.PublishDTO) error {
+	return v.Dao.SaveVideoInfo(ctx, publishDTO)
+}
+
+// DeleteRemoteVideo 删除远程视频信息
+func (v *VideoService) DeleteRemoteVideo(ctx context.Context, abolishDTO *dto.AbolishVideoUploadDTO) error {
 	var wg sync.WaitGroup
 	errChan := make(chan error)
-	// 上传封面
+	// 删除封面
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := v.Dao.UploadCoverImage(ctx, upload)
-		if err != nil {
-			errChan <- err
-			return
+		if abolishDTO.HaveCoverImage {
+			err := v.Dao.DeleteRemoteCoverImage(ctx, abolishDTO.Title)
+			if err != nil {
+				errChan <- err
+				return
+			}
 		}
 	}()
-	// 上传视频
+	// 删除视频
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := v.Dao.UploadVideo(ctx, upload)
-		if err != nil {
-			errChan <- err
-			return
+		if abolishDTO.HaveVideo {
+			err := v.Dao.DeleteRemoteVideo(ctx, abolishDTO.Title)
+			if err != nil {
+				errChan <- err
+				return
+			}
 		}
 	}()
 	wg.Wait()
@@ -368,69 +394,6 @@ func (v *VideoService) PublishVideo(ctx context.Context, upload *dto.VideoPublis
 	case err := <-errChan:
 		return err
 	default:
-		// 获取视频和封面的url
-		err := v.Dao.SaveVideoInfo(ctx, upload)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// DeleteVideo 删除视频
-func (v *VideoService) DeleteVideo(ctx context.Context, deleteDTO *dto.VideoDeleteDTO) error {
-	video, err := v.Dao.DeleteVideo(ctx, deleteDTO)
-	if err != nil {
-		return err
-	}
-	var wg sync.WaitGroup
-	errChan := make(chan error)
-	// 删除封面
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		err := v.Dao.DeleteRemoteCoverImage(ctx, video)
-		if err != nil {
-			errChan <- err
-			return
-		}
-	}()
-	// 删除视频
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		err := v.Dao.DeleteRemoteVideo(ctx, video)
-		if err != nil {
-			errChan <- err
-			return
-		}
-	}()
-	wg.Wait()
-	select {
-	case err = <-errChan:
-		return err
-	default:
 		return nil
-	}
-}
-
-// timeFormat 时间格式化
-func timeFormat(t time.Time) string {
-	since := time.Since(t)
-	switch {
-	case since < time.Minute: // 如果是一分钟内的时间，返回刚刚
-		return "刚刚"
-	case since < time.Hour: // 如果是一小时内的时间，返回是几分钟前
-		return strings.Split(since.String(), "m")[0] + "分钟前"
-	case since < 24*time.Hour: // 如果是超过一个小时的时间，返回是几小时前
-		return strings.Split(since.String(), "h")[0] + "小时前"
-	case since < 7*24*time.Hour: // 如果超过一天但是在一周内，返回是几天前
-		x, _ := strconv.Atoi(strings.Split(since.String(), "h")[0])
-		return strconv.Itoa(x/24) + "天前"
-	case since < 21*24*time.Hour: // 如果超过一周，但不超过三周，返回是几周前
-		x, _ := strconv.Atoi(strings.Split(since.String(), "h")[0])
-		return strconv.Itoa(x/(7*24)) + "周前"
-	default: // 如果超过三周，返回年月日
-		return t.Format("2006-01-02")
 	}
 }

@@ -68,7 +68,12 @@ func (r *RelationService) GetFocusList(ctx context.Context, fListDto dto.FocusLi
 		return 0, nil, err
 	}
 	var users []*dto.User
-	_ = copier.Copy(&users, &userList)
+	for _, user := range userList {
+		u := new(dto.User)
+		_ = copier.Copy(&u, &user)
+		u.IsFocus = true
+		users = append(users, u)
+	}
 	return total, users, nil
 }
 
@@ -85,11 +90,22 @@ func (r *RelationService) GetFansList(ctx context.Context, fansListDto dto.FansL
 	for _, fans := range fansList {
 		fansUserIDs = append(fansUserIDs, fans.UserID)
 	}
+
+	fansUserMap, err := r.Dao.IsFocusedByList(ctx, fansUserIDs)
+	if err != nil {
+		return 0, nil, err
+	}
+
 	userList, err := r.UserDao.GetUserListByIds(ctx, fansUserIDs)
 	if err != nil {
 		return 0, nil, err
 	}
 	var users []*dto.User
-	_ = copier.Copy(&users, &userList)
+	for _, user := range userList {
+		u := new(dto.User)
+		_ = copier.Copy(&u, &user)
+		u.IsFocus = fansUserMap[user.ID]
+		users = append(users, u)
+	}
 	return total, users, nil
 }

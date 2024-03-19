@@ -192,16 +192,12 @@ func (v *VideoDao) GetVideoSearchByAuthorAndTitle(
 }
 
 // SaveVideoInfo 保存视频信息
-func (v *VideoDao) SaveVideoInfo(ctx context.Context, upload *dto.VideoPublishDTO) error {
-	playUrl, coverUrl, err := v.GetRemoteVideoInfo(ctx, upload.Title)
-	if err != nil {
-		return err
-	}
+func (v *VideoDao) SaveVideoInfo(ctx context.Context, upload *dto.PublishDTO) error {
 	video := &models.Video{
 		AuthorID:     ctx.Value(global.LoginUser).(models.LoginUser).ID,
 		Title:        upload.Title,
-		PlayUrl:      playUrl,
-		CoverUrl:     coverUrl,
+		PlayUrl:      upload.VideoUrl,
+		CoverUrl:     upload.CoverImageUrl,
 		LikeCount:    0,
 		CommentCount: 0,
 	}
@@ -209,13 +205,13 @@ func (v *VideoDao) SaveVideoInfo(ctx context.Context, upload *dto.VideoPublishDT
 		if err := tx.WithContext(ctx).Create(&video).Error; err != nil {
 			// 保存失败，删除远程视频和封面,回滚
 			go func() {
-				err = v.DeleteRemoteVideo(ctx, video)
+				err = v.DeleteRemoteVideo(ctx, upload.Title)
 				if err != nil {
 					v.logger.Error(err)
 				}
 			}()
 			go func() {
-				err = v.DeleteRemoteCoverImage(ctx, video)
+				err = v.DeleteRemoteCoverImage(ctx, upload.Title)
 				if err != nil {
 					v.logger.Error(err)
 				}
@@ -230,19 +226,25 @@ func (v *VideoDao) SaveVideoInfo(ctx context.Context, upload *dto.VideoPublishDT
 	})
 }
 
-// GetRemoteVideoInfo 获取远程视频及封面url
-func (v *VideoDao) GetRemoteVideoInfo(ctx context.Context, title string) (playURL, coverURL string, err error) {
+// GetRemoteVideoUrl 获取远程视频url
+func (v *VideoDao) GetRemoteVideoUrl(ctx context.Context, title string) (playURL string, err error) {
 	hours, days := 24, 7
 	urls, err := v.OSS.GetFileURL(
 		ctx, "oss", "videos/"+title+".mp4", time.Hour*time.Duration(hours*days))
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 	playURL = urls.String()
-	urls, err = v.OSS.GetFileURL(
+	return
+}
+
+// GetRemoteCoverImageUrl 获取远程视频封面url
+func (v *VideoDao) GetRemoteCoverImageUrl(ctx context.Context, title string) (coverURL string, err error) {
+	hours, days := 24, 7
+	urls, err := v.OSS.GetFileURL(
 		ctx, "oss", "images/"+title+".png", time.Hour*time.Duration(hours*days))
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 	coverURL = urls.String()
 	return
@@ -279,10 +281,17 @@ func (v *VideoDao) UpdateUrl(ctx context.Context, videoList []*models.Video) err
 		if firstOk && secondOk {
 			continue
 		}
-		video.PlayUrl, video.CoverUrl, err = v.GetRemoteVideoInfo(ctx, video.Title)
+		playUrl, err := v.GetRemoteVideoUrl(ctx, video.Title)
 		if err != nil {
 			return err
 		}
+		coverUrl, err := v.GetRemoteCoverImageUrl(ctx, video.Title)
+		if err != nil {
+			return err
+		}
+		video.PlayUrl = playUrl
+		video.CoverUrl = coverUrl
+
 		go func(vi *models.Video) {
 			err = v.UpdateDBUrl(ctx, vi.ID, vi.PlayUrl, vi.CoverUrl)
 			if err != nil {
@@ -300,7 +309,7 @@ func (v *VideoDao) UpdateDBUrl(ctx context.Context, videoId uint, playUrl, cover
 }
 
 // UploadVideo 上传视频
-func (v *VideoDao) UploadVideo(ctx context.Context, upload *dto.VideoPublishDTO) error {
+func (v *VideoDao) UploadVideo(ctx context.Context, upload *dto.VideoUploadDTO) error {
 	// 读取视频文件
 	videoSize := upload.Data.Size
 	videoData, err := upload.Data.Open()
@@ -323,7 +332,7 @@ func (v *VideoDao) UploadVideo(ctx context.Context, upload *dto.VideoPublishDTO)
 }
 
 // UploadCoverImage 上传封面
-func (v *VideoDao) UploadCoverImage(ctx context.Context, upload *dto.VideoPublishDTO) error {
+func (v *VideoDao) UploadCoverImage(ctx context.Context, upload *dto.ImageUploadDTO) error {
 	// 读取封面图片
 	imageSize := upload.CoverImageData.Size
 	imageData, err := upload.CoverImageData.Open()
@@ -369,14 +378,14 @@ func (v *VideoDao) DeleteVideo(ctx context.Context, deleteDTO *dto.VideoDeleteDT
 }
 
 // DeleteRemoteVideo 删除远程视频
-func (v *VideoDao) DeleteRemoteVideo(ctx context.Context, video *models.Video) error {
-	videoName := "videos/" + video.Title + ".mp4"
+func (v *VideoDao) DeleteRemoteVideo(ctx context.Context, title string) error {
+	videoName := "videos/" + title + ".mp4"
 	return v.OSS.RemoveFile(ctx, VideoBucket, videoName)
 }
 
 // DeleteRemoteCoverImage 删除远程封面
-func (v *VideoDao) DeleteRemoteCoverImage(ctx context.Context, video *models.Video) error {
-	imageName := "images/" + video.Title + ".png"
+func (v *VideoDao) DeleteRemoteCoverImage(ctx context.Context, title string) error {
+	imageName := "images/" + title + ".png"
 	return v.OSS.RemoveFile(ctx, VideoBucket, imageName)
 }
 

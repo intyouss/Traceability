@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/intyouss/Traceability/utils"
 	"github.com/jinzhu/copier"
 
 	"github.com/intyouss/Traceability/global"
@@ -68,14 +69,15 @@ func (c *CommentService) GetCommentList(
 		commentUserMap[user.ID] = user
 	}
 
-	var comments = make([]*dto.Comment, len(commentsDao))
-	for i, comment := range commentsDao {
-		comments[i].ID = comment.ID
-		comments[i].Content = comment.Content
-		comments[i].CreatedAt = comment.CreatedAt.Format("2006-01-02 15:04:05")
+	var comments = make([]*dto.Comment, 0, len(commentsDao))
+	for _, comment := range commentsDao {
+		var commentDTO = new(dto.Comment)
+		_ = copier.Copy(commentDTO, comment)
+		commentDTO.CreatedAt = utils.TimeFormat(comment.CreatedAt)
 		var user = new(dto.User)
 		_ = copier.Copy(user, commentUserMap[comment.UserId])
-		comments[i].User = user
+		commentDTO.User = user
+		comments = append(comments, commentDTO)
 	}
 	return comments, total, nil
 }
@@ -102,12 +104,11 @@ func (c *CommentService) AddComment(ctx context.Context, cAddDTO *dto.AddComment
 
 	var comment = new(dto.Comment)
 	_ = copier.Copy(comment, cm)
-	comment.CreatedAt = cm.CreatedAt.Format("2006-01-02 15:04:05")
+	comment.CreatedAt = utils.TimeFormat(cm.CreatedAt)
 	var user = new(dto.User)
 	_ = copier.Copy(user, userDao)
 	comment.User = user
 	return comment, nil
-
 }
 
 // DeleteCommentById 根据id删除评论

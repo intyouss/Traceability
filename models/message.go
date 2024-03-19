@@ -11,3 +11,14 @@ type Message struct {
 	// 消息内容
 	Content string `gorm:"not null" json:"content"`
 }
+
+// MessageOpen 消息打开表
+type MessageOpen struct {
+	gorm.Model
+	// 用户id
+	UserID uint `gorm:"not null" json:"user_id"`
+	// 被打开用户id
+	OpenUserID uint `gorm:"not null" json:"open_user_id"`
+	// 正在使用的人数
+	UseCount uint `gorm:"not null;default:1" json:"use_count"`
+}

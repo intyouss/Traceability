@@ -9,8 +9,11 @@ import (
 const (
 	ErrCodeGetVideoFeed = iota + 30001
 	ErrCodeGetUserVideoList
-	ErrCodePublishVideo
-	ErrCodeDeleteVideo
+	ErrCodeUploadVideo
+	ErrCodeUploadImage
+	ErrCodeSaveVideoInfo
+	ErrCodeAbolishVideoUpload
+	ErrCodeGetVideoInfo
 	ErrCodeGetVideoSearch
 )
 
@@ -157,51 +160,112 @@ func (v VideoApi) GetVideoSearch(ctx *gin.Context) {
 	})
 }
 
-// PublishVideo 发布视频
-// @Summary 发布视频
-// @Description 发布视频
+// UploadVideo 上传视频
+// @Summary 上传视频
+// @Description 上传视频
 // @Param token header string true "token"
-// @Param title formData string true "视频标题"
-// @Param cover_image_data formData file true "封面图片"
 // @Param data formData file true "视频文件"
+// @Param title formData string true "标题"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/video/publish [post]
+// @Router /api/v1/video/upload/video [post]
 // PS: 视频与图片文件的参数校验失效，需要手动处理
-func (v VideoApi) PublishVideo(ctx *gin.Context) {
-	var videoPublishDTO dto.VideoPublishDTO
-	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoPublishDTO}).GetError(); err != nil {
-		v.Fail(&Response{Code: ErrCodePublishVideo, Msg: err.Error()})
+func (v VideoApi) UploadVideo(ctx *gin.Context) {
+	var videoUploadDTO dto.VideoUploadDTO
+	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoUploadDTO}).GetError(); err != nil {
+		v.Fail(&Response{Code: ErrCodeUploadVideo, Msg: err.Error()})
 		return
 	}
 
-	err := v.Service.PublishVideo(ctx, &videoPublishDTO)
+	playUrl, err := v.Service.UploadVideo(ctx, &videoUploadDTO)
 	if err != nil {
-		v.Fail(&Response{Code: ErrCodePublishVideo, Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodeUploadVideo, Msg: err.Error()})
+		return
+	}
+
+	v.Success(&Response{
+		Data: gin.H{
+			"play_url": playUrl,
+		},
+	})
+}
+
+// UploadImage 上传视频封面
+// @Summary 上传视频封面
+// @Description 上传视频封面
+// @Param token header string true "token"
+// @Param cover_image_data formData file true "封面图片"
+// @Param title formData string true "标题"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/video/upload/image [post]
+// PS: 视频与图片文件的参数校验失效，需要手动处理
+func (v VideoApi) UploadImage(ctx *gin.Context) {
+	var imageUploadDTO dto.ImageUploadDTO
+	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &imageUploadDTO}).GetError(); err != nil {
+		v.Fail(&Response{Code: ErrCodeUploadImage, Msg: err.Error()})
+		return
+	}
+
+	coverUrl, err := v.Service.UploadImage(ctx, &imageUploadDTO)
+	if err != nil {
+		v.Fail(&Response{Code: ErrCodeUploadImage, Msg: err.Error()})
+		return
+	}
+
+	v.Success(&Response{
+		Data: gin.H{
+			"cover_image_url": coverUrl,
+		},
+	})
+}
+
+// SaveVideoInfo 保存视频
+// @Summary 保存视频
+// @Description 保存视频
+// @Param token header string true "token"
+// @Param title formData string true "标题"
+// @Param video_url formData string true "视频地址"
+// @Param cover_image_url formData string true "封面地址"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/video/publish [post]
+func (v VideoApi) SaveVideoInfo(ctx *gin.Context) {
+	var publishDTO dto.PublishDTO
+	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &publishDTO}).GetError(); err != nil {
+		v.Fail(&Response{Code: ErrCodeSaveVideoInfo, Msg: err.Error()})
+		return
+	}
+
+	err := v.Service.SaveVideoInfo(ctx, &publishDTO)
+	if err != nil {
+		v.Fail(&Response{Code: ErrCodeSaveVideoInfo, Msg: err.Error()})
 		return
 	}
 
 	v.Success(&Response{})
 }
 
-// DeleteVideo 删除视频
-// @Summary 删除视频
-// @Description 删除视频
+// AbolishVideoUpload 取消视频上传
+// @Summary 取消视频上传
+// @Description 取消视频上传
 // @Param token header string true "token"
-// @Param video_id formData int true "视频id"
+// @Param title formData string true "标题"
+// @Param haveVideo formData bool true "是否有视频"
+// @Param haveCoverImage formData bool true "是否有封面"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/video/delete [delete]
-func (v VideoApi) DeleteVideo(ctx *gin.Context) {
-	var videoDTO dto.VideoDeleteDTO
-	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoDTO}).GetError(); err != nil {
-		v.Fail(&Response{Code: ErrCodeDeleteVideo, Msg: err.Error()})
+func (v VideoApi) AbolishVideoUpload(ctx *gin.Context) {
+	var abolishDTO dto.AbolishVideoUploadDTO
+	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &abolishDTO}).GetError(); err != nil {
+		v.Fail(&Response{Code: ErrCodeAbolishVideoUpload, Msg: err.Error()})
 		return
 	}
 
-	err := v.Service.DeleteVideo(ctx, &videoDTO)
+	err := v.Service.DeleteRemoteVideo(ctx, &abolishDTO)
 	if err != nil {
-		v.Fail(&Response{Code: ErrCodeDeleteVideo, Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodeAbolishVideoUpload, Msg: err.Error()})
 		return
 	}
 
@@ -219,13 +283,13 @@ func (v VideoApi) DeleteVideo(ctx *gin.Context) {
 func (v VideoApi) GetVideoInfo(ctx *gin.Context) {
 	var videoDTO dto.CommonIDDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &videoDTO}).GetError(); err != nil {
-		v.Fail(&Response{Code: ErrCodeDeleteVideo, Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodeGetVideoInfo, Msg: err.Error()})
 		return
 	}
 
 	video, err := v.Service.GetVideoInfo(ctx, &videoDTO)
 	if err != nil {
-		v.Fail(&Response{Code: ErrCodeDeleteVideo, Msg: err.Error()})
+		v.Fail(&Response{Code: ErrCodeGetVideoInfo, Msg: err.Error()})
 		return
 	}
 

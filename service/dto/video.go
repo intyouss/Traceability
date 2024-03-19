@@ -40,10 +40,26 @@ type UserVideoListDTO struct {
 	UserID uint `json:"user_id" form:"user_id" binding:"required" message:"user_id cannot be empty"`
 }
 
-type VideoPublishDTO struct {
+type VideoUploadDTO struct {
+	Title string               `json:"title" form:"title" binding:"required" message:"title cannot be empty"`
+	Data  multipart.FileHeader `json:"data" form:"data" type:"blob" binding:"required" message:"data cannot be empty" `
+}
+
+type ImageUploadDTO struct {
 	Title          string               `json:"title" form:"title" binding:"required" message:"title cannot be empty"`
 	CoverImageData multipart.FileHeader `json:"cover_image_data" form:"cover_image_data" type:"blob" binding:"required"  message:"cover_image_data cannot be empty"`
-	Data           multipart.FileHeader `json:"data" form:"data" type:"blob" binding:"required" message:"data cannot be empty" `
+}
+
+type PublishDTO struct {
+	Title         string `json:"title" form:"title" binding:"required" message:"title cannot be empty"`
+	VideoUrl      string `json:"video_url" form:"video_url" binding:"required" message:"video_url cannot be empty"`
+	CoverImageUrl string `json:"cover_image_url" form:"cover_image_url" binding:"required" message:"cover_image_url cannot be empty"`
+}
+
+type AbolishVideoUploadDTO struct {
+	Title          string `json:"title" form:"title" binding:"required" message:"title cannot be empty"`
+	HaveVideo      bool   `json:"have_video" form:"have_video" binding:"required" message:"have_video cannot be empty"`
+	HaveCoverImage bool   `json:"have_cover_image" form:"have_cover_image" binding:"required" message:"have_cover_image cannot be empty"`
 }
 
 type VideoDeleteDTO struct {

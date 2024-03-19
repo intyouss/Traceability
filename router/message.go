@@ -14,6 +14,12 @@ func InitMessageRoutes() {
 			messageAuthGroup.POST("/send", messageApi.SendMessage)
 			// 获取消息列表
 			messageAuthGroup.GET("/chat", messageApi.GetMessages)
+			// 获取开放联系人列表
+			messageAuthGroup.GET("/open", messageApi.GetUserOpenMsgList)
+			// 添加开放联系人消息
+			messageAuthGroup.POST("/open/add", messageApi.AddOpenUser)
+			// 删除开放联系人消息
+			messageAuthGroup.POST("/open/delete", messageApi.DeleteOpenUser)
 		}
 	})
 }

@@ -23,10 +23,14 @@ func InitVideoRoutes() {
 			videoAuthGroup.GET("/feed", videoApi.GetVideoFeed)
 			// 用户发布视频列表
 			videoAuthGroup.GET("/list", videoApi.GetUserVideoList)
-			// 发布视频
-			videoAuthGroup.POST("/publish", videoApi.PublishVideo)
+			// 保存视频信息至数据库
+			videoAuthGroup.POST("/publish", videoApi.SaveVideoInfo)
+			// 上传视频
+			videoAuthGroup.POST("/upload/video", videoApi.UploadVideo)
+			// 上传封面
+			videoAuthGroup.POST("/upload/image", videoApi.UploadImage)
 			// 删除视频
-			videoAuthGroup.POST("/delete", videoApi.DeleteVideo)
+			videoAuthGroup.POST("/upload/abolish", videoApi.AbolishVideoUpload)
 			// 获取单个视频
 			videoAuthGroup.GET("/info", videoApi.GetVideoInfo)
 		}
