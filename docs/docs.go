@@ -58,6 +58,85 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/collect/action": {
+            "post": {
+                "description": "用户收藏操作",
+                "summary": "用户收藏操作",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "视频id",
+                        "name": "video_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "操作类型 1:收藏 2:取消收藏",
+                        "name": "action_type",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/collect/list": {
+            "get": {
+                "description": "获取用户收藏列表",
+                "summary": "获取用户收藏列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/comment/add": {
             "post": {
                 "description": "添加评论",
@@ -117,35 +196,6 @@ const docTemplate = `{
                         "description": "评论id",
                         "name": "comment_id",
                         "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/default/video/list": {
-            "get": {
-                "description": "获取用户发布视频列表",
-                "summary": "获取用户发布视频列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "用户id",
-                        "name": "user_id",
-                        "in": "query",
                         "required": true
                     }
                 ],
@@ -280,6 +330,107 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/message/open": {
+            "get": {
+                "description": "获取用户开放消息列表",
+                "summary": "获取用户开放消息列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/message/open/add": {
+            "post": {
+                "description": "添加开放联系人",
+                "summary": "添加开放联系人",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "开放联系人id",
+                        "name": "open_user_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/message/open/delete": {
+            "post": {
+                "description": "删除开放联系人",
+                "summary": "删除开放联系人",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "开放联系人id",
+                        "name": "open_user_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/message/send": {
             "post": {
                 "description": "发送消息(暂时设置为不互相关注也能发消息)",
@@ -345,42 +496,6 @@ const docTemplate = `{
                         "description": "视频id",
                         "name": "video_id",
                         "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/public/user/": {
-            "get": {
-                "description": "获取用户信息",
-                "summary": "获取用户信息",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "用户id",
-                        "name": "user_id",
-                        "in": "query",
                         "required": true
                     }
                 ],
@@ -471,46 +586,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "手机号",
                         "name": "mobile",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/public/user/search": {
-            "get": {
-                "description": "获取用户列表",
-                "summary": "获取用户列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "关键字",
-                        "name": "key",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "页码",
-                        "name": "page",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "每页数量",
-                        "name": "limit",
                         "in": "formData"
                     }
                 ],
@@ -753,6 +828,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/user/search": {
+            "get": {
+                "description": "获取用户列表",
+                "summary": "获取用户列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "关键字",
+                        "name": "key",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "limit",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user/update": {
             "post": {
                 "description": "更新用户信息",
@@ -764,12 +887,6 @@ const docTemplate = `{
                         "name": "token",
                         "in": "header",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户名",
-                        "name": "username",
-                        "in": "formData"
                     },
                     {
                         "type": "string",
@@ -790,7 +907,7 @@ const docTemplate = `{
                         "in": "formData"
                     },
                     {
-                        "type": "file",
+                        "type": "string",
                         "description": "头像",
                         "name": "avatar",
                         "in": "formData"
@@ -812,10 +929,96 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/user/upload/avatar": {
+            "post": {
+                "description": "上传头像",
+                "summary": "上传头像",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "头像",
+                        "name": "avatar",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/video/delete": {
             "delete": {
-                "description": "删除视频",
-                "summary": "删除视频",
+                "description": "取消视频上传",
+                "summary": "取消视频上传",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "标题",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否有视频",
+                        "name": "haveVideo",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否有封面",
+                        "name": "haveCoverImage",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/info": {
+            "get": {
+                "description": "获取视频信息",
+                "summary": "获取视频信息",
                 "parameters": [
                     {
                         "type": "string",
@@ -827,8 +1030,44 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "视频id",
-                        "name": "video_id",
-                        "in": "formData",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/list": {
+            "get": {
+                "description": "获取用户发布视频列表",
+                "summary": "获取用户发布视频列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "user_id",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -850,8 +1089,8 @@ const docTemplate = `{
         },
         "/api/v1/video/publish": {
             "post": {
-                "description": "发布视频",
-                "summary": "发布视频",
+                "description": "保存视频",
+                "summary": "保存视频",
                 "parameters": [
                     {
                         "type": "string",
@@ -862,9 +1101,52 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "视频标题",
+                        "description": "标题",
                         "name": "title",
                         "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "视频地址",
+                        "name": "video_url",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "封面地址",
+                        "name": "cover_image_url",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/upload/image": {
+            "post": {
+                "description": "上传视频封面",
+                "summary": "上传视频封面",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
                         "required": true
                     },
                     {
@@ -875,9 +1157,52 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "标题",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/upload/video": {
+            "post": {
+                "description": "上传视频",
+                "summary": "上传视频",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "file",
                         "description": "视频文件",
                         "name": "data",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "标题",
+                        "name": "title",
                         "in": "formData",
                         "required": true
                     }

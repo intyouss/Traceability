@@ -17,7 +17,7 @@ import (
 var UserServiceIns *UserService
 
 type UserService struct {
-	BaseService
+	*BaseService
 	Dao         *dao.UserDao
 	RelationDao *dao.RelationDao
 }
@@ -25,6 +25,7 @@ type UserService struct {
 func NewUserService() *UserService {
 	if UserServiceIns == nil {
 		UserServiceIns = &UserService{
+			BaseService: NewBaseService(),
 			Dao:         dao.NewUserDao(),
 			RelationDao: dao.NewRelationDao(),
 		}
@@ -82,6 +83,12 @@ func (u *UserService) GetUserById(ctx context.Context, idDTO *dto.CommonIDDTO) (
 	if err != nil {
 		return nil, err
 	}
+	if userDao.Avatar != "" {
+		err = u.UpdateAvatar(ctx, userDao)
+		if err != nil {
+			return nil, err
+		}
+	}
 	var user = new(dto.User)
 	_ = copier.Copy(user, userDao)
 	user.IsFocus = false
@@ -108,10 +115,18 @@ func (u *UserService) GetUserListBySearch(
 	if len(usersDao) == 0 {
 		return nil, 0, nil
 	}
+	for _, user := range usersDao {
+		if user.Avatar == "" {
+			continue
+		}
+		err = u.UpdateAvatar(ctx, user)
+		if err != nil {
+			return nil, 0, err
+		}
+	}
 	// 如果登录用户不为空，且id不为0，则判断是否关注
 	focusMap := make(map[uint]bool)
 	if ctx.Value(global.LoginUser) != nil {
-		fmt.Println("1")
 		userIds := make([]uint, 0, len(usersDao))
 		for _, user := range usersDao {
 			userIds = append(userIds, user.ID)
@@ -135,9 +150,68 @@ func (u *UserService) GetUserListBySearch(
 	return users, total, nil
 }
 
+// UpdateAvatar 更新头像
+func (u *UserService) UpdateAvatar(ctx context.Context, user *models.User) error {
+	ok, err := u.Dao.CheckAvatarUrl(user.Avatar)
+	if err != nil {
+		return err
+	}
+	if ok {
+		avatarUrl, err := u.Dao.GetRemoteAvatarUrl(ctx, user.ID)
+		if err != nil {
+			return err
+		}
+		user.Avatar = avatarUrl
+
+		go func(us *models.User) {
+			err = u.Dao.UpdateDBUrl(ctx, us.ID, us.Avatar)
+			if err != nil {
+				u.logger.Error(err)
+			}
+		}(user)
+	}
+	return nil
+}
+
 // UpdateUser 更新用户信息
 func (u *UserService) UpdateUser(ctx context.Context, updateDTO *dto.UserUpdateDTO) error {
-	return u.Dao.UpdateUser(ctx, updateDTO)
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	userDao, err := u.Dao.GetUserById(ctx, userId)
+	if err != nil {
+		return err
+	}
+	if updateDTO.Password != "" {
+		ok := utils.ComparePassword(userDao.Password, updateDTO.Password)
+		if !ok {
+			return errors.New("old password error")
+		}
+		hashString, err := utils.Encrypt(updateDTO.NewPassword)
+		if err != nil {
+			return err
+		}
+		updateDTO.NewPassword = hashString
+	}
+	updateDTO.ToModel(userDao)
+	return u.Dao.UpdateUser(ctx, userDao)
+}
+
+// UploadAvatar 上传头像
+func (u *UserService) UploadAvatar(ctx context.Context, avatarDTO *dto.UploadAvatarDTO) (string, error) {
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	err := u.Dao.UploadAvatar(ctx, avatarDTO)
+	if err != nil {
+		return "", err
+	}
+	avatarUrl, err := u.Dao.GetRemoteAvatarUrl(ctx, userId)
+	if err != nil {
+		return "", err
+	}
+	return avatarUrl, nil
+}
+
+// DeleteRemoteAvatar 删除远程头像
+func (u *UserService) DeleteRemoteAvatar(ctx context.Context, abolish *dto.AbolishAvatarDTO) error {
+	return u.Dao.DeleteRemoteAvatar(ctx, abolish.UserId)
 }
 
 // DeleteUserById 删除用户

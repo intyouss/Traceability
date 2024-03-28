@@ -113,3 +113,20 @@ func (c *MinioClient) MakeBucket(ctx context.Context, bucketName string) error {
 func (c *MinioClient) RemoveFile(ctx context.Context, bucketName string, fileName string) error {
 	return c.intraConn.conn.RemoveObject(ctx, bucketName, fileName, minio.RemoveObjectOptions{})
 }
+
+// CheckUrl 检查url是否过期
+func (c *MinioClient) CheckUrl(accessUrl string) (bool, error) {
+	parseUrl, err := url.Parse(accessUrl)
+	if err != nil {
+		return false, err
+	}
+	dateStr := parseUrl.Query().Get("X-Amz-Date")
+	dateInt, err := time.Parse("20060102T150405Z", dateStr)
+	if err != nil {
+		return false, err
+	}
+	// 7天后过期,提前一个小时生成新的url
+	hours, days := 24, 7
+	now := time.Now().Add(time.Hour).UTC()
+	return !now.Before(dateInt.Add(time.Hour * time.Duration(hours*days))), nil
+}

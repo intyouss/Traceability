@@ -41,7 +41,7 @@ func (l *CollectService) GetCollectList(ctx context.Context, cListDto *dto.Colle
 	if myUserID != cListDto.UserID {
 		return nil, errors.New("don't have permission")
 	}
-	collectListDao, err := l.Dao.GetCollectListByUserId(ctx, cListDto)
+	collectListDao, err := l.Dao.GetCollectListByUserId(ctx, cListDto.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -94,11 +94,22 @@ func (l *CollectService) CollectAction(ctx context.Context, collectActionDto *dt
 	if !l.VideoDao.IsExist(ctx, collectActionDto.VideoID) {
 		return errors.New("video not exist")
 	}
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	isCollected, err := l.Dao.IsCollected(ctx, collectActionDto.VideoID)
+	if err != nil {
+		return err
+	}
 	switch collectActionDto.ActionType {
 	case 1:
-		return l.Dao.AddCollect(ctx, collectActionDto)
+		if isCollected {
+			return errors.New("already collected")
+		}
+		return l.Dao.CreateCollectTransaction(ctx, userId, collectActionDto.VideoID)
 	case 2:
-		return l.Dao.CancelCollect(ctx, collectActionDto)
+		if !isCollected {
+			return errors.New("do not have this collect relation")
+		}
+		return l.Dao.DeleteCollectTransaction(ctx, userId, collectActionDto.VideoID)
 	default:
 		return errors.New("action type error")
 	}

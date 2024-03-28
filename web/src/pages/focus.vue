@@ -68,7 +68,13 @@ const handleClick = (index, userId) => {
           </ul>
       </el-col>
       <el-col :span="20">
-        <v-player :videos="activeIndex !== null?userVideos:Videos"/>
+        <v-player
+            v-if="(activeIndex !== null && userVideos.length > 0) || (activeIndex === null && Videos.length > 0)"
+            :videos="activeIndex !== null?userVideos:Videos"
+        />
+        <el-empty
+            v-else
+            description="这个用户暂未发布过视频"/>
       </el-col>
     </el-row>
   </div>

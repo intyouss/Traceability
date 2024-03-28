@@ -33,6 +33,59 @@ paths:
           schema:
             type: string
       summary: 获取视频feed流
+  /api/v1/collect/action:
+    post:
+      description: 用户收藏操作
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 视频id
+        in: formData
+        name: video_id
+        required: true
+        type: integer
+      - description: 操作类型 1:收藏 2:取消收藏
+        in: formData
+        name: action_type
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 用户收藏操作
+  /api/v1/collect/list:
+    get:
+      description: 获取用户收藏列表
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 用户id
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 获取用户收藏列表
   /api/v1/comment/add:
     post:
       description: 添加评论
@@ -85,25 +138,6 @@ paths:
           schema:
             type: string
       summary: 删除评论
-  /api/v1/default/video/list:
-    get:
-      description: 获取用户发布视频列表
-      parameters:
-      - description: 用户id
-        in: query
-        name: user_id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-      summary: 获取用户发布视频列表
   /api/v1/like/action:
     post:
       description: 用户喜爱操作
@@ -181,6 +215,73 @@ paths:
           schema:
             type: string
       summary: 获取消息列表
+  /api/v1/message/open:
+    get:
+      description: 获取用户开放消息列表
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 获取用户开放消息列表
+  /api/v1/message/open/add:
+    post:
+      description: 添加开放联系人
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 开放联系人id
+        in: formData
+        name: open_user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 添加开放联系人
+  /api/v1/message/open/delete:
+    post:
+      description: 删除开放联系人
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 开放联系人id
+        in: formData
+        name: open_user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 删除开放联系人
   /api/v1/message/send:
     post:
       description: 发送消息(暂时设置为不互相关注也能发消息)
@@ -237,30 +338,6 @@ paths:
           schema:
             type: string
       summary: 获取评论列表
-  /api/v1/public/user/:
-    get:
-      description: 获取用户信息
-      parameters:
-      - description: token
-        in: header
-        name: token
-        required: true
-        type: string
-      - description: 用户id
-        in: query
-        name: user_id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-      summary: 获取用户信息
   /api/v1/public/user/login:
     post:
       description: 用户登录
@@ -321,32 +398,6 @@ paths:
           schema:
             type: string
       summary: 用户注册
-  /api/v1/public/user/search:
-    get:
-      description: 获取用户列表
-      parameters:
-      - description: 关键字
-        in: formData
-        name: key
-        type: string
-      - description: 页码
-        in: formData
-        name: page
-        type: integer
-      - description: 每页数量
-        in: formData
-        name: limit
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-      summary: 获取用户列表
   /api/v1/public/video/search:
     get:
       description: 获取视频搜索结果
@@ -496,6 +547,38 @@ paths:
           schema:
             type: string
       summary: 删除用户
+  /api/v1/user/search:
+    get:
+      description: 获取用户列表
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 关键字
+        in: formData
+        name: key
+        required: true
+        type: string
+      - description: 页码
+        in: formData
+        name: page
+        type: integer
+      - description: 每页数量
+        in: formData
+        name: limit
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 获取用户列表
   /api/v1/user/update:
     post:
       description: 更新用户信息
@@ -504,10 +587,6 @@ paths:
         in: header
         name: token
         required: true
-        type: string
-      - description: 用户名
-        in: formData
-        name: username
         type: string
       - description: 密码
         in: formData
@@ -524,7 +603,7 @@ paths:
       - description: 头像
         in: formData
         name: avatar
-        type: file
+        type: string
       responses:
         "200":
           description: OK
@@ -535,9 +614,67 @@ paths:
           schema:
             type: string
       summary: 更新用户信息
+  /api/v1/user/upload/avatar:
+    post:
+      description: 上传头像
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 头像
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 上传头像
   /api/v1/video/delete:
     delete:
-      description: 删除视频
+      description: 取消视频上传
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 标题
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: 是否有视频
+        in: formData
+        name: haveVideo
+        required: true
+        type: boolean
+      - description: 是否有封面
+        in: formData
+        name: haveCoverImage
+        required: true
+        type: boolean
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 取消视频上传
+  /api/v1/video/info:
+    get:
+      description: 获取视频信息
       parameters:
       - description: token
         in: header
@@ -545,8 +682,8 @@ paths:
         required: true
         type: string
       - description: 视频id
-        in: formData
-        name: video_id
+        in: query
+        name: id
         required: true
         type: integer
       responses:
@@ -558,31 +695,21 @@ paths:
           description: Bad Request
           schema:
             type: string
-      summary: 删除视频
-  /api/v1/video/publish:
-    post:
-      description: 发布视频
+      summary: 获取视频信息
+  /api/v1/video/list:
+    get:
+      description: 获取用户发布视频列表
       parameters:
       - description: token
         in: header
         name: token
         required: true
         type: string
-      - description: 视频标题
-        in: formData
-        name: title
+      - description: 用户id
+        in: query
+        name: user_id
         required: true
-        type: string
-      - description: 封面图片
-        in: formData
-        name: cover_image_data
-        required: true
-        type: file
-      - description: 视频文件
-        in: formData
-        name: data
-        required: true
-        type: file
+        type: integer
       responses:
         "200":
           description: OK
@@ -592,5 +719,97 @@ paths:
           description: Bad Request
           schema:
             type: string
-      summary: 发布视频
+      summary: 获取用户发布视频列表
+  /api/v1/video/publish:
+    post:
+      description: 保存视频
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 标题
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: 视频地址
+        in: formData
+        name: video_url
+        required: true
+        type: string
+      - description: 封面地址
+        in: formData
+        name: cover_image_url
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 保存视频
+  /api/v1/video/upload/image:
+    post:
+      description: 上传视频封面
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 封面图片
+        in: formData
+        name: cover_image_data
+        required: true
+        type: file
+      - description: 标题
+        in: formData
+        name: title
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 上传视频封面
+  /api/v1/video/upload/video:
+    post:
+      description: 上传视频
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 视频文件
+        in: formData
+        name: data
+        required: true
+        type: file
+      - description: 标题
+        in: formData
+        name: title
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 上传视频
 swagger: "2.0"

@@ -63,6 +63,7 @@ func (m *MessageService) SendMessage(ctx context.Context, addMsgDTO *dto.AddMess
 
 	message := new(dto.Message)
 	_ = copier.Copy(&message, &messageDao)
+	message.CreatedAt = messageDao.CreatedAt.UnixMilli()
 
 	fromUserDao, err := m.UserDao.GetUserById(ctx, ctx.Value(global.LoginUser).(models.LoginUser).ID)
 	if err != nil {
@@ -94,7 +95,7 @@ func (m *MessageService) GetMessages(
 		return nil, "", err
 	}
 	if len(msgDao) == 0 {
-		return nil, "", nil
+		return nil, preMsgTime, nil
 	}
 
 	var formUserIdsMap = make(map[uint]*dto.User)
@@ -146,7 +147,7 @@ func (m *MessageService) GetMessages(
 func (m *MessageService) GetUserOpenMsgList(
 	ctx context.Context, openMsgListDTO *dto.OpenMsgListDTO,
 ) ([]*dto.User, error) {
-	msgOpenUsers, err := m.Dao.GetUserOpenMsgList(ctx, openMsgListDTO)
+	msgOpenUsers, err := m.Dao.GetUserOpenMsgList(ctx, openMsgListDTO.UserId)
 	if err != nil {
 		return nil, err
 	}

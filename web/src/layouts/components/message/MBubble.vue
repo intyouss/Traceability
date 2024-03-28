@@ -38,9 +38,9 @@ const props = defineProps({
         </div>
         <u-avatar
             :user-id="0"
-            :avatar="props.toUser.avatar"
+            :avatar="props.fromUser.avatar"
             :mine="false"
-            class="w-[30px] h-[30px] mr-2"
+            class="gewf"
         />
       </div>
 
@@ -116,5 +116,9 @@ const props = defineProps({
   display: flex;
   justify-content: space-between;
   position: relative;
+}
+.gewf {
+  @apply w-[30px] h-[30px];
+  margin-right: 20px;
 }
 </style>

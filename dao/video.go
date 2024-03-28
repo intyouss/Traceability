@@ -3,7 +3,6 @@ package dao
 import (
 	"context"
 	"errors"
-	"net/url"
 	"strconv"
 	"time"
 
@@ -250,56 +249,9 @@ func (v *VideoDao) GetRemoteCoverImageUrl(ctx context.Context, title string) (co
 	return
 }
 
-// CheckUrl 检查url是否过期
-func (v *VideoDao) CheckUrl(accessUrl string) (bool, error) {
-	parseUrl, err := url.Parse(accessUrl)
-	if err != nil {
-		return false, err
-	}
-	dateStr := parseUrl.Query().Get("X-Amz-Date")
-	dateInt, err := time.Parse("20060102T150405Z", dateStr)
-	if err != nil {
-		return false, err
-	}
-	// 7天后过期,提前一个小时生成新的url
-	hours, days := 24, 7
-	now := time.Now().Add(time.Hour).UTC()
-	return now.Before(dateInt.Add(time.Hour * time.Duration(hours*days))), nil
-}
-
-// UpdateUrl 检查视频列表所有url是否失效，更新url
-func (v *VideoDao) UpdateUrl(ctx context.Context, videoList []*models.Video) error {
-	for _, video := range videoList {
-		firstOk, err := v.CheckUrl(video.PlayUrl)
-		if err != nil {
-			return err
-		}
-		secondOk, err := v.CheckUrl(video.CoverUrl)
-		if err != nil {
-			return err
-		}
-		if firstOk && secondOk {
-			continue
-		}
-		playUrl, err := v.GetRemoteVideoUrl(ctx, video.Title)
-		if err != nil {
-			return err
-		}
-		coverUrl, err := v.GetRemoteCoverImageUrl(ctx, video.Title)
-		if err != nil {
-			return err
-		}
-		video.PlayUrl = playUrl
-		video.CoverUrl = coverUrl
-
-		go func(vi *models.Video) {
-			err = v.UpdateDBUrl(ctx, vi.ID, vi.PlayUrl, vi.CoverUrl)
-			if err != nil {
-				v.logger.Error(err)
-			}
-		}(video)
-	}
-	return nil
+// CheckUrl 检查url是否失效
+func (v *VideoDao) CheckUrl(url string) (bool, error) {
+	return v.OSS.CheckUrl(url)
 }
 
 // UpdateDBUrl 更新数据库url

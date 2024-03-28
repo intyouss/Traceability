@@ -63,18 +63,11 @@ func (r *RelationDao) IsFocusedByList(ctx context.Context, ids []uint) (map[uint
 	return relationMap, nil
 }
 
-// Focus 关注
-func (r *RelationDao) Focus(ctx context.Context, dto dto.RelationActionDto) error {
+// FocusTransaction 关注事务
+func (r *RelationDao) FocusTransaction(ctx context.Context, userId uint) error {
 	relation := models.Relation{
 		UserID:  ctx.Value(global.LoginUser).(models.LoginUser).ID,
-		FocusID: dto.UserID,
-	}
-	isFocus, err := r.IsFocused(ctx, dto.UserID)
-	if err != nil {
-		return err
-	}
-	if isFocus {
-		return errors.New("already focused")
+		FocusID: userId,
 	}
 	return r.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Create(&relation).Error; err != nil {
@@ -92,27 +85,22 @@ func (r *RelationDao) Focus(ctx context.Context, dto dto.RelationActionDto) erro
 	})
 }
 
-// UnFocus 取消关注
-func (r *RelationDao) UnFocus(ctx context.Context, dto dto.RelationActionDto) error {
+// UnFocusTransaction 取消关注事务
+func (r *RelationDao) UnFocusTransaction(ctx context.Context, uId uint) error {
 	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
 	return r.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		result := r.DB.WithContext(ctx).Unscoped().
-			Where("user_id = ? and focus_id = ?", ctx.Value(global.LoginUser).(models.LoginUser).ID, dto.UserID).
+			Where("user_id = ? and focus_id = ?", ctx.Value(global.LoginUser).(models.LoginUser).ID, uId).
 			Delete(&models.Relation{})
 		if result.Error != nil {
 			return result.Error
-		}
-		// 如果没有删除任何记录，说明没有这个关系
-		if result.RowsAffected == 0 {
-			return errors.New("do not have this focus relation")
 		}
 		// 更新关注数
 		if err := r.UserDao.UpdateFocusCount(ctx, userId, -1); err != nil {
 			return err
 		}
-
 		// 更新粉丝数
-		if err := r.UserDao.UpdateFansCount(ctx, dto.UserID, -1); err != nil {
+		if err := r.UserDao.UpdateFansCount(ctx, uId, -1); err != nil {
 			return err
 		}
 		return nil
@@ -155,9 +143,8 @@ func (r *RelationDao) GetFansListByUserId(ctx context.Context, id uint) ([]*mode
 
 // GetFriendListByUserId 根据用户id获取朋友列表
 func (r *RelationDao) GetFriendListByUserId(ctx context.Context, userId uint) ([]*models.Relation, error) {
-	var relations []*models.Relation
-	err := r.DB.Model(&models.Relation{}).WithContext(ctx).
-		Where("user_id = ?", userId).Find(&relations).Error
+	// 先获取关注列表
+	relations, err := r.GetFocusListByUserId(ctx, userId)
 	if err != nil {
 		return nil, err
 	}

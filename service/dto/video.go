@@ -57,9 +57,8 @@ type PublishDTO struct {
 }
 
 type AbolishVideoUploadDTO struct {
-	Title          string `json:"title" form:"title" binding:"required" message:"title cannot be empty"`
-	HaveVideo      bool   `json:"have_video" form:"have_video" binding:"required" message:"have_video cannot be empty"`
-	HaveCoverImage bool   `json:"have_cover_image" form:"have_cover_image" binding:"required" message:"have_cover_image cannot be empty"`
+	Title string `json:"title" form:"title" binding:"required" message:"title cannot be empty"`
+	Type  uint   `json:"type" form:"type" binding:"required" message:"type cannot be empty"`
 }
 
 type VideoDeleteDTO struct {

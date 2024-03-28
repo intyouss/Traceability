@@ -71,36 +71,21 @@ func (l *LikeDao) IsLikedByList(ctx context.Context, videoIds []uint) (map[uint]
 	return likeMap, nil
 }
 
-// AddLike 点赞操作
-func (l *LikeDao) AddLike(ctx context.Context, dto *dto.LikeActionDTO) error {
+// CreateLikeTransaction 创建点赞事务
+func (l *LikeDao) CreateLikeTransaction(ctx context.Context, userId, videoId uint) error {
 	like := models.Like{
-		UserID:  ctx.Value(global.LoginUser).(models.LoginUser).ID,
-		VideoID: dto.VideoID,
-	}
-	isLiked, err := l.IsLiked(ctx, dto.VideoID)
-	if err != nil {
-		return err
-	}
-	if isLiked {
-		return errors.New("already liked")
-	}
-	AuthorId, err := l.VideoDao.GetAuthorIdByVideoId(ctx, dto.VideoID)
-	if err != nil {
-		return err
+		UserID:  userId,
+		VideoID: videoId,
 	}
 	return l.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Create(&like).Error; err != nil {
-			return err
-		}
-		// 更新被点赞数
-		if err := l.UserDao.UpdateLikedCount(ctx, AuthorId, 1); err != nil {
 			return err
 		}
 		// 更新点赞数
 		if err := l.UserDao.UpdateLikeCount(ctx, like.UserID, 1); err != nil {
 			return err
 		}
-		// 更新点赞数
+		// 更新视频点赞数
 		if err := l.VideoDao.UpdateVideoLikeCount(ctx, like.VideoID, 1); err != nil {
 			return err
 		}
@@ -108,40 +93,24 @@ func (l *LikeDao) AddLike(ctx context.Context, dto *dto.LikeActionDTO) error {
 	})
 }
 
-// CancelLike 取消点赞操作
-func (l *LikeDao) CancelLike(ctx context.Context, dto *dto.LikeActionDTO) error {
-	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
-	isLiked, err := l.IsLiked(ctx, dto.VideoID)
-	if err != nil {
-		return err
-	}
-	if !isLiked {
-		return errors.New("do not have this like relation")
-	}
-	AuthorId, err := l.VideoDao.GetAuthorIdByVideoId(ctx, dto.VideoID)
-	if err != nil {
-		return err
-	}
+// DeleteLikeTransaction 删除点赞事务
+func (l *LikeDao) DeleteLikeTransaction(ctx context.Context, userId, videoId uint) error {
 	return l.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		result := tx.WithContext(ctx).Unscoped().
-			Where("user_id = ? AND video_id = ?", userId, dto.VideoID).
+			Where("user_id = ? AND video_id = ?", userId, videoId).
 			Delete(&models.Like{})
 		if result.Error != nil {
 			return result.Error
 		}
 		if result.RowsAffected == 0 {
-			return errors.New("do not have this like relation")
-		}
-		// 更新被点赞数
-		if err := l.UserDao.UpdateLikedCount(ctx, AuthorId, -1); err != nil {
-			return err
+			return errors.New("do not have this collect relation")
 		}
 		//更新点赞数
 		if err := l.UserDao.UpdateLikeCount(ctx, userId, -1); err != nil {
 			return err
 		}
 		// 更新视频点赞数
-		if err := l.VideoDao.UpdateVideoLikeCount(ctx, dto.VideoID, -1); err != nil {
+		if err := l.VideoDao.UpdateVideoLikeCount(ctx, videoId, -1); err != nil {
 			return err
 		}
 		return nil

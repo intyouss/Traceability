@@ -11,7 +11,9 @@ const (
 	ErrCodeGetUserById
 	ErrCodeGetUserList
 	ErrCodeUpdateUser
+	ErrCodeUploadAvatar
 	ErrCodeDeleteUser
+	ErrCodeAbolishAvatarUpload
 	ErrCodeLogin
 )
 
@@ -65,7 +67,8 @@ func (u UserApi) Login(ctx *gin.Context) {
 // @Summary 用户注册
 // @Description 用户注册
 // @Param username formData string true "用户名"
-// @Param password formData string true "密码"
+// @Param password formData string true "旧密码"
+// @Param new_password formData string true "新密码"
 // @Param email formData string false "邮箱"
 // @Param mobile formData string false "手机号"
 // @Success 200 {string} Response
@@ -183,7 +186,8 @@ func (u UserApi) GetUserListBySearch(ctx *gin.Context) {
 // @Param password formData string false "密码"
 // @Param email formData string false "邮箱"
 // @Param mobile formData string false "手机号"
-// @Param avatar formData file false "头像"
+// @Param avatar formData string false "头像地址"
+// @Param signature formData string false "个性签名"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/user/update [post]
@@ -194,20 +198,61 @@ func (u UserApi) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	// 上传头像
-	//file, err := ctx.FormFile("avatar")
-	//if err == nil {
-	//	filePath := fmt.Sprintf("./upload/%s", file.Filename)
-	//	err = ctx.SaveUploadedFile(file, filePath)
-	//	if err != nil {
-	//		u.Fail(&Response{Code: ErrCodeUpdateUser, Msg: err.Error()})
-	//	}
-	//	updateDTO.Avatar = filePath
-	//}
-
 	err := u.Service.UpdateUser(ctx, &updateDTO)
 	if err != nil {
 		u.Fail(&Response{Code: ErrCodeUpdateUser, Msg: err.Error()})
+		return
+	}
+
+	u.Success(&Response{})
+}
+
+// UploadAvatar 上传头像
+// @Summary 上传头像
+// @Description 上传头像
+// @Param token header string true "token"
+// @Param avatar formData file true "头像"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/user/upload/avatar [post]
+func (u UserApi) UploadAvatar(ctx *gin.Context) {
+	var avatarDTO dto.UploadAvatarDTO
+	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &avatarDTO}).GetError(); err != nil {
+		u.Fail(&Response{Code: ErrCodeUploadAvatar, Msg: err.Error()})
+		return
+	}
+
+	avatarUrl, err := u.Service.UploadAvatar(ctx, &avatarDTO)
+	if err != nil {
+		u.Fail(&Response{Code: ErrCodeUploadAvatar, Msg: err.Error()})
+		return
+	}
+
+	u.Success(&Response{
+		Data: gin.H{
+			"avatar_url": avatarUrl,
+		},
+	})
+}
+
+// AbolishAvatarUpload 取消头像上传
+// @Summary 取消头像上传
+// @Description 取消头像上传
+// @Param token header string true "token"
+// @Param user_id formData int true "用户id"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/user/upload/avatar/abolish [post]
+func (u UserApi) AbolishAvatarUpload(ctx *gin.Context) {
+	var abolishDTO dto.AbolishAvatarDTO
+	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &abolishDTO}).GetError(); err != nil {
+		u.Fail(&Response{Code: ErrCodeAbolishAvatarUpload, Msg: err.Error()})
+		return
+	}
+
+	err := u.Service.DeleteRemoteAvatar(ctx, &abolishDTO)
+	if err != nil {
+		u.Fail(&Response{Code: ErrCodeAbolishAvatarUpload, Msg: err.Error()})
 		return
 	}
 

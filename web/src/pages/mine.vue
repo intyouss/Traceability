@@ -6,7 +6,8 @@ import {useVideoByOwner} from '~/composables/videoManager.js';
 import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
 import RRelationDialog from '~/layouts/components/relation/RRelationDialog.vue';
 import {useRelationList} from '~/composables/relationManager.js';
-import {useUserByOwner} from '~/composables/userManager.js';
+import {useInfoForm, useUserByOwner} from '~/composables/userManager.js';
+import UInfoSetDialog from '~/layouts/components/user/UInfoSetDialog.vue';
 
 const {
   getUserInfo,
@@ -33,77 +34,83 @@ onBeforeMount(() => {
   getVideos('作品');
   getUserInfo();
 });
+const User = ref(store.state.user);
+
+watch(() => store.state.user, (value) => {
+  User.value = {...value};
+});
 const count = (name) => {
   if (name === '作品') {
-    return store.state.user.video_count;
+    return User.value.video_count;
   } else if (name === '喜爱') {
-    return store.state.user.like_count;
+    return User.value.like_count;
   }
-  return store.state.user.collect_count;
+  return User.value.collect_count;
 };
 const tagList = ['作品', '喜爱', '收藏'];
-
-const isDefaultAvatar = () => {
-  return store.state.user.avatar === '' ? DefaultAvatar : store.state.user.avatar;
-};
 
 const handleRelation = (type) => {
   getRelationList(store.state.user.id, type);
   getUserInfo();
 };
 
-const User = ref(store.state.user);
 
-watch(() => store.state.user, (value) => {
-  User.value = value;
-});
+const {
+  InfoForm,
+  setInfoFormOpen,
+  setInfoFormClose,
+} = useInfoForm();
 </script>
 
 <template>
   <div>
     <div
-          class="ml-2 mr-2"
-          :style="{ background: 'linear-gradient(40deg,white,transparent),url('+ isDefaultAvatar() +') center center'}"
-      >
-        <div class="p-6" style="backdrop-filter: blur(5px);">
-          <el-row :gutter="20">
-            <el-col :span="4">
-              <el-avatar
-                  class="avatar"
-                  :size="25"
-                  :src="isDefaultAvatar()"
-              />
-            </el-col>
-            <el-col :span="20">
-              <div class="introduce">
-                <div class="username">
-                  <h1 class="text-xl m-0">
+        class="ml-2 mr-2"
+        :style="{
+    background: User.avatar === ''
+      ? 'linear-gradient(40deg,white,transparent),url(' + DefaultAvatar + ') center center'
+      : 'linear-gradient(40deg,white,transparent),url(' + User.avatar + ') center center'
+    }"
+    >
+      <div class="p-6" style="backdrop-filter: blur(5px);">
+        <el-row :gutter="20">
+          <el-col :span="4">
+            <el-avatar
+                class="avatar"
+                :size="25"
+                :src="User.avatar === '' ? DefaultAvatar : User.avatar"
+            />
+          </el-col>
+          <el-col :span="16">
+            <div class="introduce">
+              <div class="username">
+                <h1 class="text-xl m-0">
                   <span class="nameSpan">
-                    {{ $store.state.user.username }}
+                    {{ User.username }}
                   </span>
-                  </h1>
+                </h1>
+              </div>
+              <div class="count">
+                <div
+                    class="option other"
+                    @click="openRelationList($store.state.user.id, 1)"
+                >
+                  <div class="title">关注</div>
+                  <div class="number">{{ User.focus_count }}</div>
                 </div>
-                <div class="count">
-                  <div
-                      class="option other"
-                      @click="openRelationList($store.state.user.id, 1)"
-                  >
-                    <div class="title">关注</div>
-                    <div class="number">{{$store.state.user.focus_count}}</div>
-                  </div>
-                  <div
-                      class="option other"
-                      @click="openRelationList($store.state.user.id,2)"
-                  >
-                    <div class="title">粉丝</div>
-                    <div class="number">{{$store.state.user.fans_count}}</div>
-                  </div>
-                  <div class="option">
-                    <div class="title">获赞</div>
-                    <div class="number">{{$store.state.user.liked_count}}</div>
-                  </div>
+                <div
+                    class="option other"
+                    @click="openRelationList($store.state.user.id,2)"
+                >
+                  <div class="title">粉丝</div>
+                  <div class="number">{{ User.fans_count }}</div>
                 </div>
-                <p class="info">
+                <div class="option">
+                  <div class="title">获赞</div>
+                  <div class="number">{{ User.liked_count }}</div>
+                </div>
+              </div>
+              <p class="info">
                 <span class="age">
                   <font-awesome-icon
                       :icon="['fas', 'mars']"
@@ -113,70 +120,77 @@ watch(() => store.state.user, (value) => {
                     22岁
                   </span>
                 </span>
-                  <span class="city">
-                  衡阳
-                </span>
-                </p>
-                <div class="introduction" >
-                  <div class="flex relative">
-                    <div class="signature">
-                      <div class="signature1">
+              </p>
+              <div class="introduction">
+                <div class="flex relative">
+                  <div class="signature">
+                    <div class="signature1">
                         <span style="
                           max-width: 300px;
                           overflow: hidden;
                           text-overflow: ellipsis;
                           white-space: nowrap;"
                         >
-                          {{ $store.state.user.signature}}
+                          {{ User.signature }}
                         </span>
-                        <el-tooltip
-                            v-if="$store.state.user.signature.length > 25"
-                            class="box-item"
-                            effect="light"
-                            placement="bottom-end"
-                        >
-                          <template #content>
-                            {{$store.state.user.signature}}
-                          </template>
-                          <div class="flex ml-4px">
-                            <span class="more">更多</span>
-                          </div>
-                        </el-tooltip>
-                      </div>
+                      <el-tooltip
+                          v-if="User.signature.length > 25"
+                          class="box-item"
+                          effect="light"
+                          placement="bottom-end"
+                      >
+                        <template #content>
+                          {{ User.signature }}
+                        </template>
+                        <div class="flex ml-4px">
+                          <span class="more">更多</span>
+                        </div>
+                      </el-tooltip>
                     </div>
                   </div>
                 </div>
               </div>
-            </el-col>
-          </el-row>
-        </div>
-      </div>
-    <el-tabs model-value="作品" class="tab p-2" @tab-click="handleClick">
-        <el-scrollbar>
-          <template v-for="item in tagList" :key="item">
-            <el-tab-pane
-                :name="item"
-                style="z-index: -1;"
+            </div>
+          </el-col>
+          <el-col :span="4">
+            <el-button
+                class="gewfef"
+                type="primary"
+                size="default"
+                round
+                @click="setInfoFormOpen"
             >
-              <template #label>
+              编辑资料
+            </el-button>
+          </el-col>
+        </el-row>
+      </div>
+    </div>
+    <el-tabs model-value="作品" class="tab p-2" @tab-click="handleClick">
+      <el-scrollbar>
+        <template v-for="item in tagList" :key="item">
+          <el-tab-pane
+              :name="item"
+              style="z-index: -1;"
+          >
+            <template #label>
             <span class="text-lg p-2 font-medium">
-              <span class="mr-2">{{item}}</span>
-              <span>{{count(item)}}</span>
+              <span class="mr-2">{{ item }}</span>
+              <span>{{ count(item) }}</span>
             </span>
+            </template>
+            <el-row :gutter="10">
+              <template v-for="item in Videos" :key="item.id">
+                <el-col :span="6">
+                  <v-user-card
+                      :video="item"
+                  />
+                </el-col>
               </template>
-              <el-row :gutter="10">
-                <template v-for="item in Videos" :key="item.id">
-                  <el-col :span="6" >
-                    <v-user-card
-                        :cover-url="item.cover_url"
-                        :title="item.title"
-                    />
-                  </el-col>
-                </template>
-              </el-row>
-            </el-tab-pane>
-          </template>
-        </el-scrollbar>
+            </el-row>
+          </el-tab-pane>
+        </template>
+      </el-scrollbar>
     </el-tabs>
     <r-relation-dialog
         :open="OpenRelationList"
@@ -186,13 +200,20 @@ watch(() => store.state.user, (value) => {
         :list="RelationList"
         @click="handleRelation"
     />
+    <u-info-set-dialog
+        :info-form="InfoForm"
+        :form-close="setInfoFormClose"
+        :avatar-url="User.avatar"
+        :user-id="User.id"
+        :signature="User.signature"
+    />
   </div>
 </template>
 
 <style scoped>
 .avatar {
   @apply h-[112px] w-[112px] rounded-1/2 relative;
-  border: 1px solid rgba(22,24,35,.06)!important;
+  border: 1px solid rgba(22, 24, 35, .06) !important;
   box-sizing: content-box;
   flex-grow: 0;
   flex-shrink: 0;
@@ -211,11 +232,13 @@ watch(() => store.state.user, (value) => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .username {
   display: flex;
   position: relative;
   width: 100%;
 }
+
 .introduce {
   align-content: center;
   align-items: center;
@@ -225,18 +248,22 @@ watch(() => store.state.user, (value) => {
   margin-left: 32px;
   min-height: 120px;
 }
+
 .count {
   display: flex;
   margin-top: 4px;
   width: 100%;
 }
+
 .option {
   align-items: center;
   display: flex;
 }
+
 .other {
   cursor: pointer;
 }
+
 .other::after {
   border-left: 1px solid #f2f2f4;
   content: "";
@@ -244,17 +271,20 @@ watch(() => store.state.user, (value) => {
   margin: 0 16px;
   width: 0;
 }
+
 .title {
   color: #000000;
   font-size: 14px;
   line-height: 22px;
   margin-right: 6px;
 }
+
 .number {
   color: #000000;
   font-size: 16px;
   line-height: 24px;
 }
+
 .info {
   align-items: center;
   display: flex;
@@ -262,11 +292,12 @@ watch(() => store.state.user, (value) => {
   margin-top: 12px;
   width: 100%;
 }
-.age, .city {
+
+.age {
   align-items: center;
   background: #f2f2f4;
   border-radius: 4px;
-  color: rgba(22,24,35,.75);
+  color: rgba(22, 24, 35, .75);
   display: flex;
   font-size: 12px;
   height: 20px;
@@ -274,6 +305,7 @@ watch(() => store.state.user, (value) => {
   margin-right: 4px;
   padding: 0 8px;
 }
+
 .introduction {
   display: flex;
   height: 20px;
@@ -281,10 +313,12 @@ watch(() => store.state.user, (value) => {
   position: relative;
   width: 100%;
 }
+
 .introduction span {
   font-size: 12px;
   line-height: 20px;
 }
+
 .signature {
   width: 100%;
   height: 20px;
@@ -293,22 +327,26 @@ watch(() => store.state.user, (value) => {
   display: flex;
   position: relative;
 }
+
 .signature1 {
   display: flex;
   position: relative;
 }
+
 .signature1 span {
   font-size: 12px;
   line-height: 20px;
   font-family: PingFang SC, DFPKingGothicGB-Regular, sans-serif;
 }
+
 .more {
   color: #000000;
   cursor: default;
   margin-left: 4px;
   position: relative;
 }
-:deep(.el-tabs__active-bar){
+
+:deep(.el-tabs__active-bar) {
   display: none;
 }
 
@@ -316,14 +354,28 @@ watch(() => store.state.user, (value) => {
   height: 540px;
   overflow-y: auto;
 }
+
 :deep(.el-tabs__nav) {
   z-index: 0;
 }
 
-:deep(.el-scrollbar__bar.is-horizontal){
+:deep(.el-scrollbar__bar.is-horizontal) {
   height: 0 !important;
 }
+
 :deep(.el-tabs__nav-wrap::after) {
   z-index: initial;
+}
+
+.gewfef {
+  align-items: center;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  margin: 0 8px;
+  outline: none;
+  padding: 0 16px;
+  position: relative;
 }
 </style>

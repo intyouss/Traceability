@@ -8,6 +8,7 @@ const {
   Messages,
   getOpenUser,
   getMsg,
+  PreTime,
   Users,
   sendMsg,
   increaseOpenUser,
@@ -19,11 +20,6 @@ const props = defineProps({
   privateEmile: Boolean,
   openContainer: Boolean,
 });
-
-const emit = defineEmits(['messageClose']);
-const handleClose = () => {
-  emit('messageClose', 'close');
-};
 
 
 const activeMessages = ref(Messages);
@@ -41,16 +37,32 @@ watch(() => props.message, (value) => {
     ContainerOpen.value = true;
     User.value = props.user;
   }
-  if (!props.privateEmile && value) {
-    getOpenUser();
-  }
+  getOpenUser();
   message.value = value;
 });
 
+const OldUserId = ref(0);
+const timer = ref([]);
+const emit = defineEmits(['messageClose']);
+const handleClose = () => {
+  emit('messageClose', 'close');
+  ContainerOpen.value = false;
+  clearInterval(timer.value[OldUserId.value]);
+  timer.value = [];
+};
 const handleSelect = (index) => {
+  if (OldUserId.value !== 0) {
+    clearInterval(timer.value[OldUserId.value]);
+    timer.value[OldUserId.value] = null;
+  }
   ContainerOpen.value = true;
-  getMsg(Users.value[index].id);
+  console.log(index);
+  getMsg(Users.value[index].id, PreTime.value[Users.value[index].id]);
   User.value = Users.value[index];
+  OldUserId.value = Users.value[index].id;
+  timer.value[Users.value[index].id] = setInterval(() => {
+    getMsg(Users.value[index].id, PreTime.value[Users.value[index].id]);
+  }, 3000);
 };
 
 const deleteOpUser = (id) => {
@@ -82,10 +94,10 @@ const deleteOpUser = (id) => {
       </el-col>
       <el-col :span="18" class="bg-light-50 rounded-r-lg border">
         <m-container
-            :message="activeMessages"
+            :message="activeMessages[User.id]"
             :user="User"
             :open="ContainerOpen"
-            :empty="!Users"
+            :empty="Users.length === 0"
             :send-message="sendMsg"
             @deleteOpenUser="deleteOpUser"
         />
@@ -104,5 +116,8 @@ const deleteOpUser = (id) => {
   border-radius: 12px;
   min-width: 700px;
   @apply bg-gray-100 border-2 shadow-md
+}
+.el-overlay-dialog {
+  overflow: hidden;
 }
 </style>

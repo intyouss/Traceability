@@ -27,12 +27,7 @@ onBeforeMount(() => {
     <div style="padding: 5px 20px 5px 20px;">
       <el-row :gutter="15">
         <el-col :span="6" v-for="item in Videos" :key="item.id">
-          <v-card
-              :title="item.title"
-              :author="item.author.username"
-              :cover-url="item.cover_url"
-              :created-at="item.created_at"
-          />
+          <v-card :video="item"/>
         </el-col>
       </el-row>
     </div>

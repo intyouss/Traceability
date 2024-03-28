@@ -1,5 +1,5 @@
 import {reactive, ref} from 'vue';
-import {getAuthUserSearch, getPublicUserSearch, logout} from '~/api/user.js';
+import {getAuthUserSearch, getPublicUserSearch, logout, updateUser} from '~/api/user.js';
 import {confirm, notify} from '~/composables/util.js';
 import {useRouter, useRoute} from 'vue-router';
 import {useStore} from 'vuex';
@@ -9,6 +9,8 @@ import {getToken} from '~/composables/auth.js';
 export function useRePassword() {
   const rePasswordForm = ref(false);
   const formLabelWidth = '140px';
+  const store = useStore();
+  const router = useRouter();
   const form = reactive({
     oldPassword: '',
     newPassword: '',
@@ -22,7 +24,15 @@ export function useRePassword() {
       {required: true, message: '新密码不能为空', trigger: 'blur'},
     ],
     enterPassword: [
-      {required: true, message: '确认密码不能为空', trigger: 'blur'},
+      {trigger: 'blur', validator: (rule, value, callback)=>{
+        if (value === '') {
+          callback(new Error('确认密码不能为空'));
+        } else if (value !== form.newPassword) {
+          callback(new Error('两次输入密码不一致'));
+        } else {
+          callback();
+        }
+      }},
     ],
   };
   const formRef = ref(null);
@@ -33,14 +43,15 @@ export function useRePassword() {
         return false;
       }
       loading.value = true;
-      // rePassword(form).then((res)=>{
-      //   notify('修改成功', 'success');
-      //   store.dispatch('logout');
-      //   router.push('/login');
-      //   rePasswordFormClose();
-      // }).finally(()=>{
-      //   loading.value = false;
-      // });
+      updateUser({password: form.oldPassword, newPassword: form.enterPassword}).
+          then(()=>{
+            notify('修改成功', 'success');
+            store.dispatch('logout').then();
+            router.push('/login').then();
+            rePasswordFormClose();
+          }).finally(()=>{
+            loading.value = false;
+          });
     });
   };
   const rePasswordFormOpen = () => rePasswordForm.value = true;

@@ -73,12 +73,16 @@ const Abolish = (title) => {
   } else if (PlayUrl === '' && CoverUrl === '') {
     props.close();
     form.title = '';
-  } else if (PlayUrl !== '') {
-    uploadAbolish(title, false, true);
+  } else if (PlayUrl === '') {
+    uploadAbolish(title, 2);
     props.close();
     form.title = '';
+  } else if (CoverUrl === '') {
+    uploadAbolish(title, 3);
+    form.title = '';
+    props.close();
   } else {
-    uploadAbolish(title, true, false);
+    uploadAbolish(title, 1);
     form.title = '';
     props.close();
   }
@@ -150,6 +154,7 @@ const videoListChange = (file, fileList) => {
                 </template>
                 <template v-else>
                   <img
+                      class="rounded-2xl border-2 border-gray-500"
                       style="width: 100%; height: 200px;"
                       :src="CoverUrl"
                       alt=""
@@ -185,6 +190,7 @@ const videoListChange = (file, fileList) => {
                 </template>
                 <template v-else>
                   <video
+                      class="rounded-2xl border-2 border-gray-500"
                       style="width: 100%; height: 200px;"
                       :src="PlayUrl"
                       controls
@@ -207,7 +213,7 @@ const videoListChange = (file, fileList) => {
 <style>
 .nytr {
   border-radius: 12px;
-  min-width: 800px;
+  min-width: 600px;
   @apply bg-gray-100 border-2 shadow-md
 }
 

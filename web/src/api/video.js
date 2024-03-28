@@ -75,15 +75,13 @@ export function publishVideo(title, playUrl, coverUrl) {
 /**
  * 删除视频
  * @Param {String} title
- * @Param {Boolean} haveVideo
- * @Param {Boolean} haveImage
+ * @Param {Number} type
  * @return {Promise<AxiosResponse<any>>}
  */
-export function abolishVideoUpload(title, haveVideo, haveImage) {
+export function abolishVideoUpload(title, type=1) {
   return authAPI.post('/video/upload/abolish', {
     'title': title,
-    'have_video': haveVideo,
-    'have_cover_image': haveImage,
+    'type': type,
   });
 }
 

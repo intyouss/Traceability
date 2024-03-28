@@ -1,6 +1,10 @@
 package dto
 
-import "github.com/intyouss/Traceability/models"
+import (
+	"mime/multipart"
+
+	"github.com/intyouss/Traceability/models"
+)
 
 // User 用户数据传输对象
 type User struct {
@@ -40,12 +44,12 @@ type UserLoginDto struct {
 
 // UserAddDTO 用户添加数据传输对象
 type UserAddDTO struct {
-	CommonIDDTO
+	ID       *uint  `json:"id" form:"id"`
 	Username string `json:"username" form:"username" binding:"required" message:"username cannot be empty"`
 	Password string `json:"password,omitempty" form:"password" binding:"required" message:"password cannot be empty"`
-	Avatar   string
-	Email    string `json:"email" form:"email"`
-	Mobile   string `json:"mobile" form:"mobile"`
+	//Avatar   string `json:"avatar" form:"avatar"`
+	Email  string `json:"email" form:"email"`
+	Mobile string `json:"mobile" form:"mobile"`
 }
 
 func (u *UserAddDTO) ToModel(user *models.User) {
@@ -56,15 +60,26 @@ func (u *UserAddDTO) ToModel(user *models.User) {
 }
 
 type UserUpdateDTO struct {
-	Password string `json:"password" form:"password"`
-	Avatar   string `json:"avatar" form:"avatar"`
-	Mobile   string `json:"mobile" form:"mobile"`
-	Email    string `json:"email" form:"email"`
+	Password    string `json:"password" form:"password"`
+	NewPassword string `json:"new_password" form:"new_password"`
+	AvatarUrl   string `json:"avatar_url" form:"avatar_url"`
+	Signature   string `json:"signature" form:"signature"`
+	Mobile      string `json:"mobile" form:"mobile"`
+	Email       string `json:"email" form:"email"`
+}
+
+type UploadAvatarDTO struct {
+	AvatarData multipart.FileHeader `json:"avatar_data" form:"avatar_data" type:"blob" binding:"required" message:"avatar_data cannot be empty"`
+}
+
+type AbolishAvatarDTO struct {
+	UserId uint `json:"user_id" form:"user_id" binding:"required" message:"user_id cannot be empty"`
 }
 
 func (u *UserUpdateDTO) ToModel(user *models.User) {
-	user.Password = u.Password
-	user.Avatar = u.Avatar
+	user.Password = u.NewPassword
+	user.Avatar = u.AvatarUrl
+	user.Signature = u.Signature
 	user.Email = u.Email
 	user.Mobile = u.Mobile
 }

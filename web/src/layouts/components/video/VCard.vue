@@ -1,30 +1,44 @@
 <script setup>
+import VVideo from '~/layouts/components/video/VVideo.vue';
+import {ref} from 'vue';
+
 const props = defineProps({
-  coverUrl: String,
-  title: String,
-  author: String,
-  createdAt: String,
+  video: Object,
 });
+
+const Open = ref(false);
+
+const OpenScreen = () => {
+  Open.value = true;
+};
+
 </script>
 
 <template>
-  <div class="v-card">
+  <div class="v-card" @click="OpenScreen">
     <el-card class="el-card">
-      <img class="img" :src="props.coverUrl" alt="">
+      <img class="img" :src="props.video.cover_url" alt="">
       <template #footer>
         <div style="position: relative;">
-          <span class="tmp1">{{props.title}}</span>
+          <span class="tmp1">{{props.video.title}}</span>
           <div class="all">
           <span class="tmp2">
             <span style="vertical-align: top;">@</span>
-            <span class="author">{{ props.author }}</span>
+            <span class="author">{{ props.video.author.username }}</span>
           </span>
-            <span class="time"> · {{props.createdAt}}</span>
+            <span class="time"> · {{props.video.created_at}}</span>
           </div>
         </div>
-
       </template>
     </el-card>
+    <el-dialog
+      v-model="Open"
+      :close-on-click-modal="false"
+      style="pointer-events: auto;"
+      :fullscreen="true"
+    >
+      <v-video :video="props.video"/>
+    </el-dialog>
   </div>
 </template>
 
@@ -37,7 +51,7 @@ const props = defineProps({
   @apply rounded-2xl mb-4;
 }
 .v-card .el-card .img {
-  height: 200px;
+  height: 180px;
   width: 100%;
 }
 :deep(.el-card__body) {

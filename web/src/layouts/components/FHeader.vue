@@ -1,7 +1,8 @@
 <script setup>
 
 import {
-  useRePassword, useLogout,
+  useLogout,
+  useRePassword,
 } from '~/composables/useManager.js';
 import {ref} from 'vue';
 import {Search} from '@element-plus/icons-vue';
@@ -65,6 +66,9 @@ const search = () => {
   router.push({path: '/search', query: {key: key.value}});
   enKey.value = key.value;
 };
+// onBeforeMount(() => {
+//   console.log(store.state.user);
+// });
 </script>
 
 <template>

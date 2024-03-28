@@ -64,9 +64,11 @@ func (v *VideoService) GetVideoList(
 	if len(videosDao) == 0 {
 		return nil, "0", nil
 	}
-	err = v.Dao.UpdateUrl(ctx, videosDao)
-	if err != nil {
-		return nil, "", err
+	for _, video := range videosDao {
+		err = v.UpdateUrls(ctx, video)
+		if err != nil {
+			return nil, "", err
+		}
 	}
 
 	// 获取作者信息
@@ -92,27 +94,46 @@ func (v *VideoService) GetVideoList(
 	likeMap := make(map[uint]bool)
 	collectMap := make(map[uint]bool)
 	focusMap := make(map[uint]bool)
+	var wg sync.WaitGroup
+	errChan := make(chan error)
 	if ctx.Value(global.LoginUser) != nil {
 		videoIds := make([]uint, 0, len(videosDao))
 		for _, video := range videosDao {
 			videoIds = append(videoIds, video.ID)
 		}
-		likeMap, err = v.LikeDao.IsLikedByList(ctx, videoIds)
-		if err != nil {
-			return nil, "", err
-		}
+		wg.Add(1)
+		go func(vi []uint) {
+			defer wg.Done()
+			likeMap, err = v.LikeDao.IsLikedByList(ctx, vi)
+			if err != nil {
+				errChan <- err
+			}
+		}(videoIds)
 
-		collectMap, err = v.CollectDao.IsCollectedByList(ctx, videoIds)
-		if err != nil {
-			return nil, "", err
-		}
+		wg.Add(1)
+		go func(vi []uint) {
+			defer wg.Done()
+			collectMap, err = v.CollectDao.IsCollectedByList(ctx, vi)
+			if err != nil {
+				errChan <- err
+			}
+		}(videoIds)
 
-		focusMap, err = v.RelationDao.IsFocusedByList(ctx, authorIds)
-		if err != nil {
+		wg.Add(1)
+		go func(au []uint) {
+			defer wg.Done()
+			focusMap, err = v.RelationDao.IsFocusedByList(ctx, au)
+			if err != nil {
+				errChan <- err
+			}
+		}(authorIds)
+		wg.Wait()
+		select {
+		case err = <-errChan:
 			return nil, "", err
+		default:
 		}
 	}
-	fmt.Println(likeMap)
 
 	// 组装数据
 	for _, video := range videosDao {
@@ -152,9 +173,11 @@ func (v *VideoService) GetVideoListByUserId(
 	if len(videosDao) == 0 {
 		return nil, nil
 	}
-	err = v.Dao.UpdateUrl(ctx, videosDao)
-	if err != nil {
-		return nil, err
+	for _, video := range videosDao {
+		err = v.UpdateUrls(ctx, video)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// 获取作者信息
@@ -170,24 +193,44 @@ func (v *VideoService) GetVideoListByUserId(
 	likeMap := make(map[uint]bool)
 	collectMap := make(map[uint]bool)
 	var isFocus bool
+	var wg sync.WaitGroup
+	errChan := make(chan error)
 	if ctx.Value(global.LoginUser) != nil {
 		videoIds := make([]uint, 0, len(videosDao))
 		for _, video := range videosDao {
 			videoIds = append(videoIds, video.ID)
 		}
-		likeMap, err = v.LikeDao.IsLikedByList(ctx, videoIds)
-		if err != nil {
-			return nil, err
-		}
+		wg.Add(1)
+		go func(vi []uint) {
+			defer wg.Done()
+			likeMap, err = v.LikeDao.IsLikedByList(ctx, vi)
+			if err != nil {
+				errChan <- err
+			}
+		}(videoIds)
 
-		collectMap, err = v.CollectDao.IsCollectedByList(ctx, videoIds)
-		if err != nil {
-			return nil, err
-		}
+		wg.Add(1)
+		go func(vi []uint) {
+			defer wg.Done()
+			collectMap, err = v.CollectDao.IsCollectedByList(ctx, vi)
+			if err != nil {
+				errChan <- err
+			}
+		}(videoIds)
 
-		isFocus, err = v.RelationDao.IsFocused(ctx, uVideoListDto.UserID)
-		if err != nil {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			isFocus, err = v.RelationDao.IsFocused(ctx, uVideoListDto.UserID)
+			if err != nil {
+				errChan <- err
+			}
+		}()
+		wg.Wait()
+		select {
+		case err = <-errChan:
 			return nil, err
+		default:
 		}
 	}
 
@@ -229,9 +272,11 @@ func (v *VideoService) GetVideoSearch(
 	if len(videosDao) == 0 {
 		return nil, nil
 	}
-	err = v.Dao.UpdateUrl(ctx, videosDao)
-	if err != nil {
-		return nil, err
+	for _, video := range videosDao {
+		err = v.UpdateUrls(ctx, video)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// 获取作者信息
@@ -255,24 +300,44 @@ func (v *VideoService) GetVideoSearch(
 	likeMap := make(map[uint]bool)
 	collectMap := make(map[uint]bool)
 	focusMap := make(map[uint]bool)
+	var wg sync.WaitGroup
+	errChan := make(chan error)
 	if ctx.Value(global.LoginUser) != nil {
 		videoIds := make([]uint, 0, len(videosDao))
 		for _, video := range videosDao {
 			videoIds = append(videoIds, video.ID)
 		}
-		likeMap, err = v.LikeDao.IsLikedByList(ctx, videoIds)
-		if err != nil {
-			return nil, err
-		}
+		wg.Add(1)
+		go func(vi []uint) {
+			defer wg.Done()
+			likeMap, err = v.LikeDao.IsLikedByList(ctx, vi)
+			if err != nil {
+				errChan <- err
+			}
+		}(videoIds)
 
-		collectMap, err = v.CollectDao.IsCollectedByList(ctx, videoIds)
-		if err != nil {
-			return nil, err
-		}
+		wg.Add(1)
+		go func(vi []uint) {
+			defer wg.Done()
+			collectMap, err = v.CollectDao.IsCollectedByList(ctx, vi)
+			if err != nil {
+				errChan <- err
+			}
+		}(videoIds)
 
-		focusMap, err = v.RelationDao.IsFocusedByList(ctx, authorIds)
-		if err != nil {
+		wg.Add(1)
+		go func(au []uint) {
+			defer wg.Done()
+			focusMap, err = v.RelationDao.IsFocusedByList(ctx, au)
+			if err != nil {
+				errChan <- err
+			}
+		}(authorIds)
+		wg.Wait()
+		select {
+		case err = <-errChan:
 			return nil, err
+		default:
 		}
 	}
 
@@ -295,6 +360,41 @@ func (v *VideoService) GetVideoSearch(
 		videos = append(videos, videoDTO)
 	}
 	return videos, nil
+}
+
+// UpdateUrls 更新url
+func (v *VideoService) UpdateUrls(ctx context.Context, video *models.Video) error {
+	firstOk, err := v.Dao.CheckUrl(video.PlayUrl)
+	if err != nil {
+		return err
+	}
+	secondOk, err := v.Dao.CheckUrl(video.CoverUrl)
+	if err != nil {
+		return err
+	}
+	if firstOk {
+		playUrl, err := v.Dao.GetRemoteVideoUrl(ctx, video.Title)
+		if err != nil {
+			return err
+		}
+		video.PlayUrl = playUrl
+	}
+	if secondOk {
+		coverUrl, err := v.Dao.GetRemoteCoverImageUrl(ctx, video.Title)
+		if err != nil {
+			return err
+		}
+		video.CoverUrl = coverUrl
+	}
+	if firstOk || secondOk {
+		go func(vi *models.Video) {
+			err = v.Dao.UpdateDBUrl(ctx, vi.ID, vi.PlayUrl, vi.CoverUrl)
+			if err != nil {
+				v.logger.Error(err)
+			}
+		}(video)
+	}
+	return nil
 }
 
 func (v *VideoService) GetVideoInfo(ctx context.Context, idDto *dto.CommonIDDTO) (*dto.Video, error) {
@@ -363,13 +463,26 @@ func (v *VideoService) SaveVideoInfo(ctx context.Context, publishDTO *dto.Publis
 
 // DeleteRemoteVideo 删除远程视频信息
 func (v *VideoService) DeleteRemoteVideo(ctx context.Context, abolishDTO *dto.AbolishVideoUploadDTO) error {
+	var deleteImg bool
+	var deleteVideo bool
+	switch abolishDTO.Type {
+	case 1:
+		deleteImg = true
+		deleteVideo = true
+	case 2:
+		deleteImg = false
+		deleteVideo = true
+	case 3:
+		deleteImg = true
+		deleteVideo = false
+	}
 	var wg sync.WaitGroup
 	errChan := make(chan error)
 	// 删除封面
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		if abolishDTO.HaveCoverImage {
+		if deleteImg {
 			err := v.Dao.DeleteRemoteCoverImage(ctx, abolishDTO.Title)
 			if err != nil {
 				errChan <- err
@@ -381,7 +494,7 @@ func (v *VideoService) DeleteRemoteVideo(ctx context.Context, abolishDTO *dto.Ab
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		if abolishDTO.HaveVideo {
+		if deleteVideo {
 			err := v.Dao.DeleteRemoteVideo(ctx, abolishDTO.Title)
 			if err != nil {
 				errChan <- err

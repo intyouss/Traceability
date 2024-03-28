@@ -39,11 +39,21 @@ func (r *RelationService) RelationAction(ctx context.Context, relationDto dto.Re
 	if relationDto.UserID == ctx.Value(global.LoginUser).(models.LoginUser).ID {
 		return errors.New("can't Focus/unFocus yourself")
 	}
+	isFocus, err := r.Dao.IsFocused(ctx, relationDto.UserID)
+	if err != nil {
+		return err
+	}
 	switch relationDto.ActionType {
 	case 1:
-		return r.Dao.Focus(ctx, relationDto)
+		if isFocus {
+			return errors.New("already focused")
+		}
+		return r.Dao.FocusTransaction(ctx, relationDto.UserID)
 	case 2:
-		return r.Dao.UnFocus(ctx, relationDto)
+		if !isFocus {
+			return errors.New("do not have this focus relation")
+		}
+		return r.Dao.UnFocusTransaction(ctx, relationDto.UserID)
 	default:
 		return errors.New("action type error")
 	}

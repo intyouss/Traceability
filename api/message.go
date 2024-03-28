@@ -83,7 +83,7 @@ func (m MessageApi) GetMessages(ctx *gin.Context) {
 		m.Success(&Response{
 			Data: gin.H{
 				"messages":     []*dto.Message{},
-				"pre_msg_time": 0,
+				"pre_msg_time": preMsgTime,
 			},
 		})
 		return

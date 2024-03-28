@@ -91,12 +91,22 @@ func (l *LikeService) LikeAction(ctx context.Context, likeActionDto *dto.LikeAct
 	if !l.VideoDao.IsExist(ctx, likeActionDto.VideoID) {
 		return errors.New("video not exist")
 	}
-
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	isLiked, err := l.Dao.IsLiked(ctx, likeActionDto.VideoID)
+	if err != nil {
+		return err
+	}
 	switch likeActionDto.ActionType {
 	case 1:
-		return l.Dao.AddLike(ctx, likeActionDto)
+		if isLiked {
+			return errors.New("already liked")
+		}
+		return l.Dao.CreateLikeTransaction(ctx, userId, likeActionDto.VideoID)
 	case 2:
-		return l.Dao.CancelLike(ctx, likeActionDto)
+		if !isLiked {
+			return errors.New("do not have this like relation")
+		}
+		return l.Dao.DeleteLikeTransaction(ctx, userId, likeActionDto.VideoID)
 	default:
 		return errors.New("action type error")
 	}

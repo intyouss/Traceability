@@ -65,7 +65,6 @@ const sendMessage = (toUser, content) => {
       </el-header>
       <el-main style="height: 330px;overflow: hidden; padding: 0 10px 0 26px">
         <el-scrollbar>
-          <!--        TODO:做无限滑条-->
           <ul>
             <template v-for="item in Message" :key="item.id">
               <li>

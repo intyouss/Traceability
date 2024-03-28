@@ -113,7 +113,7 @@ watch(() => route.query.key, (key) => {
       </el-header>
       <el-main style="margin-top: 45px" >
         <div v-if = "enTag !== '用户'">
-          <div v-if="!isEmpty">
+          <template v-if="!isEmpty">
             <v-search-player
                 v-for="item in enResult" :key="item.id"
                 :title="item.title"
@@ -125,10 +125,10 @@ watch(() => route.query.key, (key) => {
                 :user-id="item.author.id"
                 :cover-url="item.cover_url"
             />
-          </div>
-          <div style="margin-left: 35%" v-else>
+          </template>
+          <template v-else>
             <el-empty :image="NoResult" style="height: 400px"/>
-          </div>
+          </template>
         </div>
         <div v-else>
           <div v-if="!isEmpty">

@@ -29,6 +29,10 @@ func InitUserRoutes() {
 			userAuthGroup.POST("/delete", userApi.DeleteUser)
 			// 模糊搜索用户列表
 			userAuthGroup.GET("/search", userApi.GetUserListBySearch)
+			// 上传头像
+			userAuthGroup.POST("/upload/avatar", userApi.UploadAvatar)
+			// 取消上传头像
+			userAuthGroup.POST("/upload/avatar/abolish", userApi.AbolishAvatarUpload)
 		}
 	})
 }

@@ -25,7 +25,6 @@ const swiperOption = reactive({
 });
 const props = defineProps({
   sideBarDisplay: String,
-  userId: Number,
   videos: ref([]),
 });
 
@@ -50,6 +49,7 @@ const handleClose = (val, index) => {
 const setWidth = (index) => {
   return openComment.value[index] ? 'calc(100% - 336px)' : '100%';
 };
+
 </script>
 
 <template>
@@ -62,6 +62,7 @@ const setWidth = (index) => {
               :thresholdTime="swiperOption.thresholdTime"
               :navigation="swiperOption.navigation"
               class="swiper swiper-no-swiping"
+              ref="swiperRef"
           >
             <swiper-slide
                 v-for="(item,index) in Videos"
@@ -72,6 +73,7 @@ const setWidth = (index) => {
                   <div class="breoi">
                     <div class="fegew">
                       <div class="breinrb" :style="{width: setWidth(index)}">
+<!--                        TODO: 切换视频，上一个视频暂停-->
                         <vue-plyr
                               class="plyr"
                               :data-poster="item.cover_url"

@@ -42,7 +42,7 @@ func (c *CommentService) GetCommentList(
 		return nil, 0, errors.New("video not exist")
 	}
 
-	commentsDao, total, err := c.Dao.GetCommentList(ctx, cListDTO)
+	commentsDao, total, err := c.Dao.GetCommentList(ctx, cListDTO.CommonPageDTO, cListDTO.VideoID)
 	if err != nil {
 		return nil, 0, err
 	}

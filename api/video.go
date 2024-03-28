@@ -255,7 +255,7 @@ func (v VideoApi) SaveVideoInfo(ctx *gin.Context) {
 // @Param haveCoverImage formData bool true "是否有封面"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/video/delete [delete]
+// @Router /api/v1/video/upload/abolish [post]
 func (v VideoApi) AbolishVideoUpload(ctx *gin.Context) {
 	var abolishDTO dto.AbolishVideoUploadDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &abolishDTO}).GetError(); err != nil {

@@ -28,12 +28,12 @@ func NewCommentDao() *CommentDao {
 
 // GetCommentList 获取评论列表
 func (c *CommentDao) GetCommentList(
-	ctx context.Context, cListDTO *dto.CommentListDTO,
+	ctx context.Context, pageDto dto.CommonPageDTO, videoId uint,
 ) ([]*models.Comment, int64, error) {
 	var comments []*models.Comment
 	var total int64
 	err := c.DB.Model(&models.Comment{}).WithContext(ctx).
-		Scopes(Paginate(cListDTO.CommonPageDTO)).Where("video_id = ?", cListDTO.VideoID).Find(&comments).
+		Scopes(Paginate(pageDto)).Where("video_id = ?", videoId).Find(&comments).
 		Offset(-1).Limit(-1).Count(&total).Error
 	return comments, total, err
 }

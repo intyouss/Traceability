@@ -9,19 +9,31 @@ import {
 import {useStore} from 'vuex';
 
 export function useMessage() {
-  const Messages = ref([]);
+  const Messages = ref({});
+  const PreTime = ref({});
   const Users = ref([]);
   const store = useStore();
 
   const sendMsg = (toUserId, content) => {
     sendMessage(toUserId, content).then((res) => {
-      Messages.value.push(res.data.message);
+      if (!Messages.value[toUserId]) {
+        Messages.value[toUserId] = [];
+      }
+      Messages.value[toUserId].push(res.data.message);
+      PreTime.value[toUserId] = res.data.message.created_at;
     });
   };
 
-  const getMsg = (toUserId) => {
-    getMessageList(toUserId).then((res) => {
-      Messages.value = res.data.messages;
+  const getMsg = (toUserId, preMsgTime='0') => {
+    getMessageList(toUserId, preMsgTime).then((res) => {
+      PreTime.value[toUserId] = res.data.pre_msg_time;
+      if (res.data.messages.length === 0) {
+        return;
+      }
+      if (!Messages.value[toUserId]) {
+        Messages.value[toUserId] = [];
+      }
+      Messages.value[toUserId] = Messages.value[toUserId].concat(res.data.messages);
     });
   };
 
@@ -48,6 +60,7 @@ export function useMessage() {
     sendMsg,
     getMsg,
     Users,
+    PreTime,
     delOpenUser,
     increaseOpenUser,
     getOpenUser,

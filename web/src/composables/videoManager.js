@@ -61,6 +61,7 @@ export function useVideoByOther() {
   const getPublishVideos = (userId) => {
     getUserVideoList(userId).then((res)=>{
       Videos.value = res.data.videos;
+      console.log(Videos.value);
     });
   };
   const getLikeVideos = (userId) => {
@@ -96,7 +97,6 @@ export function useVideoByOther() {
 
 export function useVideoByPage() {
   const Videos = ref([]);
-  const IndexVideos = ref([]);
   const getIndexVideos = () => {
     getIndexVideo(1).then((res)=>{
       Videos.value = res.data.videos;
@@ -136,7 +136,6 @@ export function useVideoByPage() {
   // };
   return {
     Videos,
-    IndexVideos,
     getIndexVideos,
     getFocusVideos,
     getFriendVideos,
@@ -167,8 +166,6 @@ export function useVideoUpload() {
   const imageUpload = (title, data) => {
     uploadImage(title, data).then((res)=>{
       CoverUrl.value = res.data.cover_image_url;
-      console.log(CoverUrl.value);
-      console.log(res.data.cover_image_url);
     });
   };
 
@@ -176,8 +173,8 @@ export function useVideoUpload() {
     publishVideo(title, playUrl, coverUrl).then(()=>{});
   };
 
-  const uploadAbolish = (title, haveVideo, haveImage) => {
-    abolishVideoUpload(title, haveVideo, haveImage).then(()=>{});
+  const uploadAbolish = (title, type) => {
+    abolishVideoUpload(title, type).then(()=>{});
   };
   return {
     PlayUrl,

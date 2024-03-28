@@ -6,7 +6,6 @@ import (
 
 	"github.com/intyouss/Traceability/global"
 	"github.com/intyouss/Traceability/models"
-	"github.com/intyouss/Traceability/service/dto"
 	"gorm.io/gorm"
 )
 
@@ -31,9 +30,9 @@ func NewCollectDao() *CollectDao {
 }
 
 // GetCollectListByUserId 根据用户id获取收藏列表
-func (l *CollectDao) GetCollectListByUserId(ctx context.Context, dto *dto.CollectListDTO) ([]*models.Collect, error) {
+func (l *CollectDao) GetCollectListByUserId(ctx context.Context, userId uint) ([]*models.Collect, error) {
 	var collects []*models.Collect
-	err := l.DB.Model(&models.Collect{}).WithContext(ctx).Where("user_id = ?", dto.UserID).Find(&collects).Error
+	err := l.DB.Model(&models.Collect{}).WithContext(ctx).Where("user_id = ?", userId).Find(&collects).Error
 	return collects, err
 }
 
@@ -71,18 +70,11 @@ func (l *CollectDao) IsCollectedByList(ctx context.Context, videoIds []uint) (ma
 	return collectMap, nil
 }
 
-// AddCollect 收藏操作
-func (l *CollectDao) AddCollect(ctx context.Context, dto *dto.CollectActionDTO) error {
+// CreateCollectTransaction 创建收藏事务
+func (l *CollectDao) CreateCollectTransaction(ctx context.Context, userId, videoId uint) error {
 	collect := models.Collect{
-		UserID:  ctx.Value(global.LoginUser).(models.LoginUser).ID,
-		VideoID: dto.VideoID,
-	}
-	isCollected, err := l.IsCollected(ctx, dto.VideoID)
-	if err != nil {
-		return err
-	}
-	if isCollected {
-		return errors.New("already collected")
+		UserID:  userId,
+		VideoID: videoId,
 	}
 	return l.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.WithContext(ctx).Create(&collect).Error; err != nil {
@@ -100,19 +92,11 @@ func (l *CollectDao) AddCollect(ctx context.Context, dto *dto.CollectActionDTO) 
 	})
 }
 
-// CancelCollect 取消收藏操作
-func (l *CollectDao) CancelCollect(ctx context.Context, dto *dto.CollectActionDTO) error {
-	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
-	isCollected, err := l.IsCollected(ctx, dto.VideoID)
-	if err != nil {
-		return err
-	}
-	if !isCollected {
-		return errors.New("do not have this collect relation")
-	}
+// DeleteCollectTransaction 删除收藏事务
+func (l *CollectDao) DeleteCollectTransaction(ctx context.Context, userId, videoId uint) error {
 	return l.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		result := tx.WithContext(ctx).Unscoped().
-			Where("user_id = ? AND video_id = ?", userId, dto.VideoID).
+			Where("user_id = ? AND video_id = ?", userId, videoId).
 			Delete(&models.Collect{})
 		if result.Error != nil {
 			return result.Error
@@ -125,7 +109,7 @@ func (l *CollectDao) CancelCollect(ctx context.Context, dto *dto.CollectActionDT
 			return err
 		}
 		// 更新视频收藏数
-		if err := l.VideoDao.UpdateVideoCollectCount(ctx, dto.VideoID, -1); err != nil {
+		if err := l.VideoDao.UpdateVideoCollectCount(ctx, videoId, -1); err != nil {
 			return err
 		}
 		return nil

@@ -1,5 +1,5 @@
 import {createStore} from 'vuex';
-import {getInfo, login} from '~/api/user.js';
+import {getInfo, login, register} from '~/api/user.js';
 import {setToken, removeToken} from '~/composables/auth.js';
 
 // 创建一个新的 store 实例
@@ -29,6 +29,15 @@ const store = createStore({
     login({commit}, {username, password}) {
       return new Promise((resolve, reject) => {
         login(username, password).then((res) => {
+          setToken(res.data.token);
+          commit('setUserInfo', res.data.user);
+          resolve(res);
+        }).catch((err) => reject(err));
+      });
+    },
+    register({commit}, {username, password}) {
+      return new Promise((resolve, reject) => {
+        register(username, password).then((res) => {
           setToken(res.data.token);
           commit('setUserInfo', res.data.user);
           resolve(res);

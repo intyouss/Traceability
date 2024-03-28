@@ -12,7 +12,7 @@ type User struct {
 	// 密码
 	Password string `gorm:"type:varchar(128);not null" json:"-"`
 	// 头像
-	Avatar string `gorm:"type:varchar(256)" json:"avatar"`
+	Avatar string `gorm:"type:text" json:"avatar"`
 	// 邮箱
 	Email string `gorm:"type:varchar(128)" json:"email"`
 	// 手机号

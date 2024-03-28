@@ -8,7 +8,9 @@ import {useRoute} from 'vue-router';
 import {useRelation} from '~/composables/relationManager.js';
 import {useMessageDialog} from '~/composables/messageManager.js';
 import MDialog from '~/layouts/components/message/MDialog.vue';
+import {useStore} from 'vuex';
 const route = useRoute();
+const store = useStore();
 const {
   Videos,
   getVideos,
@@ -16,7 +18,7 @@ const {
 const {
   User,
   getUserInfo,
-} = useUserByOther(route.params.id);
+} = useUserByOther();
 const {
   Message,
   MessageOpen,
@@ -24,14 +26,23 @@ const {
 } = useMessageDialog();
 
 const handleClick = (tab) => {
-  if (tab.props.name !== '作品') {
+  if (tab.props.name !== '作品' && route.params.id !== store.state.user.id) {
     return Videos.value = [];
   }
   getVideos(tab.props.name, route.params.id);
 };
+
+watch(() => route.params.id, (value) => {
+  if (!value) {
+    return;
+  }
+  getVideos('作品', value);
+  getUserInfo(value);
+});
+
 onBeforeMount(async () => {
   getVideos('作品', route.params.id);
-  getUserInfo();
+  getUserInfo(route.params.id);
 });
 
 const {
@@ -108,9 +119,6 @@ watch(() => User.value, (value) => {
                     22岁
                   </span>
                 </span>
-                <span class="city">
-                  衡阳
-                </span>
               </p>
               <div class="introduction" >
                 <div class="flex relative">
@@ -145,7 +153,7 @@ watch(() => User.value, (value) => {
             </div>
           </el-col>
           <el-col :span="3">
-            <div class="flex">
+            <div class="flex" v-if="User.id !== $store.state.user.id">
               <el-button
                   class="button"
                   type="primary"
@@ -161,7 +169,7 @@ watch(() => User.value, (value) => {
                   type="primary"
                   size="default"
                   round
-                  disabled
+                  @click="handleRelation(User.id)"
                   v-else
               >
                 已关注
@@ -198,8 +206,7 @@ watch(() => User.value, (value) => {
               <template v-for="item in Videos" :key="item.id">
                 <el-col :span="6" >
                   <v-user-card
-                      :cover-url="item.cover_url"
-                      :title="item.title"
+                      :video="item"
                   />
                 </el-col>
               </template>
@@ -285,7 +292,7 @@ watch(() => User.value, (value) => {
   margin-top: 12px;
   width: 100%;
 }
-.age, .city {
+.age {
   align-items: center;
   background: #f2f2f4;
   border-radius: 4px;

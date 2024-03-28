@@ -3,6 +3,13 @@ package dao
 import (
 	"context"
 	"errors"
+	"strconv"
+	"time"
+
+	"github.com/intyouss/Traceability/utils"
+
+	"github.com/intyouss/Traceability/global"
+	"github.com/minio/minio-go/v7"
 
 	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/service/dto"
@@ -13,12 +20,14 @@ var UserDaoIns *UserDao
 
 type UserDao struct {
 	*BaseDao
+	OSS *utils.MinioClient
 }
 
 func NewUserDao() *UserDao {
 	if UserDaoIns == nil {
 		UserDaoIns = &UserDao{
 			BaseDao: NewBaseDao(),
+			OSS:     global.OSS,
 		}
 	}
 	return UserDaoIns
@@ -88,14 +97,7 @@ func (u *UserDao) GetUserListBySearch(
 }
 
 // UpdateUser 更新用户信息
-func (u *UserDao) UpdateUser(ctx context.Context, updateDTO *dto.UserUpdateDTO) error {
-	userId := ctx.Value("login_user").(models.LoginUser).ID
-	var user models.User
-	err := u.DB.Model(&models.User{}).WithContext(ctx).First(&user, userId).Error
-	if err != nil {
-		return err
-	}
-	updateDTO.ToModel(&user)
+func (u *UserDao) UpdateUser(ctx context.Context, user *models.User) error {
 	return u.DB.WithContext(ctx).Updates(&user).Error
 }
 
@@ -115,6 +117,63 @@ func (u *UserDao) GetUserListByIds(ctx context.Context, ids []uint) ([]*models.U
 func (u *UserDao) IsExist(ctx context.Context, id uint) bool {
 	err := u.DB.Model(&models.User{}).WithContext(ctx).First(&models.User{}, id).Error
 	return !errors.Is(err, gorm.ErrRecordNotFound)
+}
+
+// UploadAvatar 上传头像
+func (u *UserDao) UploadAvatar(ctx context.Context, upload *dto.UploadAvatarDTO) error {
+	// 读取头像
+	avatarSize := upload.AvatarData.Size
+	avatarData, err := upload.AvatarData.Open()
+	if err != nil {
+		return err
+	}
+	defer avatarData.Close()
+	// 上传头像
+	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	fileName := "avatars/" + strconv.Itoa(int(userId)) + ".png"
+	err = u.OSS.UploadSizeFile(
+		ctx, VideoBucket, fileName, avatarData, avatarSize, minio.PutObjectOptions{
+			ContentType: "image/png",
+		},
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// DeleteRemoteAvatar 删除远程头像
+func (u *UserDao) DeleteRemoteAvatar(ctx context.Context, userId uint) error {
+	avatarFileName := "avatars/" + strconv.Itoa(int(userId)) + ".png"
+	return u.OSS.RemoveFile(ctx, VideoBucket, avatarFileName)
+}
+
+// GetRemoteAvatarUrl 获取远程头像url
+func (u *UserDao) GetRemoteAvatarUrl(ctx context.Context, userId uint) (avatarURL string, err error) {
+	hours, days := 24, 7
+	fileName := "avatars/" + strconv.Itoa(int(userId)) + ".png"
+	timeDura := time.Hour * time.Duration(hours*days)
+	urls, err := u.OSS.GetFileURL(ctx, "oss", fileName, timeDura)
+	if err != nil {
+		return "", err
+	}
+	avatarURL = urls.String()
+	return
+}
+
+// CheckAvatarUrl 检查用户头像url是否失效
+func (u *UserDao) CheckAvatarUrl(avatarUrl string) (bool, error) {
+	ok, err := u.OSS.CheckUrl(avatarUrl)
+	if err != nil {
+		return false, err
+	}
+	return ok, nil
+}
+
+// UpdateDBUrl 更新数据库url
+func (u *UserDao) UpdateDBUrl(ctx context.Context, userId uint, avatarUrl string) error {
+	return u.DB.WithContext(ctx).Where("id = ?", userId).
+		Updates(&models.User{Avatar: avatarUrl}).Error
 }
 
 // UpdateFocusCount 更新关注数
