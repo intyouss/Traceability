@@ -1,3 +1,14 @@
+definitions:
+  api.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+      total:
+        type: integer
+    type: object
 info:
   contact: {}
   description: A web-based short video platform
@@ -14,12 +25,12 @@ paths:
         required: true
         type: string
       - description: feed类型
-        in: formData
+        in: query
         name: type
         required: true
         type: integer
       - description: 最新时间
-        in: formData
+        in: query
         name: latest_time
         required: true
         type: integer
@@ -201,7 +212,7 @@ paths:
         required: true
         type: string
       - description: 目标用户id
-        in: formData
+        in: query
         name: to_user_id
         required: true
         type: integer
@@ -316,15 +327,15 @@ paths:
       description: 获取评论列表
       parameters:
       - description: 页码
-        in: formData
+        in: query
         name: page
         type: integer
       - description: 每页数量
-        in: formData
+        in: query
         name: limit
         type: integer
       - description: 视频id
-        in: formData
+        in: query
         name: video_id
         required: true
         type: integer
@@ -375,9 +386,14 @@ paths:
         name: username
         required: true
         type: string
-      - description: 密码
+      - description: 旧密码
         in: formData
         name: password
+        required: true
+        type: string
+      - description: 新密码
+        in: formData
+        name: new_password
         required: true
         type: string
       - description: 邮箱
@@ -403,12 +419,12 @@ paths:
       description: 获取视频搜索结果
       parameters:
       - description: 搜索关键字
-        in: formData
+        in: query
         name: key
         required: true
         type: string
       - description: 搜索类型
-        in: formData
+        in: query
         name: type
         required: true
         type: integer
@@ -499,6 +515,42 @@ paths:
           schema:
             type: string
       summary: 关注列表
+  /api/v1/system/cpu/usage:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Response'
+      summary: 获取CPU使用率
+  /api/v1/system/memory/usage:
+    get:
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Response'
+      summary: 获取内存使用率
   /api/v1/user/:
     get:
       description: 获取用户信息
@@ -547,7 +599,36 @@ paths:
           schema:
             type: string
       summary: 删除用户
-  /api/v1/user/search:
+  /api/v1/user/increase:
+    get:
+      description: 获取月总日用户增长记录列表
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 年份
+        in: query
+        name: year
+        required: true
+        type: string
+      - description: 月份
+        in: query
+        name: month
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 获取月总日用户增长记录列表
+  /api/v1/user/list:
     get:
       description: 获取用户列表
       parameters:
@@ -557,16 +638,15 @@ paths:
         required: true
         type: string
       - description: 关键字
-        in: formData
+        in: query
         name: key
-        required: true
         type: string
       - description: 页码
-        in: formData
+        in: query
         name: page
         type: integer
       - description: 每页数量
-        in: formData
+        in: query
         name: limit
         type: integer
       responses:
@@ -600,9 +680,13 @@ paths:
         in: formData
         name: mobile
         type: string
-      - description: 头像
+      - description: 头像地址
         in: formData
         name: avatar
+        type: string
+      - description: 个性签名
+        in: formData
+        name: signature
         type: string
       responses:
         "200":
@@ -638,30 +722,20 @@ paths:
           schema:
             type: string
       summary: 上传头像
-  /api/v1/video/delete:
-    delete:
-      description: 取消视频上传
+  /api/v1/user/upload/avatar/abolish:
+    post:
+      description: 取消头像上传
       parameters:
       - description: token
         in: header
         name: token
         required: true
         type: string
-      - description: 标题
+      - description: 用户id
         in: formData
-        name: title
+        name: user_id
         required: true
-        type: string
-      - description: 是否有视频
-        in: formData
-        name: haveVideo
-        required: true
-        type: boolean
-      - description: 是否有封面
-        in: formData
-        name: haveCoverImage
-        required: true
-        type: boolean
+        type: integer
       responses:
         "200":
           description: OK
@@ -671,7 +745,36 @@ paths:
           description: Bad Request
           schema:
             type: string
-      summary: 取消视频上传
+      summary: 取消头像上传
+  /api/v1/video/increase:
+    get:
+      description: 获取月总日视频发布数增长记录列表
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 年份
+        in: query
+        name: year
+        required: true
+        type: string
+      - description: 月份
+        in: query
+        name: month
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 获取月总日视频发布数增长记录列表
   /api/v1/video/info:
     get:
       description: 获取视频信息
@@ -754,6 +857,40 @@ paths:
           schema:
             type: string
       summary: 保存视频
+  /api/v1/video/upload/abolish:
+    post:
+      description: 取消视频上传
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 标题
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: 是否有视频
+        in: formData
+        name: haveVideo
+        required: true
+        type: boolean
+      - description: 是否有封面
+        in: formData
+        name: haveCoverImage
+        required: true
+        type: boolean
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: 取消视频上传
   /api/v1/video/upload/image:
     post:
       description: 上传视频封面

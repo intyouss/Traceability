@@ -27,9 +27,9 @@ func NewCommentApi() CommentApi {
 // GetCommentList 获取评论列表
 // @Summary 获取评论列表
 // @Description 获取评论列表
-// @Param page formData int false "页码"
-// @Param limit formData int false "每页数量"
-// @Param video_id formData int true "视频id"
+// @Param page query int false "页码"
+// @Param limit query int false "每页数量"
+// @Param video_id query int true "视频id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/public/comment/list [get]

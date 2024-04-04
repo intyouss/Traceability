@@ -85,12 +85,24 @@ func (u *UserDao) GetUserIdsBySearchKey(ctx context.Context, key string) ([]uint
 
 // GetUserListBySearch 模糊搜索用户列表
 func (u *UserDao) GetUserListBySearch(
-	ctx context.Context, userListDto *dto.UserSearchListDTO,
+	ctx context.Context, userListDto *dto.UserListDTO,
 ) ([]*models.User, int64, error) {
 	var users []*models.User
 	var total int64
 	err := u.DB.Model(&models.User{}).WithContext(ctx).
 		Where("username like ?", "%"+userListDto.Key+"%").
+		Scopes(Paginate(userListDto.CommonPageDTO)).Find(&users).
+		Offset(-1).Limit(-1).Count(&total).Error
+	return users, total, err
+}
+
+// GetUserList 获取用户列表
+func (u *UserDao) GetUserList(
+	ctx context.Context, userListDto *dto.UserListDTO,
+) ([]*models.User, int64, error) {
+	var users []*models.User
+	var total int64
+	err := u.DB.Model(&models.User{}).WithContext(ctx).
 		Scopes(Paginate(userListDto.CommonPageDTO)).Find(&users).
 		Offset(-1).Limit(-1).Count(&total).Error
 	return users, total, err
@@ -174,6 +186,37 @@ func (u *UserDao) CheckAvatarUrl(avatarUrl string) (bool, error) {
 func (u *UserDao) UpdateDBUrl(ctx context.Context, userId uint, avatarUrl string) error {
 	return u.DB.WithContext(ctx).Where("id = ?", userId).
 		Updates(&models.User{Avatar: avatarUrl}).Error
+}
+
+// GetUserIncrease 获取用户日增长记录
+func (u *UserDao) GetUserIncrease(ctx context.Context, year, month, day uint) (bool, *models.UserIncrease, error) {
+	var userIncrease models.UserIncrease
+	err := u.DB.Model(&models.UserIncrease{}).WithContext(ctx).
+		Where("year = ? and month = ? and day = ?", year, month, day).
+		FirstOrCreate(&userIncrease).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil, nil
+	}
+	if err != nil {
+		return false, nil, err
+	}
+	return true, &userIncrease, err
+}
+
+// GetUserIncreaseList 获取用户增长记录列表
+func (u *UserDao) GetUserIncreaseList(ctx context.Context, year, month uint) ([]*models.UserIncrease, error) {
+	var userIncreases []*models.UserIncrease
+	err := u.DB.Model(&models.UserIncrease{}).WithContext(ctx).Where("year = ? and month = ?", year, month).
+		Find(&userIncreases).Error
+	return userIncreases, err
+}
+
+// UpdateUserIncreaseCount 更新用户日增长记录
+func (u *UserDao) UpdateUserIncreaseCount(ctx context.Context, year, month, day uint, count int) error {
+	value := map[string]interface{}{"count": gorm.Expr("count + ?", count)}
+	return u.DB.Model(&models.UserIncrease{}).WithContext(ctx).
+		Where("month = ? and day = ? and year = ?", month, day, year).
+		Updates(value).Error
 }
 
 // UpdateFocusCount 更新关注数

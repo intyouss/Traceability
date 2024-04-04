@@ -37,6 +37,13 @@ type User struct {
 	IsFocus bool `json:"is_focus"`
 }
 
+type UserIncrease struct {
+	Year  uint `json:"year"`
+	Month uint `json:"month"`
+	Day   uint `json:"day"`
+	Count uint `json:"count"`
+}
+
 type UserLoginDto struct {
 	Username string `json:"username" form:"username" binding:"required" message:"username cannot be empty"`
 	Password string `json:"password" form:"password" binding:"required" message:"password cannot be empty"`
@@ -84,7 +91,12 @@ func (u *UserUpdateDTO) ToModel(user *models.User) {
 	user.Mobile = u.Mobile
 }
 
-type UserSearchListDTO struct {
-	Key string `json:"key" form:"key" binding:"required" message:"key cannot be empty"`
+type UserListDTO struct {
+	Key string `json:"key" form:"key"`
 	CommonPageDTO
+}
+
+type UserIncreaseListDTO struct {
+	Year  uint `json:"year" form:"year" binding:"required" message:"year cannot be empty"`
+	Month uint `json:"month" form:"month" binding:"required" message:"month cannot be empty"`
 }

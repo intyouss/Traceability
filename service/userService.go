@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jinzhu/copier"
 
@@ -61,6 +62,22 @@ func (u *UserService) Register(ctx context.Context, userAddDTO *dto.UserAddDTO) 
 	if err != nil {
 		return nil, "", fmt.Errorf("add user error: %s", err.Error())
 	}
+
+	year := uint(time.Now().Year())
+	month := uint(time.Now().Month())
+	day := uint(time.Now().Day())
+
+	// 更新用户增长记录
+	ok, _, err := u.Dao.GetUserIncrease(ctx, year, month, day)
+	if err != nil {
+		return nil, "", fmt.Errorf("update user increase count error: %s", err.Error())
+	}
+	if ok {
+		err = u.Dao.UpdateUserIncreaseCount(ctx, year, month, day, 1)
+		if err != nil {
+			return nil, "", fmt.Errorf("update user increase count error: %s", err.Error())
+		}
+	}
 	// 生成token
 	token, err = utils.GenerateToken(*userAddDTO.ID, userAddDTO.Username)
 	if err != nil {
@@ -103,15 +120,25 @@ func (u *UserService) GetUserById(ctx context.Context, idDTO *dto.CommonIDDTO) (
 	return user, nil
 }
 
-// GetUserListBySearch 模糊搜索用户列表
-func (u *UserService) GetUserListBySearch(
-	ctx context.Context, userListDTO *dto.UserSearchListDTO,
+// GetUserList 获取用户列表
+func (u *UserService) GetUserList(
+	ctx context.Context, userListDTO *dto.UserListDTO,
 ) ([]*dto.User, int64, error) {
-	// 获取用户列表
-	usersDao, total, err := u.Dao.GetUserListBySearch(ctx, userListDTO)
-	if err != nil {
-		return nil, 0, err
+	var usersDao []*models.User
+	var total int64
+	var err error
+	if userListDTO.Key == "" {
+		usersDao, total, err = u.Dao.GetUserList(ctx, userListDTO)
+		if err != nil {
+			return nil, 0, err
+		}
+	} else {
+		usersDao, total, err = u.Dao.GetUserListBySearch(ctx, userListDTO)
+		if err != nil {
+			return nil, 0, err
+		}
 	}
+
 	if len(usersDao) == 0 {
 		return nil, 0, nil
 	}
@@ -221,4 +248,17 @@ func (u *UserService) DeleteUserById(ctx context.Context, idDTO *dto.CommonIDDTO
 		return errors.New("don't have permission")
 	}
 	return u.Dao.DeleteUserById(ctx, userId)
+}
+
+// GetUserIncrease 获取月总日用户增长列表
+func (u *UserService) GetUserIncrease(
+	ctx context.Context, timeDTO *dto.UserIncreaseListDTO,
+) ([]*dto.UserIncrease, error) {
+	list, err := u.Dao.GetUserIncreaseList(ctx, timeDTO.Year, timeDTO.Month)
+	if err != nil {
+		return nil, err
+	}
+	var userIncreaseList = make([]*dto.UserIncrease, 0, len(list))
+	_ = copier.Copy(&userIncreaseList, &list)
+	return userIncreaseList, nil
 }

@@ -15,6 +15,7 @@ const (
 	ErrCodeDeleteUser
 	ErrCodeAbolishAvatarUpload
 	ErrCodeLogin
+	ErrCodeGetUserIncrease
 )
 
 type UserApi struct {
@@ -130,34 +131,34 @@ func (u UserApi) GetUserInfo(ctx *gin.Context) {
 	})
 }
 
-// GetUserListBySearch 获取用户列表
+// GetUserList 获取用户列表
 // @Summary 获取用户列表
 // @Description 获取用户列表
-// @Param key formData string true "关键字"
-// @Param page formData int false "页码"
-// @Param limit formData int false "每页数量"
+// @Param key query string false "关键字"
+// @Param page query int false "页码"
+// @Param limit query int false "每页数量"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/public/user/search [get]
+// @Router /api/v1/public/user/list [get]
 
-// GetUserListBySearch 获取用户列表
+// GetUserList 获取用户列表
 // @Summary 获取用户列表
 // @Description 获取用户列表
 // @Param token header string true "token"
-// @Param key formData string true "关键字"
-// @Param page formData int false "页码"
-// @Param limit formData int false "每页数量"
+// @Param key query string false "关键字"
+// @Param page query int false "页码"
+// @Param limit query int false "每页数量"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/user/search [get]
-func (u UserApi) GetUserListBySearch(ctx *gin.Context) {
-	var userListDto dto.UserSearchListDTO
+// @Router /api/v1/user/list [get]
+func (u UserApi) GetUserList(ctx *gin.Context) {
+	var userListDto dto.UserListDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &userListDto}).GetError(); err != nil {
 		u.Fail(&Response{Code: ErrCodeGetUserList, Msg: err.Error()})
 		return
 	}
 
-	users, total, err := u.Service.GetUserListBySearch(ctx, &userListDto)
+	users, total, err := u.Service.GetUserList(ctx, &userListDto)
 	if err != nil {
 		u.Fail(&Response{Code: ErrCodeGetUserList, Msg: err.Error()})
 		return
@@ -280,4 +281,32 @@ func (u UserApi) DeleteUser(ctx *gin.Context) {
 		return
 	}
 	u.Success(&Response{})
+}
+
+// GetUserIncrease 获取月总日用户增长记录列表
+// @Summary 获取月总日用户增长记录列表
+// @Description 获取月总日用户增长记录列表
+// @Param token header string true "token"
+// @Param year query string true "年份"
+// @Param month query string true "月份"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/user/increase [get]
+func (u UserApi) GetUserIncrease(ctx *gin.Context) {
+	var list dto.UserIncreaseListDTO
+	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &list}).GetError(); err != nil {
+		u.Fail(&Response{Code: ErrCodeGetUserIncrease, Msg: err.Error()})
+		return
+	}
+
+	c, err := u.Service.GetUserIncrease(ctx, &list)
+	if err != nil {
+		u.Fail(&Response{Code: ErrCodeGetUserIncrease, Msg: err.Error()})
+		return
+	}
+	u.Success(&Response{
+		Data: gin.H{
+			"user_increase_list": c,
+		},
+	})
 }

@@ -31,14 +31,14 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "feed类型",
                         "name": "type",
-                        "in": "formData",
+                        "in": "query",
                         "required": true
                     },
                     {
                         "type": "integer",
                         "description": "最新时间",
                         "name": "latest_time",
-                        "in": "formData",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -310,7 +310,7 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "目标用户id",
                         "name": "to_user_id",
-                        "in": "formData",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -483,19 +483,19 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "页码",
                         "name": "page",
-                        "in": "formData"
+                        "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "每页数量",
                         "name": "limit",
-                        "in": "formData"
+                        "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "视频id",
                         "name": "video_id",
-                        "in": "formData",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -571,8 +571,15 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "密码",
+                        "description": "旧密码",
                         "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "新密码",
+                        "name": "new_password",
                         "in": "formData",
                         "required": true
                     },
@@ -614,14 +621,14 @@ const docTemplate = `{
                         "type": "string",
                         "description": "搜索关键字",
                         "name": "key",
-                        "in": "formData",
+                        "in": "query",
                         "required": true
                     },
                     {
                         "type": "integer",
                         "description": "搜索类型",
                         "name": "type",
-                        "in": "formData",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -756,6 +763,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/system/cpu/usage": {
+            "get": {
+                "summary": "获取CPU使用率",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/system/memory/usage": {
+            "get": {
+                "summary": "获取内存使用率",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user/": {
             "get": {
                 "description": "获取用户信息",
@@ -828,7 +891,50 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/user/search": {
+        "/api/v1/user/increase": {
+            "get": {
+                "description": "获取月总日用户增长记录列表",
+                "summary": "获取月总日用户增长记录列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "年份",
+                        "name": "year",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "月份",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/list": {
             "get": {
                 "description": "获取用户列表",
                 "summary": "获取用户列表",
@@ -844,20 +950,19 @@ const docTemplate = `{
                         "type": "string",
                         "description": "关键字",
                         "name": "key",
-                        "in": "formData",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "页码",
                         "name": "page",
-                        "in": "formData"
+                        "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "每页数量",
                         "name": "limit",
-                        "in": "formData"
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -908,8 +1013,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "头像",
+                        "description": "头像地址",
                         "name": "avatar",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "个性签名",
+                        "name": "signature",
                         "in": "formData"
                     }
                 ],
@@ -965,10 +1076,46 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/video/delete": {
-            "delete": {
-                "description": "取消视频上传",
-                "summary": "取消视频上传",
+        "/api/v1/user/upload/avatar/abolish": {
+            "post": {
+                "description": "取消头像上传",
+                "summary": "取消头像上传",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "user_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/increase": {
+            "get": {
+                "description": "获取月总日视频发布数增长记录列表",
+                "summary": "获取月总日视频发布数增长记录列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -979,23 +1126,16 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "标题",
-                        "name": "title",
-                        "in": "formData",
+                        "description": "年份",
+                        "name": "year",
+                        "in": "query",
                         "required": true
                     },
                     {
-                        "type": "boolean",
-                        "description": "是否有视频",
-                        "name": "haveVideo",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "是否有封面",
-                        "name": "haveCoverImage",
-                        "in": "formData",
+                        "type": "string",
+                        "description": "月份",
+                        "name": "month",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -1137,6 +1277,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/video/upload/abolish": {
+            "post": {
+                "description": "取消视频上传",
+                "summary": "取消视频上传",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "标题",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否有视频",
+                        "name": "haveVideo",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否有封面",
+                        "name": "haveCoverImage",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/video/upload/image": {
             "post": {
                 "description": "上传视频封面",
@@ -1220,6 +1410,23 @@ const docTemplate = `{
                             "type": "string"
                         }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "msg": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         }

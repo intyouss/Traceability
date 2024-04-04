@@ -19,3 +19,23 @@ type Video struct {
 	// 用户收藏数
 	CollectCount uint `gorm:"not null" json:"collect_count"`
 }
+
+type VideoIncrease struct {
+	gorm.Model
+	Year  uint `gorm:"not null;" json:"year"`
+	Month uint `gorm:"not null;" json:"month"`
+	Day   uint `gorm:"not null;" json:"day"`
+	Count uint `gorm:"not null;default:0" json:"count"`
+}
+
+func (v *VideoIncrease) SetDate() {
+	v.Year = uint(v.CreatedAt.Year())
+	v.Month = uint(v.CreatedAt.Month())
+	v.Day = uint(v.CreatedAt.Day())
+}
+
+// BeforeCreate BeforeHook钩子
+func (v *VideoIncrease) BeforeCreate(db *gorm.DB) error {
+	v.SetDate()
+	return nil
+}

@@ -341,6 +341,37 @@ func (v *VideoDao) DeleteRemoteCoverImage(ctx context.Context, title string) err
 	return v.OSS.RemoveFile(ctx, VideoBucket, imageName)
 }
 
+// GetVideoIncrease 获取视频发布日增长记录
+func (v *VideoDao) GetVideoIncrease(ctx context.Context, year, month, day uint) (bool, *models.VideoIncrease, error) {
+	var videoIncrease models.VideoIncrease
+	err := v.DB.Model(&models.UserIncrease{}).WithContext(ctx).
+		Where("year = ? and month = ? and day = ?", year, month, day).
+		FirstOrCreate(&videoIncrease).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil, nil
+	}
+	if err != nil {
+		return false, nil, err
+	}
+	return true, &videoIncrease, err
+}
+
+// GetVideoIncreaseList 获取视频发布数日增长记录列表
+func (v *VideoDao) GetVideoIncreaseList(ctx context.Context, year, month uint) ([]*models.VideoIncrease, error) {
+	var videoIncreases []*models.VideoIncrease
+	err := v.DB.Model(&models.UserIncrease{}).WithContext(ctx).Where("year = ? and month = ?", year, month).
+		Find(&videoIncreases).Error
+	return videoIncreases, err
+}
+
+// UpdateVideoIncreaseCount 更新视频发布日增长记录
+func (v *VideoDao) UpdateVideoIncreaseCount(ctx context.Context, year, month, day uint, count int) error {
+	value := map[string]interface{}{"count": gorm.Expr("count + ?", count)}
+	return v.DB.Model(&models.VideoIncrease{}).WithContext(ctx).
+		Where("year = ? and month = ? and day = ?", year, month, day).
+		Updates(value).Error
+}
+
 // UpdateCommentCount 更新评论数
 func (v *VideoDao) UpdateCommentCount(ctx context.Context, videoId uint, count int) error {
 	value := map[string]interface{}{"comment_count": gorm.Expr("comment_count + ?", count)}

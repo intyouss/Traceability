@@ -33,6 +33,8 @@ func InitVideoRoutes() {
 			videoAuthGroup.POST("/upload/abolish", videoApi.AbolishVideoUpload)
 			// 获取单个视频
 			videoAuthGroup.GET("/info", videoApi.GetVideoInfo)
+			// 获取月总日视频发布数增长记录
+			videoAuthGroup.GET("/increase", videoApi.GetVideoIncrease)
 		}
 	})
 }

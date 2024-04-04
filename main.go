@@ -1,8 +1,6 @@
 package main
 
-import (
-	"github.com/intyouss/Traceability/cmd"
-)
+import "github.com/intyouss/Traceability/cmd"
 
 // @title Traceability
 // @version 0.0.1

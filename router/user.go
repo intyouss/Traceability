@@ -16,8 +16,8 @@ func InitUserRoutes() {
 			userDefaultGroup.POST("/register", userApi.Register)
 			// 用户信息
 			userDefaultGroup.GET("/", userApi.GetUserInfo)
-			// 模糊搜索用户列表
-			userDefaultGroup.GET("/search", userApi.GetUserListBySearch)
+			// 获取用户列表
+			userDefaultGroup.GET("/list", userApi.GetUserList)
 		}
 		userAuthGroup := auGroup.Group("user")
 		{
@@ -27,12 +27,14 @@ func InitUserRoutes() {
 			userAuthGroup.POST("/update", userApi.UpdateUser)
 			// 删除用户
 			userAuthGroup.POST("/delete", userApi.DeleteUser)
-			// 模糊搜索用户列表
-			userAuthGroup.GET("/search", userApi.GetUserListBySearch)
+			// 获取用户列表
+			userAuthGroup.GET("/list", userApi.GetUserList)
 			// 上传头像
 			userAuthGroup.POST("/upload/avatar", userApi.UploadAvatar)
 			// 取消上传头像
 			userAuthGroup.POST("/upload/avatar/abolish", userApi.AbolishAvatarUpload)
+			// 获取月总日用户增长记录
+			userAuthGroup.GET("/increase", userApi.GetUserIncrease)
 		}
 	})
 }

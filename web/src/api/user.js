@@ -130,7 +130,7 @@ export function deleteUser(userId) {
  * @return {Promise<AxiosResponse<any>>}
  */
 export function getPublicUserSearch(key, page = 0, limit = 0) {
-  return publicAPI.get('/user/search', {
+  return publicAPI.get('/user/list', {
     params: {
       'key': key,
       'page': page,
@@ -147,7 +147,7 @@ export function getPublicUserSearch(key, page = 0, limit = 0) {
  * @return {Promise<AxiosResponse<any>>}
  */
 export function getAuthUserSearch(key, page = 0, limit = 0) {
-  return authAPI.get('/user/search', {
+  return authAPI.get('/user/list', {
     params: {
       'key': key,
       'page': page,

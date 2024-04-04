@@ -62,7 +62,7 @@ func (m MessageApi) SendMessage(ctx *gin.Context) {
 // @Summary 获取消息列表
 // @Description 获取消息列表
 // @Param token header string true "token"
-// @Param to_user_id formData int true "目标用户id"
+// @Param to_user_id query int true "目标用户id"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/message/chat [get]
@@ -96,42 +96,6 @@ func (m MessageApi) GetMessages(ctx *gin.Context) {
 		},
 	})
 }
-
-//// GetLinkUsers 获取消息用户列表
-//// @Summary 获取消息用户列表
-//// @Description 获取消息用户列表
-//// @Param token header string true "token"
-//// @Success 200 {string} Response
-//// @Failure 400 {string} Response
-//// @Router /api/v1/message/users [get]
-//func (m MessageApi) GetLinkUsers(ctx *gin.Context) {
-//	var linkUsersDTO dto.LinkUsersDTO
-//	err := m.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &linkUsersDTO}).GetError()
-//	if err != nil {
-//		m.Fail(&Response{Code: ErrCodeGetLinkUsers, Msg: err.Error()})
-//		return
-//	}
-//
-//	users, err := m.Service.GetLinkUsers(ctx, &linkUsersDTO)
-//	if err != nil {
-//		m.Fail(&Response{Code: ErrCodeGetMessage, Msg: err.Error()})
-//		return
-//	}
-//	if len(users) == 0 {
-//		m.Success(&Response{
-//			Data: gin.H{
-//				"users": []*dto.User{},
-//			},
-//		})
-//		return
-//	}
-//
-//	m.Success(&Response{
-//		Data: gin.H{
-//			"users": users,
-//		},
-//	})
-//}
 
 // GetUserOpenMsgList 获取用户开放消息列表
 // @Summary 获取用户开放消息列表

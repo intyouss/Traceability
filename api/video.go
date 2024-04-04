@@ -15,6 +15,7 @@ const (
 	ErrCodeAbolishVideoUpload
 	ErrCodeGetVideoInfo
 	ErrCodeGetVideoSearch
+	ErrCodeGetVideoIncrease
 )
 
 type VideoApi struct {
@@ -33,7 +34,7 @@ func NewVideoApi() VideoApi {
 // @Summary 获取视频feed流
 // @Description 获取视频feed流
 // @Param latest_time formData int true "最新时间"
-// @Param type formData int true "feed类型"
+// @Param type query int true "feed类型"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/public/video/feed [get]
@@ -42,8 +43,8 @@ func NewVideoApi() VideoApi {
 // @Summary 获取视频feed流
 // @Description 获取视频feed流
 // @Param token header string true "token"
-// @Param type formData int true "feed类型"
-// @Param latest_time formData int true "最新时间"
+// @Param type query int true "feed类型"
+// @Param latest_time query int true "最新时间"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/auth/video/feed [get]
@@ -127,8 +128,8 @@ func (v VideoApi) GetUserVideoList(ctx *gin.Context) {
 // GetVideoSearch 获取视频搜索结果
 // @Summary 获取视频搜索结果
 // @Description 获取视频搜索结果
-// @Param key formData string true "搜索关键字"
-// @Param type formData int true "搜索类型"
+// @Param key query string true "搜索关键字"
+// @Param type query int true "搜索类型"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/public/video/search [get]
@@ -296,6 +297,34 @@ func (v VideoApi) GetVideoInfo(ctx *gin.Context) {
 	v.Success(&Response{
 		Data: gin.H{
 			"video": video,
+		},
+	})
+}
+
+// GetVideoIncrease 获取月总日视频发布数增长记录列表
+// @Summary 获取月总日视频发布数增长记录列表
+// @Description 获取月总日视频发布数增长记录列表
+// @Param token header string true "token"
+// @Param year query string true "年份"
+// @Param month query string true "月份"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/video/increase [get]
+func (v VideoApi) GetVideoIncrease(ctx *gin.Context) {
+	var list dto.VideoIncreaseListDTO
+	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &list}).GetError(); err != nil {
+		v.Fail(&Response{Code: ErrCodeGetVideoIncrease, Msg: err.Error()})
+		return
+	}
+
+	c, err := v.Service.GetVideoIncrease(ctx, &list)
+	if err != nil {
+		v.Fail(&Response{Code: ErrCodeGetVideoIncrease, Msg: err.Error()})
+		return
+	}
+	v.Success(&Response{
+		Data: gin.H{
+			"user_increase_list": c,
 		},
 	})
 }

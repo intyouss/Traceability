@@ -47,6 +47,26 @@ func (u *User) BeforeCreate(db *gorm.DB) error {
 	return u.Encrypt()
 }
 
+type UserIncrease struct {
+	gorm.Model
+	Year  uint `gorm:"not null;" json:"year"`
+	Month uint `gorm:"not null;" json:"month"`
+	Day   uint `gorm:"not null;" json:"day"`
+	Count uint `gorm:"not null;default:1" json:"count"`
+}
+
+func (u *UserIncrease) SetDate() {
+	u.Year = uint(u.CreatedAt.Year())
+	u.Month = uint(u.CreatedAt.Month())
+	u.Day = uint(u.CreatedAt.Day())
+}
+
+// BeforeCreate BeforeHook钩子
+func (u *UserIncrease) BeforeCreate(db *gorm.DB) error {
+	u.SetDate()
+	return nil
+}
+
 type LoginUser struct {
 	ID       uint
 	Username string

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/intyouss/Traceability/global"
 	"github.com/intyouss/Traceability/utils"
@@ -458,7 +459,26 @@ func (v *VideoService) UploadImage(ctx context.Context, upload *dto.ImageUploadD
 
 // SaveVideoInfo 保存视频
 func (v *VideoService) SaveVideoInfo(ctx context.Context, publishDTO *dto.PublishDTO) error {
-	return v.Dao.SaveVideoInfo(ctx, publishDTO)
+	err := v.Dao.SaveVideoInfo(ctx, publishDTO)
+	if err != nil {
+		return err
+	}
+	year := uint(time.Now().Year())
+	month := uint(time.Now().Month())
+	day := uint(time.Now().Day())
+
+	// 更新视频发布日增长数
+	ok, _, err := v.Dao.GetVideoIncrease(ctx, year, month, day)
+	if err != nil {
+		return err
+	}
+	if ok {
+		err = v.Dao.UpdateVideoIncreaseCount(ctx, year, month, day, 1)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // DeleteRemoteVideo 删除远程视频信息
@@ -509,4 +529,17 @@ func (v *VideoService) DeleteRemoteVideo(ctx context.Context, abolishDTO *dto.Ab
 	default:
 		return nil
 	}
+}
+
+// GetVideoIncrease 获取月总日视频发布数增长列表
+func (v *VideoService) GetVideoIncrease(
+	ctx context.Context, timeDTO *dto.VideoIncreaseListDTO,
+) ([]*dto.VideoIncrease, error) {
+	list, err := v.Dao.GetVideoIncreaseList(ctx, timeDTO.Year, timeDTO.Month)
+	if err != nil {
+		return nil, err
+	}
+	var IncreaseList = make([]*dto.VideoIncrease, 0, len(list))
+	_ = copier.Copy(&IncreaseList, &list)
+	return IncreaseList, nil
 }

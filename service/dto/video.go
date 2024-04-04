@@ -31,6 +31,13 @@ type Video struct {
 	IsCollect bool `json:"is_collect"`
 }
 
+type VideoIncrease struct {
+	Year  uint `json:"year"`
+	Month uint `json:"month"`
+	Day   uint `json:"day"`
+	Count uint `json:"count"`
+}
+
 type VideoListDTO struct {
 	Type       uint   `json:"type" form:"type" binding:"required" message:"type cannot be empty"`
 	LatestTime string `json:"latest_time" form:"latest_time" binding:"required" message:"latest_time cannot be empty"`
@@ -68,4 +75,9 @@ type VideoDeleteDTO struct {
 type VideoSearchDTO struct {
 	Key  string `json:"key" form:"key" binding:"required" message:"key cannot be empty"`
 	Type uint   `json:"type" form:"type" binding:"required" message:"type cannot be empty"`
+}
+
+type VideoIncreaseListDTO struct {
+	Year  uint `json:"year" form:"year" binding:"required" message:"year cannot be empty"`
+	Month uint `json:"month" form:"month" binding:"required" message:"month cannot be empty"`
 }
