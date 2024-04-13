@@ -364,6 +364,13 @@ func (v *VideoDao) GetVideoIncreaseList(ctx context.Context, year, month uint) (
 	return videoIncreases, err
 }
 
+// GetVideoTotalCount 获取已发布视频总数
+func (v *VideoDao) GetVideoTotalCount(ctx context.Context) (int64, error) {
+	var count int64
+	err := v.DB.Model(&models.Video{}).WithContext(ctx).Count(&count).Error
+	return count, err
+}
+
 // UpdateVideoIncreaseCount 更新视频发布日增长记录
 func (v *VideoDao) UpdateVideoIncreaseCount(ctx context.Context, year, month, day uint, count int) error {
 	value := map[string]interface{}{"count": gorm.Expr("count + ?", count)}

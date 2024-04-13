@@ -1,42 +1,41 @@
 <script setup>
-import {reactive, ref, watch} from 'vue';
-import CCard from '~/layouts/components/comment/CCard.vue';
-import {useComment} from '~/composables/commentManager.js';
+import { reactive, ref, watch } from 'vue'
+import CCard from '~/layouts/components/comment/CCard.vue'
+import { useComment } from '~/composables/commentManager.js'
 
 const props = defineProps({
   openComment: Boolean,
   commentCount: Number,
-  videoId: Number,
-});
+  videoId: Number
+})
 
 const {
   Loading,
   More,
   Comments,
   loadComments,
-  createComment,
-} = useComment(props.videoId);
+  createComment
+} = useComment(props.videoId)
 
-
-const open = ref(props.openComment);
+const open = ref(props.openComment)
 
 watch(() => props.openComment, (val) => {
-  open.value = val;
-});
-const emits = defineEmits(['close']);
+  open.value = val
+})
+const emits = defineEmits(['close'])
 
 const handleClose = () => {
-  emits('close', 'close');
-};
+  emits('close', 'close')
+}
 
 const form = reactive({
-  text: '',
-});
+  text: ''
+})
 
 const handleClick = () => {
-  createComment(form.text);
-  form.text = '';
-};
+  createComment(form.text)
+  form.text = ''
+}
 </script>
 
 <template>

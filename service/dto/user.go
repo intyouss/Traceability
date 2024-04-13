@@ -35,6 +35,10 @@ type User struct {
 	Signature string `json:"signature"`
 	// 是否关注
 	IsFocus bool `json:"is_focus"`
+	// 角色
+	Role *Role `json:"role"`
+	// 状态
+	Status uint `json:"status"`
 }
 
 type UserIncrease struct {
@@ -44,9 +48,21 @@ type UserIncrease struct {
 	Count uint `json:"count"`
 }
 
+// Role 角色
+type Role struct {
+	ID uint `json:"id"`
+	// 角色名
+	Name string `json:"name"`
+	// 角色描述
+	Desc string `json:"desc"`
+	// 状态
+	Status uint `json:"status"`
+}
+
 type UserLoginDto struct {
 	Username string `json:"username" form:"username" binding:"required" message:"username cannot be empty"`
 	Password string `json:"password" form:"password" binding:"required" message:"password cannot be empty"`
+	Admin    bool   `json:"admin" form:"admin"`
 }
 
 // UserAddDTO 用户添加数据传输对象
@@ -67,12 +83,15 @@ func (u *UserAddDTO) ToModel(user *models.User) {
 }
 
 type UserUpdateDTO struct {
+	UserID      uint   `json:"user_id" form:"user_id"`
 	Password    string `json:"password" form:"password"`
 	NewPassword string `json:"new_password" form:"new_password"`
 	AvatarUrl   string `json:"avatar_url" form:"avatar_url"`
 	Signature   string `json:"signature" form:"signature"`
 	Mobile      string `json:"mobile" form:"mobile"`
 	Email       string `json:"email" form:"email"`
+	Role        uint   `json:"role" form:"role"`
+	Status      uint   `json:"status" form:"status"`
 }
 
 type UploadAvatarDTO struct {
@@ -89,6 +108,8 @@ func (u *UserUpdateDTO) ToModel(user *models.User) {
 	user.Signature = u.Signature
 	user.Email = u.Email
 	user.Mobile = u.Mobile
+	user.Role = u.Role
+	user.Status = u.Status
 }
 
 type UserListDTO struct {
@@ -99,4 +120,25 @@ type UserListDTO struct {
 type UserIncreaseListDTO struct {
 	Year  uint `json:"year" form:"year" binding:"required" message:"year cannot be empty"`
 	Month uint `json:"month" form:"month" binding:"required" message:"month cannot be empty"`
+}
+
+type RoleListDTO struct {
+	Key string `json:"key" form:"key"`
+	CommonPageDTO
+}
+
+type RoleAddDTO struct {
+	Name string `json:"name" form:"name" binding:"required" message:"name cannot be empty"`
+	Desc string `json:"desc" form:"desc" binding:"required" message:"desc cannot be empty"`
+}
+
+type RoleUpdateDTO struct {
+	CommonIDDTO
+	Name   string `json:"name" form:"name"`
+	Desc   string `json:"desc" form:"desc"`
+	Status uint   `json:"status" form:"status"`
+}
+
+type RoleDeleteDTO struct {
+	IDs []uint `json:"ids" form:"ids" binding:"required" message:"ids cannot be empty"`
 }

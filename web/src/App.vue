@@ -1,32 +1,32 @@
 <script>
-export default {
-  created() {
-    if (sessionStorage.getItem('store')) {
-      this.$store.replaceState(
-          Object.assign(
-              {},
-              this.$store.state,
-              JSON.parse(sessionStorage.getItem('store')),
-          ),
-      );
-    }
-    window.addEventListener('beforeunload', ()=>{
-      sessionStorage.setItem('store', JSON.stringify(this.$store.state));
-    });
-  },
-};
 </script>
 <script setup>
-import {provide, nextTick, ref} from 'vue';
+import { provide, nextTick, ref } from 'vue'
+import { useStore } from 'vuex'
 
-const isRouterActive = ref(true);
+const store = useStore()
+
+if (sessionStorage.getItem('store')) {
+  store.replaceState(
+    Object.assign(
+      {},
+      store.state,
+      JSON.parse(sessionStorage.getItem('store'))
+    )
+  )
+}
+window.addEventListener('beforeunload', () => {
+  sessionStorage.setItem('store', JSON.stringify(this.$store.state))
+})
+
+const isRouterActive = ref(true)
 
 provide('reload', () => {
-  isRouterActive.value = false;
+  isRouterActive.value = false
   nextTick(() => {
-    isRouterActive.value = true;
-  });
-});
+    isRouterActive.value = true
+  })
+})
 
 </script>
 

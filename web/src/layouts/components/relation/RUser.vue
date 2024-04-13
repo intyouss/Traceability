@@ -1,21 +1,21 @@
 <script setup>
 
-import UAvatar from '~/layouts/components/user/UAvatar.vue';
-import {useRelation} from '~/composables/relationManager.js';
-import {onBeforeMount} from 'vue';
+import UAvatar from '~/layouts/components/user/UAvatar.vue'
+import { useRelation } from '~/composables/relationManager.js'
+import { onBeforeMount } from 'vue'
 
 const props = defineProps({
-  user: Object,
-});
+  user: Object
+})
 const {
   IsFocus,
   setFocus,
-  handleRelation,
-} = useRelation();
+  handleRelation
+} = useRelation()
 
 onBeforeMount(() => {
-  setFocus(props.user.is_focus);
-});
+  setFocus(props.user.is_focus)
+})
 </script>
 
 <template>

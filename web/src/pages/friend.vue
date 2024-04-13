@@ -1,16 +1,16 @@
 <script setup>
-import VPlayer from '~/layouts/components/video/VPlayer.vue';
-import {useVideoByPage} from '~/composables/videoManager.js';
-import {onBeforeMount} from 'vue';
+import VPlayer from '~/layouts/components/video/VPlayer.vue'
+import { useVideoByPage } from '~/composables/videoManager.js'
+import { onBeforeMount } from 'vue'
 
 const {
   Videos,
-  getFriendVideos,
-} = useVideoByPage();
+  getFriendVideos
+} = useVideoByPage()
 
 onBeforeMount(() => {
-  getFriendVideos();
-});
+  getFriendVideos()
+})
 </script>
 
 <template>

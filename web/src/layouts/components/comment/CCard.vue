@@ -1,13 +1,13 @@
 <script setup>
-import UAvatar from '~/layouts/components/user/UAvatar.vue';
+import UAvatar from '~/layouts/components/user/UAvatar.vue'
 
 const props = defineProps({
   avatar: String,
   userId: Number,
   username: String,
   content: String,
-  time: String,
-});
+  time: String
+})
 </script>
 
 <template>

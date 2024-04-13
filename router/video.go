@@ -6,7 +6,7 @@ import (
 )
 
 func InitVideoRoutes() {
-	RegisterRoute(func(dfGroup *gin.RouterGroup, auGroup *gin.RouterGroup) {
+	RegisterRoute(func(dfGroup *gin.RouterGroup, auGroup *gin.RouterGroup, adGroup *gin.RouterGroup) {
 		videoApi := api.NewVideoApi()
 		videoDefaultGroup := dfGroup.Group("video")
 		{
@@ -33,8 +33,15 @@ func InitVideoRoutes() {
 			videoAuthGroup.POST("/upload/abolish", videoApi.AbolishVideoUpload)
 			// 获取单个视频
 			videoAuthGroup.GET("/info", videoApi.GetVideoInfo)
+
+		}
+		// 后台系统功能
+		videoAdminGroup := adGroup.Group("video")
+		{
 			// 获取月总日视频发布数增长记录
-			videoAuthGroup.GET("/increase", videoApi.GetVideoIncrease)
+			videoAdminGroup.GET("/increase", videoApi.GetVideoIncrease)
+			// 获取视频总数
+			videoAdminGroup.GET("/total", videoApi.GetVideoTotal)
 		}
 	})
 }

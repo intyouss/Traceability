@@ -1,8 +1,7 @@
 import {
   publicAPI,
-  authAPI,
-} from '~/axios';
-
+  authAPI
+} from '~/axios'
 
 /**
  * 登录
@@ -10,21 +9,20 @@ import {
  * @param {string} password 密码
  * @return {Promise<AxiosResponse<any>>}
  */
-export function login(username, password) {
+export function login (username, password) {
   return publicAPI.post('/user/login', {
-    'username': username,
-    'password': password,
-  });
+    username,
+    password
+  })
 }
 
 /**
  * 退出登录
  * @return {Promise<AxiosResponse<any>>}
  */
-export function logout() {
-  return authAPI.post('/user/logout');
+export function logout () {
+  return authAPI.post('/user/logout')
 }
-
 
 /**
  * 注册
@@ -34,13 +32,13 @@ export function logout() {
  * @param {string} mobile 手机号
  * @return {Promise<AxiosResponse<any>>}
  */
-export function register(username, password, email = '', mobile = '') {
+export function register (username, password, email = '', mobile = '') {
   return publicAPI.post('/user/register', {
-    'username': username,
-    'password': password,
-    'email': email,
-    'mobile': mobile,
-  });
+    username,
+    password,
+    email,
+    mobile
+  })
 }
 
 /**
@@ -48,12 +46,12 @@ export function register(username, password, email = '', mobile = '') {
  * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getPublicInfo(userId) {
+export function getPublicInfo (userId) {
   return publicAPI.get('/public/user/', {
     params: {
-      'user_id': userId,
-    },
-  });
+      user_id: userId
+    }
+  })
 }
 
 /**
@@ -61,12 +59,12 @@ export function getPublicInfo(userId) {
  * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getInfo(userId) {
+export function getInfo (userId) {
   return authAPI.get('/user/', {
     params: {
-      'id': userId,
-    },
-  });
+      id: userId
+    }
+  })
 }
 
 /**
@@ -74,15 +72,15 @@ export function getInfo(userId) {
  * @param {Object} data
  * @return {Promise<AxiosResponse<any>>}
  */
-export function updateUser(data) {
+export function updateUser (data) {
   return authAPI.post('/user/update', {
-    'password': data.password,
-    'new_password': data.newPassword,
-    'signature': data.signature,
-    'email': data.email,
-    'mobile': data.mobile,
-    'avatar_url': data.avatarUrl,
-  });
+    password: data.password,
+    new_password: data.newPassword,
+    signature: data.signature,
+    email: data.email,
+    mobile: data.mobile,
+    avatar_url: data.avatarUrl
+  })
 }
 
 /**
@@ -90,14 +88,14 @@ export function updateUser(data) {
  * @param {Data} data
  * @return {Promise<AxiosResponse<any>>}
  */
-export function uploadAvatar(data) {
+export function uploadAvatar (data) {
   return authAPI.post('/user/upload/avatar', {
-    'avatar_data': data,
+    avatar_data: data
   }, {
     headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+      'Content-Type': 'multipart/form-data'
+    }
+  })
 }
 
 /**
@@ -105,10 +103,10 @@ export function uploadAvatar(data) {
  * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function abolishAvatar(userId) {
+export function abolishAvatar (userId) {
   return authAPI.post('/user/upload/avatar/abolish', {
-    'user_id': userId,
-  });
+    user_id: userId
+  })
 }
 
 /**
@@ -116,10 +114,10 @@ export function abolishAvatar(userId) {
  * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function deleteUser(userId) {
+export function deleteUser (userId) {
   return authAPI.post('/user/delete', {
-    'user_id': userId,
-  });
+    user_id: userId
+  })
 }
 
 /**
@@ -129,14 +127,14 @@ export function deleteUser(userId) {
  * @param {Number} limit
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getPublicUserSearch(key, page = 0, limit = 0) {
+export function getPublicUserSearch (key, page = 0, limit = 0) {
   return publicAPI.get('/user/list', {
     params: {
-      'key': key,
-      'page': page,
-      'limit': limit,
-    },
-  });
+      key,
+      page,
+      limit
+    }
+  })
 }
 
 /**
@@ -146,12 +144,12 @@ export function getPublicUserSearch(key, page = 0, limit = 0) {
  * @param {Number} limit
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getAuthUserSearch(key, page = 0, limit = 0) {
+export function getAuthUserSearch (key, page = 0, limit = 0) {
   return authAPI.get('/user/list', {
     params: {
-      'key': key,
-      'page': page,
-      'limit': limit,
-    },
-  });
+      key,
+      page,
+      limit
+    }
+  })
 }

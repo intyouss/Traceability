@@ -1,17 +1,17 @@
 <script setup>
 import {
-  reactive, ref, watch,
-} from 'vue';
+  reactive, ref, watch
+} from 'vue'
 import SwiperCore, {
   Navigation,
-  Mousewheel,
-} from 'swiper';
-import {Swiper, SwiperSlide} from 'swiper/vue';
-SwiperCore.use([Mousewheel, Navigation]);
-import 'swiper/swiper-bundle.css';
-import VFooter from '~/layouts/components/video/VFooter.vue';
-import VSideBar from '~/layouts/components/video/VSideBar.vue';
-import CDrawer from '~/layouts/components/comment/CDrawer.vue';
+  Mousewheel
+} from 'swiper'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import 'swiper/swiper-bundle.css'
+import VFooter from '~/layouts/components/video/VFooter.vue'
+import VSideBar from '~/layouts/components/video/VSideBar.vue'
+import CDrawer from '~/layouts/components/comment/CDrawer.vue'
+SwiperCore.use([Mousewheel, Navigation])
 
 const swiperOption = reactive({
   slidesPerView: 1,
@@ -20,35 +20,35 @@ const swiperOption = reactive({
   thresholdTime: 700,
   navigation: {
     nextEl: '.swiper-button-next',
-    prevEl: '.swiper-button-prev',
-  },
-});
+    prevEl: '.swiper-button-prev'
+  }
+})
 const props = defineProps({
   sideBarDisplay: String,
-  videos: ref([]),
-});
+  videos: ref([])
+})
 
-const Videos = ref(props.videos);
+const Videos = ref(props.videos)
 
 watch(() => props.videos, (val) => {
-  Videos.value = val;
-});
+  Videos.value = val
+})
 
-const openComment = ref([]);
+const openComment = ref([])
 const handleClick = (val, index) => {
   if (val === 'true') {
-    openComment.value[index] = !openComment.value[index];
+    openComment.value[index] = !openComment.value[index]
   }
-};
+}
 const handleClose = (val, index) => {
   if (val === 'close') {
-    openComment.value[index] = false;
+    openComment.value[index] = false
   }
-};
+}
 
 const setWidth = (index) => {
-  return openComment.value[index] ? 'calc(100% - 336px)' : '100%';
-};
+  return openComment.value[index] ? 'calc(100% - 336px)' : '100%'
+}
 
 </script>
 

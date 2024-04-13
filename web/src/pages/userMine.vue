@@ -1,74 +1,74 @@
 <script setup>
-import {onBeforeMount, watch} from 'vue';
-import VUserCard from '~/layouts/components/video/VUserCard.vue';
-import {useVideoByOther} from '~/composables/videoManager.js';
-import {useUserByOther} from '~/composables/userManager.js';
-import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
-import {useRoute} from 'vue-router';
-import {useRelation} from '~/composables/relationManager.js';
-import {useMessageDialog} from '~/composables/messageManager.js';
-import MDialog from '~/layouts/components/message/MDialog.vue';
-import {useStore} from 'vuex';
-const route = useRoute();
-const store = useStore();
+import { onBeforeMount, watch } from 'vue'
+import VUserCard from '~/layouts/components/video/VUserCard.vue'
+import { useVideoByOther } from '~/composables/videoManager.js'
+import { useUserByOther } from '~/composables/userManager.js'
+import DefaultAvatar from '~/assets/icon/default_avatar.jpg'
+import { useRoute } from 'vue-router'
+import { useRelation } from '~/composables/relationManager.js'
+import { useMessageDialog } from '~/composables/messageManager.js'
+import MDialog from '~/layouts/components/message/MDialog.vue'
+import { useStore } from 'vuex'
+const route = useRoute()
+const store = useStore()
 const {
   Videos,
-  getVideos,
-} = useVideoByOther();
+  getVideos
+} = useVideoByOther()
 const {
   User,
-  getUserInfo,
-} = useUserByOther();
+  getUserInfo
+} = useUserByOther()
 const {
   Message,
   MessageOpen,
-  MessageClose,
-} = useMessageDialog();
+  MessageClose
+} = useMessageDialog()
 
 const handleClick = (tab) => {
   if (tab.props.name !== '作品' && route.params.id !== store.state.user.id) {
-    return Videos.value = [];
+    return Videos.value = []
   }
-  getVideos(tab.props.name, route.params.id);
-};
+  getVideos(tab.props.name, route.params.id)
+}
 
 watch(() => route.params.id, (value) => {
   if (!value) {
-    return;
+    return
   }
-  getVideos('作品', value);
-  getUserInfo(value);
-});
+  getVideos('作品', value)
+  getUserInfo(value)
+})
 
 onBeforeMount(async () => {
-  getVideos('作品', route.params.id);
-  getUserInfo(route.params.id);
-});
+  getVideos('作品', route.params.id)
+  getUserInfo(route.params.id)
+})
 
 const {
   IsFocus,
   setFocus,
-  handleRelation,
-} = useRelation();
+  handleRelation
+} = useRelation()
 
 const count = (name) => {
   if (name === '作品') {
-    return User.value.video_count;
+    return User.value.video_count
   } else if (name === '喜爱') {
-    return User.value.like_count;
+    return User.value.like_count
   }
-  return User.value.collect_count;
-};
+  return User.value.collect_count
+}
 
-const tagList = ['作品', '喜爱', '收藏'];
+const tagList = ['作品', '喜爱', '收藏']
 
 const isDefaultAvatar = () => {
-  return User.value.avatar === '' ? DefaultAvatar : User.value.avatar;
-};
+  return User.value.avatar === '' ? DefaultAvatar : User.value.avatar
+}
 
 watch(() => User.value, (value) => {
-  setFocus(value.is_focus);
-});
+  setFocus(value.is_focus)
+})
 </script>
 
 <template>

@@ -2,23 +2,22 @@
 
 import {
   useLogout,
-  useRePassword,
-} from '~/composables/useManager.js';
-import {ref} from 'vue';
-import {Search} from '@element-plus/icons-vue';
-import {getToken} from '~/composables/auth.js';
-import {useRoute, useRouter} from 'vue-router';
-import {inject} from 'vue';
-import UAvatar from '~/layouts/components/user/UAvatar.vue';
-import MDialog from '~/layouts/components/message/MDialog.vue';
-import {useMessageDialog} from '~/composables/messageManager.js';
-import VUploadDialog from '~/layouts/components/video/VUploadDialog.vue';
-import {useVideoUploadDialog} from '~/composables/videoManager.js';
-const reload = inject('reload');
+  useRePassword
+} from '~/composables/useManager.js'
+import { ref, inject } from 'vue'
+import { Search } from '@element-plus/icons-vue'
+import { getToken } from '~/composables/auth.js'
+import { useRoute, useRouter } from 'vue-router'
+import UAvatar from '~/layouts/components/user/UAvatar.vue'
+import MDialog from '~/layouts/components/message/MDialog.vue'
+import { useMessageDialog } from '~/composables/messageManager.js'
+import VUploadDialog from '~/layouts/components/video/VUploadDialog.vue'
+import { useVideoUploadDialog } from '~/composables/videoManager.js'
+const reload = inject('reload')
 
-const router = useRouter();
-const route = useRoute();
-const {handleLogout} = useLogout();
+const router = useRouter()
+const route = useRoute()
+const { handleLogout } = useLogout()
 const {
   rePasswordForm,
   rePasswordFormOpen,
@@ -27,45 +26,45 @@ const {
   form,
   rules,
   formRef,
-  onSubmit,
-} = useRePassword();
+  onSubmit
+} = useRePassword()
 const {
   Message,
   MessageOpen,
-  MessageClose,
-} = useMessageDialog();
+  MessageClose
+} = useMessageDialog()
 const {
   Upload,
   UploadOpen,
-  UploadClose,
-} = useVideoUploadDialog();
+  UploadClose
+} = useVideoUploadDialog()
 const handleRefresh = () => {
-  reload();
-};
+  reload()
+}
 
-const key = ref('');
-const enKey = ref('');
+const key = ref('')
+const enKey = ref('')
 
-const showSearch = ref(false);
+const showSearch = ref(false)
 
 const handleSearch = () => {
   if (showSearch.value) {
-    key.value = '';
-    return showSearch.value = false;
+    key.value = ''
+    return showSearch.value = false
   }
-  showSearch.value = true;
-};
+  showSearch.value = true
+}
 
 const search = () => {
   if (key.value === '') {
-    return;
+    return
   }
   if (key.value === enKey.value && route.path === '/search') {
-    return;
+    return
   }
-  router.push({path: '/search', query: {key: key.value}});
-  enKey.value = key.value;
-};
+  router.push({ path: '/search', query: { key: key.value } })
+  enKey.value = key.value
+}
 // onBeforeMount(() => {
 //   console.log(store.state.user);
 // });

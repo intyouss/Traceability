@@ -16,6 +16,11 @@ const (
 	ErrCodeAbolishAvatarUpload
 	ErrCodeLogin
 	ErrCodeGetUserIncrease
+	ErrCodeGetRoleList
+	ErrCodeAddRole
+	ErrCodeDeleteRole
+	ErrCodeUpdateRole
+	ErrCodeGetUserTotal
 )
 
 type UserApi struct {
@@ -35,6 +40,7 @@ func NewUserApi() UserApi {
 // @Description 用户登录
 // @Param username formData string true "用户名"
 // @Param password formData string true "密码"
+// @Param admin formData bool false "管理员登录"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Failure 401 {string} Response
@@ -151,6 +157,17 @@ func (u UserApi) GetUserInfo(ctx *gin.Context) {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/user/list [get]
+
+// GetUserList 获取用户列表
+// @Summary 获取用户列表
+// @Description 获取用户列表
+// @Param token header string true "token"
+// @Param key query string false "关键字"
+// @Param page query int false "页码"
+// @Param limit query int false "每页数量"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/admin/user/list [get]
 func (u UserApi) GetUserList(ctx *gin.Context) {
 	var userListDto dto.UserListDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &userListDto}).GetError(); err != nil {
@@ -192,6 +209,15 @@ func (u UserApi) GetUserList(ctx *gin.Context) {
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/user/update [post]
+
+// UpdateUser 更新用户信息
+// @Summary 更新用户信息
+// @Description 更新用户信息
+// @Param role formData int false "角色"
+// @Param status formData int false "状态"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/admin/user/update [post]
 func (u UserApi) UpdateUser(ctx *gin.Context) {
 	var updateDTO dto.UserUpdateDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &updateDTO}).GetError(); err != nil {
@@ -260,29 +286,6 @@ func (u UserApi) AbolishAvatarUpload(ctx *gin.Context) {
 	u.Success(&Response{})
 }
 
-// DeleteUser 删除用户
-// @Summary 删除用户
-// @Description 删除用户
-// @Param token header string true "token"
-// @Param user_id formData int true "用户id"
-// @Success 200 {string} Response
-// @Failure 400 {string} Response
-// @Router /api/v1/user/delete [post]
-func (u UserApi) DeleteUser(ctx *gin.Context) {
-	var idDTO dto.CommonIDDTO
-	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDTO}).GetError(); err != nil {
-		u.Fail(&Response{Code: ErrCodeDeleteUser, Msg: err.Error()})
-		return
-	}
-
-	err := u.Service.DeleteUserById(ctx, &idDTO)
-	if err != nil {
-		u.Fail(&Response{Code: ErrCodeDeleteUser, Msg: err.Error()})
-		return
-	}
-	u.Success(&Response{})
-}
-
 // GetUserIncrease 获取月总日用户增长记录列表
 // @Summary 获取月总日用户增长记录列表
 // @Description 获取月总日用户增长记录列表
@@ -291,7 +294,7 @@ func (u UserApi) DeleteUser(ctx *gin.Context) {
 // @Param month query string true "月份"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/user/increase [get]
+// @Router /api/v1/admin/user/increase [get]
 func (u UserApi) GetUserIncrease(ctx *gin.Context) {
 	var list dto.UserIncreaseListDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &list}).GetError(); err != nil {
@@ -307,6 +310,167 @@ func (u UserApi) GetUserIncrease(ctx *gin.Context) {
 	u.Success(&Response{
 		Data: gin.H{
 			"user_increase_list": c,
+		},
+	})
+}
+
+// GetRoleList 获取角色列表
+// @Summary 获取角色列表
+// @Description 获取角色列表
+// @Param token header string true "token"
+// @Param key query string false "关键字"
+// @Param page query int false "页码"
+// @Param limit query int false "每页数量"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/admin/user/role/list [get]
+func (u UserApi) GetRoleList(ctx *gin.Context) {
+	var list dto.RoleListDTO
+	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &list}).GetError(); err != nil {
+		u.Fail(&Response{Code: ErrCodeGetRoleList, Msg: err.Error()})
+		return
+	}
+
+	c, total, err := u.Service.GetRoles(ctx, &list)
+	if err != nil {
+		u.Fail(&Response{Code: ErrCodeGetRoleList, Msg: err.Error()})
+		return
+	}
+	if len(c) == 0 {
+		u.Success(&Response{
+			Data: gin.H{
+				"roles": []*dto.Role{},
+			},
+		})
+		return
+	}
+	u.Success(&Response{
+		Data: gin.H{
+			"roles": c,
+		},
+		Total: total,
+	})
+}
+
+// AddRole 添加角色
+// @Summary 添加角色
+// @Description 添加角色
+// @Param token header string true "token"
+// @Param name formData string true "角色名"
+// @Param desc formData string true "角色描述"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/admin/user/role/add [post]
+func (u UserApi) AddRole(ctx *gin.Context) {
+	var roleDTO dto.RoleAddDTO
+	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &roleDTO}).GetError(); err != nil {
+		u.Fail(&Response{Code: ErrCodeAddRole, Msg: err.Error()})
+		return
+	}
+
+	err := u.Service.AddRole(ctx, &roleDTO)
+	if err != nil {
+		u.Fail(&Response{Code: ErrCodeAddRole, Msg: err.Error()})
+		return
+	}
+
+	u.Success(&Response{})
+}
+
+// DeleteRole 删除角色
+// @Summary 删除角色
+// @Description 删除角色
+// @Param token header string true "token"
+// @Param role_id formData int true "角色id"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/admin/user/role/delete [post]
+func (u UserApi) DeleteRole(ctx *gin.Context) {
+	var delDTO dto.RoleDeleteDTO
+	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &delDTO}).GetError(); err != nil {
+		u.Fail(&Response{Code: ErrCodeDeleteRole, Msg: err.Error()})
+		return
+	}
+
+	err := u.Service.DeleteRole(ctx, &delDTO)
+	if err != nil {
+		u.Fail(&Response{Code: ErrCodeDeleteRole, Msg: err.Error()})
+		return
+	}
+	u.Success(&Response{})
+}
+
+// UpdateRole 更新角色
+// @Summary 更新角色
+// @Description 更新角色
+// @Param token header string true "token"
+// @Param role_id formData int true "角色id"
+// @Param name formData string false "角色名"
+// @Param desc formData string false "角色描述"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/admin/user/role/update [post]
+func (u UserApi) UpdateRole(ctx *gin.Context) {
+	var updateDTO dto.RoleUpdateDTO
+	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &updateDTO}).GetError(); err != nil {
+		u.Fail(&Response{Code: ErrCodeUpdateRole, Msg: err.Error()})
+		return
+	}
+
+	err := u.Service.UpdateRole(ctx, &updateDTO)
+	if err != nil {
+		u.Fail(&Response{Code: ErrCodeUpdateRole, Msg: err.Error()})
+		return
+	}
+	u.Success(&Response{})
+}
+
+// 添加用户
+
+// DeleteUser 删除用户
+// @Summary 删除用户
+// @Description 删除用户
+// @Param token header string true "token"
+// @Param user_id formData int true "用户id"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/admin/user/delete [post]
+func (u UserApi) DeleteUser(ctx *gin.Context) {
+	var idDTO dto.CommonIDDTO
+	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDTO}).GetError(); err != nil {
+		u.Fail(&Response{Code: ErrCodeDeleteUser, Msg: err.Error()})
+		return
+	}
+
+	err := u.Service.DeleteUserById(ctx, &idDTO)
+	if err != nil {
+		u.Fail(&Response{Code: ErrCodeDeleteUser, Msg: err.Error()})
+		return
+	}
+	u.Success(&Response{})
+}
+
+// GetUserTotal 获取用户总数
+// @Summary 获取用户总数
+// @Description 获取用户总数
+// @Param token header string true "token"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/admin/user/total [get]
+func (u UserApi) GetUserTotal(c *gin.Context) {
+	if err := u.BuildRequest(BuildRequestOption{Ctx: c}).GetError(); err != nil {
+		u.Fail(&Response{Code: ErrCodeGetUserTotal, Msg: err.Error()})
+		return
+	}
+
+	total, err := u.Service.GetUserTotal(c)
+	if err != nil {
+		u.Fail(&Response{Code: ErrCodeGetUserTotal, Msg: err.Error()})
+		return
+	}
+	u.Success(&Response{
+		Data: gin.H{
+			"total": total,
 		},
 	})
 }

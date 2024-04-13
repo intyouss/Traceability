@@ -42,7 +42,11 @@ func (u *UserService) Login(ctx context.Context, userDTO dto.UserLoginDto) (*dto
 		return nil, "", errors.New("invalid username or password")
 	} else {
 		// 生成token
-		token, err = utils.GenerateToken(userDao.ID, userDao.Username)
+		// TODO: 暂时使用数据库ID作为RoleID
+		if userDTO.Admin && userDao.Role != 2 {
+			return nil, "", errors.New("permission denied")
+		}
+		token, err = utils.GenerateToken(userDao.ID, userDao.Username, userDao.Role)
 		if err != nil {
 			return nil, "", fmt.Errorf("generate token error: %s", err.Error())
 		}
@@ -79,7 +83,7 @@ func (u *UserService) Register(ctx context.Context, userAddDTO *dto.UserAddDTO) 
 		}
 	}
 	// 生成token
-	token, err = utils.GenerateToken(*userAddDTO.ID, userAddDTO.Username)
+	token, err = utils.GenerateToken(*userAddDTO.ID, userAddDTO.Username, userDao.Role)
 	if err != nil {
 		return nil, "", fmt.Errorf("generate token error: %s", err.Error())
 	}
@@ -142,6 +146,27 @@ func (u *UserService) GetUserList(
 	if len(usersDao) == 0 {
 		return nil, 0, nil
 	}
+	role := ctx.Value(global.LoginUser).(models.LoginUser).Role
+	// TODO: 暂时使用数据库ID作为RoleID
+	if role == 2 {
+		var users = make([]*dto.User, 0, len(usersDao))
+		for _, user := range usersDao {
+			var userDTO = new(dto.User)
+			_ = copier.Copy(&userDTO, &user)
+			ok, userRole, err := u.Dao.GetRoleById(ctx, user.Role)
+			if err != nil {
+				return nil, 0, err
+			}
+			if !ok {
+				return nil, 0, errors.New("role not find")
+			}
+			var userRoleDTO = new(dto.Role)
+			_ = copier.Copy(&userRoleDTO, &userRole)
+			userDTO.Role = userRoleDTO
+			users = append(users, userDTO)
+		}
+		return users, total, nil
+	}
 	for _, user := range usersDao {
 		if user.Avatar == "" {
 			continue
@@ -202,7 +227,12 @@ func (u *UserService) UpdateAvatar(ctx context.Context, user *models.User) error
 
 // UpdateUser 更新用户信息
 func (u *UserService) UpdateUser(ctx context.Context, updateDTO *dto.UserUpdateDTO) error {
+	role := ctx.Value(global.LoginUser).(models.LoginUser).Role
 	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
+	// TODO: 暂时使用数据库ID作为RoleID
+	if role == 2 {
+		userId = updateDTO.UserID
+	}
 	userDao, err := u.Dao.GetUserById(ctx, userId)
 	if err != nil {
 		return err
@@ -261,4 +291,67 @@ func (u *UserService) GetUserIncrease(
 	var userIncreaseList = make([]*dto.UserIncrease, 0, len(list))
 	_ = copier.Copy(&userIncreaseList, &list)
 	return userIncreaseList, nil
+}
+
+// GetRoles 获取角色列表
+func (u *UserService) GetRoles(
+	ctx context.Context, roleDTO *dto.RoleListDTO,
+) ([]*dto.Role, int64, error) {
+	var roleDao []*models.Role
+	var total int64
+	var err error
+	if roleDTO.Key == "" {
+		roleDao, total, err = u.Dao.GetRoleList(ctx, roleDTO)
+		if err != nil {
+			return nil, 0, err
+		}
+	} else {
+		roleDao, total, err = u.Dao.GetRoleListBySearch(ctx, roleDTO)
+		if err != nil {
+			return nil, 0, err
+		}
+	}
+
+	if len(roleDao) == 0 {
+		return nil, 0, nil
+	}
+
+	var roles = make([]*dto.Role, 0, len(roleDao))
+	_ = copier.Copy(&roles, &roleDao)
+	return roles, total, nil
+}
+
+// AddRole 添加角色
+func (u *UserService) AddRole(ctx context.Context, roleDTO *dto.RoleAddDTO) error {
+	ok, _, err := u.Dao.FindRoleByName(ctx, roleDTO.Name)
+	if err != nil {
+		return err
+	}
+	if ok {
+		return errors.New("role name already exists")
+	}
+	return u.Dao.AddRole(ctx, roleDTO.Name, roleDTO.Desc)
+}
+
+// DeleteRole 删除角色
+func (u *UserService) DeleteRole(ctx context.Context, idsDTO *dto.RoleDeleteDTO) error {
+	return u.Dao.DeleteRoleById(ctx, idsDTO.IDs)
+}
+
+// UpdateRole 更新角色
+func (u *UserService) UpdateRole(ctx context.Context, updateDTO *dto.RoleUpdateDTO) error {
+	ok, userDao, err := u.Dao.FindRoleById(ctx, *updateDTO.ID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New("role is not find")
+	}
+	_ = copier.Copy(&userDao, &updateDTO)
+	return u.Dao.UpdateRole(ctx, userDao)
+}
+
+// GetUserTotal 获取用户总数
+func (u *UserService) GetUserTotal(ctx context.Context) (int64, error) {
+	return u.Dao.GetUserTotalCount(ctx)
 }

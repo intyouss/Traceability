@@ -6,7 +6,7 @@ import (
 )
 
 func InitCommentRoutes() {
-	RegisterRoute(func(dfGroup *gin.RouterGroup, auGroup *gin.RouterGroup) {
+	RegisterRoute(func(dfGroup *gin.RouterGroup, auGroup *gin.RouterGroup, adGroup *gin.RouterGroup) {
 		commentApi := api.NewCommentApi()
 		commentDefaultGroup := dfGroup.Group("comment")
 		{

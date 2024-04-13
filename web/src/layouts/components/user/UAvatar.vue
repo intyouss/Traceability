@@ -1,24 +1,24 @@
 <script setup>
-import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
-import {useRouter} from 'vue-router';
+import DefaultAvatar from '~/assets/icon/default_avatar.jpg'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   userId: Number,
   avatar: String,
-  mine: Boolean,
-});
+  mine: Boolean
+})
 
-const router = useRouter();
+const router = useRouter()
 
-const handleClick = (id=0) => {
+const handleClick = (id = 0) => {
   if (props.mine) {
-    return router.replace('/mine');
+    return router.replace('/mine')
   }
   if (id === 0) {
-    return;
+    return
   }
-  router.replace('/user/' + id);
-};
+  router.replace('/user/' + id)
+}
 
 </script>
 

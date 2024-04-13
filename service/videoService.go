@@ -543,3 +543,8 @@ func (v *VideoService) GetVideoIncrease(
 	_ = copier.Copy(&IncreaseList, &list)
 	return IncreaseList, nil
 }
+
+// GetVideoTotal 获取视频总数
+func (v *VideoService) GetVideoTotal(ctx context.Context) (int64, error) {
+	return v.Dao.GetVideoTotalCount(ctx)
+}

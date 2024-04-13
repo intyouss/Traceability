@@ -1,29 +1,29 @@
 <script setup>
 
-import CDrawer from '~/layouts/components/comment/CDrawer.vue';
-import VFooter from '~/layouts/components/video/VFooter.vue';
-import VSideBar from '~/layouts/components/video/VSideBar.vue';
-import {ref} from 'vue';
+import CDrawer from '~/layouts/components/comment/CDrawer.vue'
+import VFooter from '~/layouts/components/video/VFooter.vue'
+import VSideBar from '~/layouts/components/video/VSideBar.vue'
+import { ref } from 'vue'
 
-const enableComment = ref(false);
+const enableComment = ref(false)
 const handleClick = (val) => {
   if (val === 'true') {
-    enableComment.value = !enableComment.value;
+    enableComment.value = !enableComment.value
   }
-};
+}
 const handleClose = (val) => {
   if (val === 'close') {
-    enableComment.value = false;
+    enableComment.value = false
   }
-};
+}
 
 const width = () => {
-  return enableComment.value ? 'calc(100% - 336px)' : '100%';
-};
+  return enableComment.value ? 'calc(100% - 336px)' : '100%'
+}
 
 const props = defineProps({
-  video: Object,
-});
+  video: Object
+})
 </script>
 
 <template>

@@ -1,6 +1,6 @@
 import {
-  authAPI,
-} from '~/axios';
+  authAPI
+} from '~/axios'
 
 /**
  * 关注/取关
@@ -8,11 +8,11 @@ import {
  * @param {Number} actionType
  * @return {Promise<AxiosResponse<any>>}
  */
-export function relationAction(userId, actionType) {
+export function relationAction (userId, actionType) {
   return authAPI.post('/relation/action', {
-    'user_id': userId,
-    'action_type': actionType,
-  });
+    user_id: userId,
+    action_type: actionType
+  })
 }
 
 /**
@@ -20,10 +20,12 @@ export function relationAction(userId, actionType) {
  * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getFocusList(userId) {
-  return authAPI.get('/relation/focus/list', {params: {
-    'user_id': userId,
-  }});
+export function getFocusList (userId) {
+  return authAPI.get('/relation/focus/list', {
+    params: {
+      user_id: userId
+    }
+  })
 }
 
 /**
@@ -31,8 +33,10 @@ export function getFocusList(userId) {
  * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getFansList(userId) {
-  return authAPI.get('/relation/fans/list', {params: {
-    'user_id': userId,
-  }});
+export function getFansList (userId) {
+  return authAPI.get('/relation/fans/list', {
+    params: {
+      user_id: userId
+    }
+  })
 }

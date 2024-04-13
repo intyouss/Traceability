@@ -10,7 +10,7 @@ import (
 var SystemServiceIns *SystemService
 
 type SystemService struct {
-	BaseService *BaseService
+	*BaseService
 }
 
 func NewSystemService() *SystemService {
@@ -28,8 +28,7 @@ func (s *SystemService) GetCpuUsage(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	//
-	a := fmt.Sprintf("%.2f%%", usage)
+	a := fmt.Sprintf("%.2f", usage)
 	return a, nil
 }
 
@@ -39,6 +38,6 @@ func (s *SystemService) GetMemoryUsage(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	a := fmt.Sprintf("%.2f%%", usage)
+	a := fmt.Sprintf("%.2f", usage)
 	return a, nil
 }

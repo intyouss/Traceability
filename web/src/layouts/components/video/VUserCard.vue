@@ -1,16 +1,16 @@
 <script setup>
-import VVideo from '~/layouts/components/video/VVideo.vue';
-import {ref} from 'vue';
+import VVideo from '~/layouts/components/video/VVideo.vue'
+import { ref } from 'vue'
 
 const props = defineProps({
-  video: Object,
-});
+  video: Object
+})
 
-const Open = ref(false);
+const Open = ref(false)
 
 const OpenScreen = () => {
-  Open.value = true;
-};
+  Open.value = true
+}
 </script>
 
 <template>

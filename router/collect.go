@@ -6,7 +6,7 @@ import (
 )
 
 func InitCollectRoutes() {
-	RegisterRoute(func(dfGroup *gin.RouterGroup, auGroup *gin.RouterGroup) {
+	RegisterRoute(func(dfGroup *gin.RouterGroup, auGroup *gin.RouterGroup, adGroup *gin.RouterGroup) {
 		collectApi := api.NewCollectApi()
 		collectAuthGroup := auGroup.Group("collect")
 		{

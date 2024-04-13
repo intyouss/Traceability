@@ -4,10 +4,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/intyouss/Traceability/models"
+
 	"github.com/gin-gonic/gin"
 	"github.com/intyouss/Traceability/api"
 	"github.com/intyouss/Traceability/global"
-	"github.com/intyouss/Traceability/models"
 	"github.com/intyouss/Traceability/utils"
 	"github.com/spf13/viper"
 )
@@ -45,17 +46,17 @@ func Auth() func(c *gin.Context) {
 		if claims.ExpiresAt.Time.Before(time.Now().Add(
 			viper.GetDuration("jwt.tokenExpire")*time.Minute + 20*time.Minute),
 		) {
-			newToken, err := utils.GenerateToken(claims.ID, claims.Name)
+			newToken, err := utils.GenerateToken(claims.ID, claims.Name, claims.RoleID)
 			if err != nil {
 				tokenError(c, ErrCodeTokenRenew)
 				return
 			}
 			c.Header("token", newToken)
 		}
-
 		c.Set(global.LoginUser, models.LoginUser{
 			ID:       claims.ID,
 			Username: claims.Name,
+			Role:     claims.RoleID,
 		})
 		c.Next()
 	}

@@ -1,37 +1,36 @@
 <script setup>
-import {onBeforeMount, ref} from 'vue';
-import VPlayer from '~/layouts/components/video/VPlayer.vue';
-import {useUserByOwner} from '~/composables/userManager.js';
-import UAvatar from '~/layouts/components/user/UAvatar.vue';
-import {useVideoByPage} from '~/composables/videoManager.js';
-import {useVideoByOther} from '~/composables/videoManager.js';
+import { onBeforeMount, ref } from 'vue'
+import VPlayer from '~/layouts/components/video/VPlayer.vue'
+import { useUserByOwner } from '~/composables/userManager.js'
+import UAvatar from '~/layouts/components/user/UAvatar.vue'
+import { useVideoByPage, useVideoByOther } from '~/composables/videoManager.js'
 
 const {
   Users,
-  getUserFocusList,
-} = useUserByOwner();
+  getUserFocusList
+} = useUserByOwner()
 
 const {
   Videos: userVideos,
-  getPublishVideos,
-} = useVideoByOther();
+  getPublishVideos
+} = useVideoByOther()
 
 const {
   Videos,
-  getFocusVideos,
-} = useVideoByPage();
+  getFocusVideos
+} = useVideoByPage()
 
 onBeforeMount(() => {
-  getUserFocusList();
-  getFocusVideos();
-});
+  getUserFocusList()
+  getFocusVideos()
+})
 
-const activeIndex = ref(null);
+const activeIndex = ref(null)
 
 const handleClick = (index, userId) => {
-  activeIndex.value = index;
-  getPublishVideos(userId);
-};
+  activeIndex.value = index
+  getPublishVideos(userId)
+}
 </script>
 
 <template>

@@ -1,24 +1,24 @@
 <script setup>
-import {reactive, ref, watch} from 'vue';
-import {useVideoUpload} from '~/composables/videoManager.js';
-import {notify} from '~/composables/util.js';
+import { reactive, ref, watch } from 'vue'
+import { useVideoUpload } from '~/composables/videoManager.js'
+import { notify } from '~/composables/util.js'
 
 const props = defineProps({
   open: Boolean,
-  close: Function,
-});
+  close: Function
+})
 
-const Open = ref(props.open);
+const Open = ref(props.open)
 watch(() => props.open, (value) => {
-  Open.value = value;
-});
+  Open.value = value
+})
 
-const fileListByVideo = ref([]);
-const fileListByImage = ref([]);
+const fileListByVideo = ref([])
+const fileListByImage = ref([])
 
 const form = reactive({
-  title: '',
-});
+  title: ''
+})
 
 const {
   PlayUrl,
@@ -26,75 +26,75 @@ const {
   uploadAbolish,
   videoPublish,
   videoUpload,
-  imageUpload,
-} = useVideoUpload();
+  imageUpload
+} = useVideoUpload()
 
-const ImageLoading = ref(false);
-const VideoLoading = ref(false);
+const ImageLoading = ref(false)
+const VideoLoading = ref(false)
 
 const HttpRequestByImage = (param) => {
-  ImageLoading.value = true;
-  const coverImageFile = param.file;
-  imageUpload(form.title, coverImageFile);
-  ImageLoading.value = false;
-};
+  ImageLoading.value = true
+  const coverImageFile = param.file
+  imageUpload(form.title, coverImageFile)
+  ImageLoading.value = false
+}
 
 const HttpRequestByVideo = (param) => {
-  VideoLoading.value = true;
-  const file = param.file;
-  videoUpload(form.title, file);
-  VideoLoading.value = false;
-};
+  VideoLoading.value = true
+  const file = param.file
+  videoUpload(form.title, file)
+  VideoLoading.value = false
+}
 
 const Publish = (title, playUrl, coverUrl) => {
   if (ImageLoading.value || VideoLoading.value) {
-    notify('正在上传中，请稍后', 'warning');
+    notify('正在上传中，请稍后', 'warning')
   } else if (title === '') {
-    notify('请填写作品描述', 'warning');
+    notify('请填写作品描述', 'warning')
   } else if (playUrl === '' && coverUrl === '') {
-    notify('请上传视频和封面', 'warning');
+    notify('请上传视频和封面', 'warning')
   } else if (playUrl === '') {
-    notify('请上传视频', 'warning');
+    notify('请上传视频', 'warning')
   } else if (coverUrl === '') {
-    notify('请上传封面', 'warning');
+    notify('请上传封面', 'warning')
   } else {
-    videoPublish(title, playUrl, coverUrl);
-    notify('发布成功', 'success');
-    form.title = '';
-    props.close();
+    videoPublish(title, playUrl, coverUrl)
+    notify('发布成功', 'success')
+    form.title = ''
+    props.close()
   }
-};
+}
 
 const Abolish = (title) => {
   if (ImageLoading.value || VideoLoading.value) {
-    notify('正在上传中，请稍后', 'warning');
+    notify('正在上传中，请稍后', 'warning')
   } else if (title === '') {
-    props.close();
+    props.close()
   } else if (PlayUrl === '' && CoverUrl === '') {
-    props.close();
-    form.title = '';
+    props.close()
+    form.title = ''
   } else if (PlayUrl === '') {
-    uploadAbolish(title, 2);
-    props.close();
-    form.title = '';
+    uploadAbolish(title, 2)
+    props.close()
+    form.title = ''
   } else if (CoverUrl === '') {
-    uploadAbolish(title, 3);
-    form.title = '';
-    props.close();
+    uploadAbolish(title, 3)
+    form.title = ''
+    props.close()
   } else {
-    uploadAbolish(title, 1);
-    form.title = '';
-    props.close();
+    uploadAbolish(title, 1)
+    form.title = ''
+    props.close()
   }
-};
+}
 
 const imageListChange = (file, fileList) => {
-  fileListByImage.value = fileList;
-};
+  fileListByImage.value = fileList
+}
 
 const videoListChange = (file, fileList) => {
-  fileListByVideo.value = fileList;
-};
+  fileListByVideo.value = fileList
+}
 </script>
 <template>
   <div>

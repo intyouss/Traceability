@@ -1,7 +1,7 @@
 import {
   publicAPI,
-  authAPI,
-} from '~/axios.js';
+  authAPI
+} from '~/axios.js'
 
 /**
  * 获取首页视频
@@ -9,11 +9,13 @@ import {
  * @param {String} latestTime
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getIndexVideo(type, latestTime=0) {
-  return publicAPI.get('/video/feed', {params: {
-    'type': type,
-    'latest_time': latestTime,
-  }});
+export function getIndexVideo (type, latestTime = 0) {
+  return publicAPI.get('/video/feed', {
+    params: {
+      type,
+      latest_time: latestTime
+    }
+  })
 }
 
 /**
@@ -23,14 +25,15 @@ export function getIndexVideo(type, latestTime=0) {
  * @param {String} latestTime
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getAuthVideo(type, userId=0, latestTime=0) {
-  return authAPI.get('/video/feed', {params: {
-    'type': type,
-    'user_id': userId,
-    'latest_time': latestTime,
-  }});
+export function getAuthVideo (type, userId = 0, latestTime = 0) {
+  return authAPI.get('/video/feed', {
+    params: {
+      type,
+      user_id: userId,
+      latest_time: latestTime
+    }
+  })
 }
-
 
 /**
  * 上传视频
@@ -38,14 +41,14 @@ export function getAuthVideo(type, userId=0, latestTime=0) {
  * @param {Data} data
  * @return {Promise<AxiosResponse<any>>}
  */
-export function uploadVideo(title, data) {
+export function uploadVideo (title, data) {
   return authAPI.post(
-      '/video/upload/video',
-      {
-        'title': title,
-        'data': data,
-      }, {headers: {'content-type': 'multipart/form-data'}},
-  );
+    '/video/upload/video',
+    {
+      title,
+      data
+    }, { headers: { 'content-type': 'multipart/form-data' } }
+  )
 }
 
 /**
@@ -54,22 +57,22 @@ export function uploadVideo(title, data) {
  * @param {Data} data
  * @return {Promise<AxiosResponse<any>>}
  */
-export function uploadImage(title, data) {
+export function uploadImage (title, data) {
   return authAPI.post(
-      '/video/upload/image',
-      {
-        'title': title,
-        'cover_image_data': data,
-      }, {headers: {'content-type': 'multipart/form-data'}},
-  );
+    '/video/upload/image',
+    {
+      title,
+      cover_image_data: data
+    }, { headers: { 'content-type': 'multipart/form-data' } }
+  )
 }
 
-export function publishVideo(title, playUrl, coverUrl) {
+export function publishVideo (title, playUrl, coverUrl) {
   return authAPI.post('/video/publish', {
-    'title': title,
-    'video_url': playUrl,
-    'cover_image_url': coverUrl,
-  });
+    title,
+    video_url: playUrl,
+    cover_image_url: coverUrl
+  })
 }
 
 /**
@@ -78,11 +81,11 @@ export function publishVideo(title, playUrl, coverUrl) {
  * @Param {Number} type
  * @return {Promise<AxiosResponse<any>>}
  */
-export function abolishVideoUpload(title, type=1) {
+export function abolishVideoUpload (title, type = 1) {
   return authAPI.post('/video/upload/abolish', {
-    'title': title,
-    'type': type,
-  });
+    title,
+    type
+  })
 }
 
 /**
@@ -90,10 +93,12 @@ export function abolishVideoUpload(title, type=1) {
  * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getOtherUserVideoList(userId) {
-  return publicAPI.get('/video/list', {params: {
-    'user_id': userId,
-  }});
+export function getOtherUserVideoList (userId) {
+  return publicAPI.get('/video/list', {
+    params: {
+      user_id: userId
+    }
+  })
 }
 
 /**
@@ -101,10 +106,12 @@ export function getOtherUserVideoList(userId) {
  * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getUserVideoList(userId) {
-  return authAPI.get('/video/list', {params: {
-    'user_id': userId,
-  }});
+export function getUserVideoList (userId) {
+  return authAPI.get('/video/list', {
+    params: {
+      user_id: userId
+    }
+  })
 }
 
 /**
@@ -113,11 +120,13 @@ export function getUserVideoList(userId) {
  * @param {Number} type
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getVideoSearch(key, type) {
-  return publicAPI.get('/video/search', {params: {
-    'key': key,
-    'type': type,
-  }});
+export function getVideoSearch (key, type) {
+  return publicAPI.get('/video/search', {
+    params: {
+      key,
+      type
+    }
+  })
 }
 
 /**
@@ -125,10 +134,10 @@ export function getVideoSearch(key, type) {
  * @param {Number} id
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getVideoInfo(id) {
-  return authAPI.get('/video/info', {params: {
-    'id': id,
-  }});
+export function getVideoInfo (id) {
+  return authAPI.get('/video/info', {
+    params: {
+      id
+    }
+  })
 }
-
-

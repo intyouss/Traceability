@@ -1,11 +1,11 @@
 <script setup>
-import UAvatar from '~/layouts/components/user/UAvatar.vue';
+import UAvatar from '~/layouts/components/user/UAvatar.vue'
 
 const props = defineProps({
   fromUser: Object,
   toUser: Object,
-  content: String,
-});
+  content: String
+})
 </script>
 
 <template>

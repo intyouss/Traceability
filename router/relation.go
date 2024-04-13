@@ -6,7 +6,7 @@ import (
 )
 
 func InitRelationRoutes() {
-	RegisterRoute(func(dfGroup *gin.RouterGroup, auGroup *gin.RouterGroup) {
+	RegisterRoute(func(dfGroup *gin.RouterGroup, auGroup *gin.RouterGroup, adGroup *gin.RouterGroup) {
 		relationApi := api.NewRelationApi()
 		//relationDefaultGroup := dfGroup.Group("relation")
 		//{

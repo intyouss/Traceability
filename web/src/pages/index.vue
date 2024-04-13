@@ -1,15 +1,15 @@
 <script setup>
-import FTagList from '~/layouts/components/FTagList.vue';
-import VCard from '~/layouts/components/video/VCard.vue';
-import {onBeforeMount} from 'vue';
-import {useVideoByPage} from '~/composables/VideoManager.js';
+import FTagList from '~/layouts/components/FTagList.vue'
+import VCard from '~/layouts/components/video/VCard.vue'
+import { onBeforeMount } from 'vue'
+import { useVideoByPage } from '~/composables/videoManager.js'
 const {
   Videos,
-  getIndexVideos,
-} = useVideoByPage();
+  getIndexVideos
+} = useVideoByPage()
 onBeforeMount(() => {
-  getIndexVideos();
-});
+  getIndexVideos()
+})
 </script>
 <style scoped>
 .tag-list {

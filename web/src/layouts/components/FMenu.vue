@@ -1,60 +1,60 @@
 <script setup>
-import {computed, ref, watch} from 'vue';
-import {useRouter, useRoute} from 'vue-router';
-import {useStore} from 'vuex';
-import {Sunny} from '@element-plus/icons-vue';
-import {getToken} from '~/composables/auth.js';
-import {notify} from '~/composables/util.js';
-import {useUserByOwner} from '~/composables/userManager.js';
+import { computed, ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+import { Sunny } from '@element-plus/icons-vue'
+import { getToken } from '~/composables/auth.js'
+import { notify } from '~/composables/util.js'
+import { useUserByOwner } from '~/composables/userManager.js'
 
-const router = useRouter();
-const store = useStore();
-const route = useRoute();
-const {getUserInfo} = useUserByOwner();
+const router = useRouter()
+const store = useStore()
+const route = useRoute()
+const { getUserInfo } = useUserByOwner()
 
-const defaultActive = ref(route.path);
+const defaultActive = ref(route.path)
 watch(() => route.path, (val) => {
-  defaultActive.value = val;
-});
+  defaultActive.value = val
+})
 
 const isCollapse = computed(() => {
-  return store.state.asideWidth === '64px';
-});
+  return store.state.asideWidth === '64px'
+})
 
 const asideMenus = [{
-  'name': '首页',
-  'icon': 'HomeFilled',
-  'path': '/',
+  name: '首页',
+  icon: 'HomeFilled',
+  path: '/'
 }, {
-  'name': '推荐',
-  'icon': 'StarFilled',
-  'path': '/recommend',
+  name: '推荐',
+  icon: 'StarFilled',
+  path: '/recommend'
 }, {
-  'name': '关注',
-  'icon': 'Flag',
-  'path': '/focus',
+  name: '关注',
+  icon: 'Flag',
+  path: '/focus'
 }, {
-  'name': '朋友',
-  'icon': 'UserFilled',
-  'path': '/friend',
+  name: '朋友',
+  icon: 'UserFilled',
+  path: '/friend'
 }, {
-  'name': '我的',
-  'icon': 'User',
-  'path': '/mine',
-}];
+  name: '我的',
+  icon: 'User',
+  path: '/mine'
+}]
 
-const handleSelect =(e)=>{
+const handleSelect = (e) => {
   if (e === '/') {
-    return router.push('/');
+    return router.push('/')
   } else if (!getToken()) {
-    notify('请先登录', 'warning');
-    return router.push('/login');
+    notify('请先登录', 'warning')
+    return router.push('/login')
   } else if (e === '/mine') {
-    getUserInfo();
-    return router.replace('/mine');
+    getUserInfo()
+    return router.replace('/mine')
   }
-  return router.push(e);
-};
+  return router.push(e)
+}
 </script>
 
 <template>

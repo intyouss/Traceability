@@ -1,99 +1,100 @@
 <script setup>
-import VSearchPlayer from '~/layouts/components/video/VSearchPlayer.vue';
-import {onMounted, reactive, ref, watch} from 'vue';
-import {useSearch} from '~/composables/useManager.js';
-import {useRoute} from 'vue-router';
-import USearchCard from '~/layouts/components/user/USearchCard.vue';
-import NoResult from '~/assets/icon/no-result.svg';
+import VSearchPlayer from '~/layouts/components/video/VSearchPlayer.vue'
+import { onMounted, reactive, ref, watch } from 'vue'
+import { useSearch } from '~/composables/useManager.js'
+import { useRoute } from 'vue-router'
+import USearchCard from '~/layouts/components/user/USearchCard.vue'
+import NoResult from '~/assets/icon/no-result.svg'
 
-const {getSearch} = useSearch();
-const route = useRoute();
+const { getSearch } = useSearch()
+const route = useRoute()
 const tag = reactive({
-  '综合': {
+  综合: {
     result: [],
     isClick: false,
-    isEmpty: false,
+    isEmpty: false
   },
-  '视频': {
+  视频: {
     result: [],
     isClick: false,
-    isEmpty: false,
+    isEmpty: false
   },
-  '用户': {
+  用户: {
     result: [],
     isClick: false,
-    isEmpty: false,
-  }});
-const enTag = ref('');
-const enResult = ref([]);
-const loading = ref(true);
-const isEmpty = ref(false);
+    isEmpty: false
+  }
+})
+const enTag = ref('')
+const enResult = ref([])
+const loading = ref(true)
+const isEmpty = ref(false)
 const handleTag = (t, value) => {
   if (value.isClick) {
-    return;
+    return
   }
 
-  const key = route.query.key;
+  const key = route.query.key
   if (tag[t].result.length === 0 && !tag[t].isEmpty) {
-    loading.value = true;
+    loading.value = true
     getSearch(t, key).then((res) => {
-      tag[t].isEmpty = res.length === 0;
-      isEmpty.value = res.length === 0;
-      tag[t].result = res;
-      enResult.value = res;
-    });
+      tag[t].isEmpty = res.length === 0
+      isEmpty.value = res.length === 0
+      tag[t].result = res
+      enResult.value = res
+    })
     setTimeout(() => {
-      loading.value = false;
-    }, 1000);
+      loading.value = false
+    }, 1000)
   } else {
-    isEmpty.value = tag[t].isEmpty;
-    enResult.value = tag[t].result;
+    isEmpty.value = tag[t].isEmpty
+    enResult.value = tag[t].result
   }
-  tag[t].isClick = true;
-  tag[enTag.value].isClick = false;
-  enTag.value = t;
-};
+  tag[t].isClick = true
+  tag[enTag.value].isClick = false
+  enTag.value = t
+}
 
 onMounted(() => {
-  enTag.value = '综合';
-  const key = route.query.key;
+  enTag.value = '综合'
+  const key = route.query.key
   getSearch(enTag.value, key).then((res) => {
-    tag[enTag.value].isEmpty = res.length === 0;
-    isEmpty.value = res.length === 0;
-    tag[enTag.value].result = res;
-    enResult.value = res;
-  });
-  tag[enTag.value].isClick = true;
+    tag[enTag.value].isEmpty = res.length === 0
+    isEmpty.value = res.length === 0
+    tag[enTag.value].result = res
+    enResult.value = res
+  })
+  tag[enTag.value].isClick = true
   setTimeout(() => {
-    loading.value = false;
-  }, 1000);
-});
+    loading.value = false
+  }, 1000)
+})
 watch(() => route.query.key, (key) => {
   if (route.path !== '/search') {
-    return;
+    return
   }
   if (key === '') {
-    return;
+    return
   }
-  console.log(key);
-  loading.value = true;
-  enTag.value = '综合';
+  console.log(key)
+  loading.value = true
+  enTag.value = '综合'
   for (const i in tag) {
-    tag[i].isEmpty = false;
-    tag[i].isClick = false;
-    tag[i].result = [];
+    tag[i].isEmpty = false
+    tag[i].isClick = false
+    tag[i].result = []
   }
-  tag[enTag.value].isClick = true;
+  tag[enTag.value].isClick = true
   getSearch(enTag.value, key).then((res) => {
-    tag[enTag.value].isEmpty = res.length === 0;
-    isEmpty.value = res.length === 0;
-    tag[enTag.value].result = res;
-    enResult.value = res;
-  });
+    tag[enTag.value].isEmpty = res.length === 0
+    isEmpty.value = res.length === 0
+    tag[enTag.value].result = res
+    enResult.value = res
+  })
   setTimeout(() => {
-    loading.value = false;
-  }, 1000);
-});
+    loading.value = false
+  }, 1000)
+})
 </script>
 
 <template>

@@ -1,6 +1,6 @@
 import {
-  authAPI,
-} from '~/axios';
+  authAPI
+} from '~/axios'
 
 /**
  * 发送消息
@@ -8,11 +8,11 @@ import {
  * @param {String} content
  * @return {Promise<AxiosResponse<any>>}
  */
-export function sendMessage(toUserId, content) {
+export function sendMessage (toUserId, content) {
   return authAPI.post('/message/send', {
-    'to_user_id': Number(toUserId),
-    'content': content,
-  });
+    to_user_id: Number(toUserId),
+    content
+  })
 }
 
 /**
@@ -21,11 +21,13 @@ export function sendMessage(toUserId, content) {
  * @param {String} preMsgTime
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getMessageList(toUserId, preMsgTime='0') {
-  return authAPI.get('/message/chat', {params: {
-    'to_user_id': Number(toUserId),
-    'pre_msg_time': preMsgTime,
-  }});
+export function getMessageList (toUserId, preMsgTime = '0') {
+  return authAPI.get('/message/chat', {
+    params: {
+      to_user_id: Number(toUserId),
+      pre_msg_time: preMsgTime
+    }
+  })
 }
 
 /**
@@ -33,12 +35,12 @@ export function getMessageList(toUserId, preMsgTime='0') {
  * @param {Number} userId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function getOpenUsers(userId) {
+export function getOpenUsers (userId) {
   return authAPI.get('/message/open', {
     params: {
-      'user_id': Number(userId),
-    },
-  });
+      user_id: Number(userId)
+    }
+  })
 }
 
 /**
@@ -46,10 +48,10 @@ export function getOpenUsers(userId) {
  * @param {Number} openUserId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function addOpenUser(openUserId) {
+export function addOpenUser (openUserId) {
   return authAPI.post('/message/open/add', {
-    'open_user_id': Number(openUserId),
-  });
+    open_user_id: Number(openUserId)
+  })
 }
 
 /**
@@ -57,9 +59,8 @@ export function addOpenUser(openUserId) {
  * @param {Number} openUserId
  * @return {Promise<AxiosResponse<any>>}
  */
-export function deleteOpenUser(openUserId) {
+export function deleteOpenUser (openUserId) {
   return authAPI.post('/message/open/delete', {
-    'open_user_id': Number(openUserId),
-  });
+    open_user_id: Number(openUserId)
+  })
 }
-

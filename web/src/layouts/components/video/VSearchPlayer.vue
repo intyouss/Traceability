@@ -1,5 +1,5 @@
 <script setup>
-import UAvatar from '~/layouts/components/user/UAvatar.vue';
+import UAvatar from '~/layouts/components/user/UAvatar.vue'
 
 const props = defineProps({
   avatar: String,
@@ -9,8 +9,8 @@ const props = defineProps({
   createdAt: String,
   playUrl: String,
   loading: Boolean,
-  coverUrl: String,
-});
+  coverUrl: String
+})
 </script>
 
 <template>

@@ -33,11 +33,16 @@ func InitDB() (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(viper.GetInt("db.maxOpenConn"))
 	sqlDB.SetConnMaxLifetime(viper.GetDuration("db.maxLifetime"))
 
-	_ = db.AutoMigrate(
+	err = db.AutoMigrate(
 		&models.User{}, &models.Comment{}, &models.Video{},
 		&models.Like{}, &models.Relation{}, &models.Message{},
 		&models.Collect{}, &models.MessageOpen{}, &models.UserIncrease{},
-		&models.VideoIncrease{})
+		&models.VideoIncrease{}, &models.Role{})
+	if err != nil {
+		return nil, err
+	}
+	_ = db.Create(&models.Role{Name: "普通用户", Desc: "普通用户", Status: 1}).Error
+	_ = db.Create(&models.Role{Name: "管理员", Desc: "后台管理权限", Status: 1}).Error
 	fmt.Println("Database loaded successfully")
 	return db, nil
 }

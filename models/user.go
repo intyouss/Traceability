@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// User 用户
 type User struct {
 	gorm.Model
 	// 用户名
@@ -31,6 +32,10 @@ type User struct {
 	CollectCount uint `gorm:"not null;default:0" json:"collect_count"`
 	// 个性签名
 	Signature string `gorm:"type:varchar(256)" json:"signature"`
+	// 角色
+	Role uint `gorm:"not null;default:1" json:"role"`
+	// 状态
+	Status uint `gorm:"not null;default:1" json:"status"`
 }
 
 // Encrypt 密码加密
@@ -47,6 +52,7 @@ func (u *User) BeforeCreate(db *gorm.DB) error {
 	return u.Encrypt()
 }
 
+// UserIncrease 用户增长
 type UserIncrease struct {
 	gorm.Model
 	Year  uint `gorm:"not null;" json:"year"`
@@ -67,7 +73,19 @@ func (u *UserIncrease) BeforeCreate(db *gorm.DB) error {
 	return nil
 }
 
+// Role 角色
+type Role struct {
+	gorm.Model
+	// 角色名
+	Name string `gorm:"type:varchar(64);not null;unique" json:"name"`
+	// 角色描述
+	Desc string `gorm:"type:varchar(256)" json:"desc"`
+	// 状态
+	Status uint `gorm:"not null;default:1" json:"status"`
+}
+
 type LoginUser struct {
 	ID       uint
 	Username string
+	Role     uint
 }

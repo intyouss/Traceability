@@ -1,37 +1,37 @@
 <script setup>
-import {reactive, ref, watch} from 'vue';
-import MBubble from '~/layouts/components/message/MBubble.vue';
-import {useMessage} from '~/composables/messageManager.js';
+import { reactive, ref, watch } from 'vue'
+import MBubble from '~/layouts/components/message/MBubble.vue'
+import { useMessage } from '~/composables/messageManager.js'
 
 const props = defineProps({
   message: ref([]),
   user: Object,
   sendMessage: Function,
   open: Boolean,
-  empty: Boolean,
-});
+  empty: Boolean
+})
 
-const {delOpenUser} = useMessage();
+const { delOpenUser } = useMessage()
 const form = reactive({
-  text: '',
-});
+  text: ''
+})
 
-const emit = defineEmits(['deleteOpenUser']);
+const emit = defineEmits(['deleteOpenUser'])
 const deleteOpenUser = () => {
-  delOpenUser(props.user.id);
-  emit('deleteOpenUser', props.user.id);
-};
+  delOpenUser(props.user.id)
+  emit('deleteOpenUser', props.user.id)
+}
 
-const Message = ref(props.message);
+const Message = ref(props.message)
 
 watch(() => props.message, (value) => {
-  Message.value = value;
-});
+  Message.value = value
+})
 
 const sendMessage = (toUser, content) => {
-  props.sendMessage(toUser, content);
-  form.text = '';
-};
+  props.sendMessage(toUser, content)
+  form.text = ''
+}
 </script>
 
 <template>

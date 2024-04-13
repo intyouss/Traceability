@@ -6,14 +6,15 @@ import (
 )
 
 func InitSystemRoutes() {
-	RegisterRoute(func(dfGroup *gin.RouterGroup, auGroup *gin.RouterGroup) {
+	RegisterRoute(func(dfGroup *gin.RouterGroup, auGroup *gin.RouterGroup, adGroup *gin.RouterGroup) {
 		systemApi := api.NewSystemApi()
-		systemAuthGroup := auGroup.Group("system")
+		systemAdminGroup := adGroup.Group("system")
+		// 后台系统功能
 		{
 			// 获取CPU使用率
-			systemAuthGroup.GET("/cpu/usage", systemApi.GetCpuUsage)
+			systemAdminGroup.GET("/cpu/usage", systemApi.GetCpuUsage)
 			// 获取内存使用率
-			systemAuthGroup.GET("/memory/usage", systemApi.GetMemoryUsage)
+			systemAdminGroup.GET("/memory/usage", systemApi.GetMemoryUsage)
 		}
 	})
 }

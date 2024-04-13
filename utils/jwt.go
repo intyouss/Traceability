@@ -9,17 +9,19 @@ import (
 )
 
 type JwtClaims struct {
-	ID   uint
-	Name string
+	ID     uint
+	Name   string
+	RoleID uint
 	jwt.RegisteredClaims
 }
 
 // GenerateToken 生成token
-func GenerateToken(id uint, name string) (string, error) {
+func GenerateToken(id uint, name string, roleId uint) (string, error) {
 	var secretKey = []byte(viper.GetString("jwt.secretKey"))
 	jwtClaim := JwtClaims{
-		ID:   id,
-		Name: name,
+		ID:     id,
+		Name:   name,
+		RoleID: roleId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration("jwt.tokenExpire") * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

@@ -1,17 +1,17 @@
 <script setup>
-import {onBeforeMount, ref, watch} from 'vue';
-import VUserCard from '~/layouts/components/video/VUserCard.vue';
-import {useStore} from 'vuex';
-import {useVideoByOwner} from '~/composables/videoManager.js';
-import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
-import RRelationDialog from '~/layouts/components/relation/RRelationDialog.vue';
-import {useRelationList} from '~/composables/relationManager.js';
-import {useInfoForm, useUserByOwner} from '~/composables/userManager.js';
-import UInfoSetDialog from '~/layouts/components/user/UInfoSetDialog.vue';
+import { onBeforeMount, ref, watch } from 'vue'
+import VUserCard from '~/layouts/components/video/VUserCard.vue'
+import { useStore } from 'vuex'
+import { useVideoByOwner } from '~/composables/videoManager.js'
+import DefaultAvatar from '~/assets/icon/default_avatar.jpg'
+import RRelationDialog from '~/layouts/components/relation/RRelationDialog.vue'
+import { useRelationList } from '~/composables/relationManager.js'
+import { useInfoForm, useUserByOwner } from '~/composables/userManager.js'
+import UInfoSetDialog from '~/layouts/components/user/UInfoSetDialog.vue'
 
 const {
-  getUserInfo,
-} = useUserByOwner();
+  getUserInfo
+} = useUserByOwner()
 
 const {
   RelationList,
@@ -19,47 +19,46 @@ const {
   OpenRelationList,
   OpenRelationType,
   openRelationList,
-  closeRelationList,
-} = useRelationList();
+  closeRelationList
+} = useRelationList()
 
-const store = useStore();
+const store = useStore()
 const {
   Videos,
-  getVideos,
-} = useVideoByOwner();
+  getVideos
+} = useVideoByOwner()
 const handleClick = (tab) => {
-  getVideos(tab.props.name);
-};
+  getVideos(tab.props.name)
+}
 onBeforeMount(() => {
-  getVideos('作品');
-  getUserInfo();
-});
-const User = ref(store.state.user);
+  getVideos('作品')
+  getUserInfo()
+})
+const User = ref(store.state.user)
 
 watch(() => store.state.user, (value) => {
-  User.value = {...value};
-});
+  User.value = { ...value }
+})
 const count = (name) => {
   if (name === '作品') {
-    return User.value.video_count;
+    return User.value.video_count
   } else if (name === '喜爱') {
-    return User.value.like_count;
+    return User.value.like_count
   }
-  return User.value.collect_count;
-};
-const tagList = ['作品', '喜爱', '收藏'];
+  return User.value.collect_count
+}
+const tagList = ['作品', '喜爱', '收藏']
 
 const handleRelation = (type) => {
-  getRelationList(store.state.user.id, type);
-  getUserInfo();
-};
-
+  getRelationList(store.state.user.id, type)
+  getUserInfo()
+}
 
 const {
   InfoForm,
   setInfoFormOpen,
-  setInfoFormClose,
-} = useInfoForm();
+  setInfoFormClose
+} = useInfoForm()
 </script>
 
 <template>

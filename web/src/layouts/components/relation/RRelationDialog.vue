@@ -1,31 +1,31 @@
 <script setup>
-import {ref, watch} from 'vue';
-import RUser from '~/layouts/components/relation/RUser.vue';
+import { ref, watch } from 'vue'
+import RUser from '~/layouts/components/relation/RUser.vue'
 
 const props = defineProps({
   open: Boolean,
   type: Number,
   close: Function,
   user: Object,
-  list: Array,
-});
+  list: Array
+})
 
-const Open = ref(props.open);
+const Open = ref(props.open)
 
 watch(() => props.open, (newVal) => {
-  Open.value = newVal;
-});
+  Open.value = newVal
+})
 
-const emit = defineEmits(['click']);
+const emit = defineEmits(['click'])
 const handleClick = (type) => {
-  emit('click', type);
-};
+  emit('click', type)
+}
 
-const RelationList = ref(props.list);
+const RelationList = ref(props.list)
 
 watch(() => props.list, (newVal) => {
-  RelationList.value = newVal;
-});
+  RelationList.value = newVal
+})
 </script>
 
 <template>

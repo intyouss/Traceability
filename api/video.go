@@ -16,6 +16,7 @@ const (
 	ErrCodeGetVideoInfo
 	ErrCodeGetVideoSearch
 	ErrCodeGetVideoIncrease
+	ErrCodeGetVideoTotal
 )
 
 type VideoApi struct {
@@ -309,7 +310,7 @@ func (v VideoApi) GetVideoInfo(ctx *gin.Context) {
 // @Param month query string true "月份"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
-// @Router /api/v1/video/increase [get]
+// @Router /api/v1/admin/video/increase [get]
 func (v VideoApi) GetVideoIncrease(ctx *gin.Context) {
 	var list dto.VideoIncreaseListDTO
 	if err := v.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &list}).GetError(); err != nil {
@@ -324,7 +325,32 @@ func (v VideoApi) GetVideoIncrease(ctx *gin.Context) {
 	}
 	v.Success(&Response{
 		Data: gin.H{
-			"user_increase_list": c,
+			"video_increase_list": c,
+		},
+	})
+}
+
+// GetVideoTotal 获取视频总数
+// @Summary 获取视频总数
+// @Description 获取视频总数
+// @Param token header string true "token"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/admin/video/total [get]
+func (v VideoApi) GetVideoTotal(c *gin.Context) {
+	if err := v.BuildRequest(BuildRequestOption{Ctx: c}).GetError(); err != nil {
+		v.Fail(&Response{Code: ErrCodeGetVideoTotal, Msg: err.Error()})
+		return
+	}
+
+	total, err := v.Service.GetVideoTotal(c)
+	if err != nil {
+		v.Fail(&Response{Code: ErrCodeGetVideoTotal, Msg: err.Error()})
+		return
+	}
+	v.Success(&Response{
+		Data: gin.H{
+			"total": total,
 		},
 	})
 }

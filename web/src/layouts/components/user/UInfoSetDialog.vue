@@ -1,23 +1,23 @@
 <script setup>
-import {useSetUserInfo, useUserByOwner} from '~/composables/userManager.js';
-import {ref, watch} from 'vue';
-import DefaultAvatar from '~/assets/icon/default_avatar.jpg';
+import { useSetUserInfo, useUserByOwner } from '~/composables/userManager.js'
+import { ref, watch } from 'vue'
+import DefaultAvatar from '~/assets/icon/default_avatar.jpg'
 
 const props = defineProps({
   infoForm: Boolean,
   formClose: Function,
   avatarUrl: String,
   userId: Number,
-  signature: String,
-});
+  signature: String
+})
 const {
-  getUserInfo,
-} = useUserByOwner();
+  getUserInfo
+} = useUserByOwner()
 
-const InfoForm = ref(props.infoForm);
+const InfoForm = ref(props.infoForm)
 watch(() => props.infoForm, (val) => {
-  InfoForm.value = val;
-});
+  InfoForm.value = val
+})
 
 const {
   form,
@@ -26,46 +26,46 @@ const {
   onSubmit,
   loading,
   avatarUpload,
-  avatarAbolish,
-} = useSetUserInfo();
+  avatarAbolish
+} = useSetUserInfo()
 
 const submit = () => {
   if (form.avatarUrl === '' && form.signature === '') {
-    props.formClose();
-    return;
+    props.formClose()
+    return
   }
-  onSubmit(form.signature, form.avatarUrl);
-  getUserInfo();
-  form.avatarUrl = '';
-  form.signature = '';
-  props.formClose();
-};
+  onSubmit(form.signature, form.avatarUrl)
+  getUserInfo()
+  form.avatarUrl = ''
+  form.signature = ''
+  props.formClose()
+}
 
 const HttpRequestByAvatar = (param) => {
-  const coverImageFile = param.file;
-  avatarUpload(coverImageFile);
-};
+  const coverImageFile = param.file
+  avatarUpload(coverImageFile)
+}
 
-const AvatarUrl = ref(props.avatarUrl);
+const AvatarUrl = ref(props.avatarUrl)
 
 watch(() => form.avatarUrl, (val) => {
-  AvatarUrl.value = val;
-});
+  AvatarUrl.value = val
+})
 
 const setAvatar = () => {
-  return AvatarUrl.value === '' ? DefaultAvatar : AvatarUrl.value;
-};
+  return AvatarUrl.value === '' ? DefaultAvatar : AvatarUrl.value
+}
 
 const CloseSetInfo = () => {
   if (form.avatarUrl !== '') {
-    avatarAbolish(props.userId);
-    form.avatarUrl = '';
+    avatarAbolish(props.userId)
+    form.avatarUrl = ''
   }
   if (form.signature !== '') {
-    form.signature = '';
+    form.signature = ''
   }
-  props.formClose();
-};
+  props.formClose()
+}
 </script>
 <template>
   <el-dialog

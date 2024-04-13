@@ -1,23 +1,23 @@
 <script setup>
-import UAvatar from '~/layouts/components/user/UAvatar.vue';
-import {ref, watch} from 'vue';
+import UAvatar from '~/layouts/components/user/UAvatar.vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
-  users: ref([]),
-});
+  users: ref([])
+})
 
-const emit = defineEmits(['select']);
+const emit = defineEmits(['select'])
 
 const handleSelect = (index) => {
-  emit('select', index);
-};
+  emit('select', index)
+}
 
-const Users = ref(props.users);
+const Users = ref(props.users)
 
 watch(() => props.users, (value) => {
-  console.log(value);
-  Users.value = value;
-});
+  console.log(value)
+  Users.value = value
+})
 
 </script>
 

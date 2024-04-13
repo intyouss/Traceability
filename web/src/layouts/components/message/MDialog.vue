@@ -1,9 +1,9 @@
 <script setup>
 
-import MContainer from '~/layouts/components/message/MContainer.vue';
-import MMenu from '~/layouts/components/message/MMenu.vue';
-import {ref, watch} from 'vue';
-import {useMessage} from '~/composables/messageManager.js';
+import MContainer from '~/layouts/components/message/MContainer.vue'
+import MMenu from '~/layouts/components/message/MMenu.vue'
+import { ref, watch } from 'vue'
+import { useMessage } from '~/composables/messageManager.js'
 const {
   Messages,
   getOpenUser,
@@ -11,68 +11,67 @@ const {
   PreTime,
   Users,
   sendMsg,
-  increaseOpenUser,
-} = useMessage();
+  increaseOpenUser
+} = useMessage()
 
 const props = defineProps({
   message: Boolean,
   user: Object,
   privateEmile: Boolean,
-  openContainer: Boolean,
-});
+  openContainer: Boolean
+})
 
-
-const activeMessages = ref(Messages);
+const activeMessages = ref(Messages)
 watch(() => Messages, (value) => {
-  activeMessages.value = value;
-});
+  activeMessages.value = value
+})
 
-const ContainerOpen = ref(false);
-const User = ref({});
-const message = ref(props.message);
+const ContainerOpen = ref(false)
+const User = ref({})
+const message = ref(props.message)
 watch(() => props.message, (value) => {
   if (props.privateEmile && value) {
-    increaseOpenUser(props.user.id);
-    getMsg(props.user.id);
-    ContainerOpen.value = true;
-    User.value = props.user;
+    increaseOpenUser(props.user.id)
+    getMsg(props.user.id)
+    ContainerOpen.value = true
+    User.value = props.user
   }
-  getOpenUser();
-  message.value = value;
-});
+  getOpenUser()
+  message.value = value
+})
 
-const OldUserId = ref(0);
-const timer = ref([]);
-const emit = defineEmits(['messageClose']);
+const OldUserId = ref(0)
+const timer = ref([])
+const emit = defineEmits(['messageClose'])
 const handleClose = () => {
-  emit('messageClose', 'close');
-  ContainerOpen.value = false;
-  clearInterval(timer.value[OldUserId.value]);
-  timer.value = [];
-};
+  emit('messageClose', 'close')
+  ContainerOpen.value = false
+  clearInterval(timer.value[OldUserId.value])
+  timer.value = []
+}
 const handleSelect = (index) => {
   if (OldUserId.value !== 0) {
-    clearInterval(timer.value[OldUserId.value]);
-    timer.value[OldUserId.value] = null;
+    clearInterval(timer.value[OldUserId.value])
+    timer.value[OldUserId.value] = null
   }
-  ContainerOpen.value = true;
-  console.log(index);
-  getMsg(Users.value[index].id, PreTime.value[Users.value[index].id]);
-  User.value = Users.value[index];
-  OldUserId.value = Users.value[index].id;
+  ContainerOpen.value = true
+  console.log(index)
+  getMsg(Users.value[index].id, PreTime.value[Users.value[index].id])
+  User.value = Users.value[index]
+  OldUserId.value = Users.value[index].id
   timer.value[Users.value[index].id] = setInterval(() => {
-    getMsg(Users.value[index].id, PreTime.value[Users.value[index].id]);
-  }, 3000);
-};
+    getMsg(Users.value[index].id, PreTime.value[Users.value[index].id])
+  }, 3000)
+}
 
 const deleteOpUser = (id) => {
   Users.value.forEach((item, index) => {
     if (item.id === id) {
-      Users.value.splice(index, 1);
+      Users.value.splice(index, 1)
     }
-  });
-  ContainerOpen.value = false;
-};
+  })
+  ContainerOpen.value = false
+}
 </script>
 
 <template>

@@ -6,7 +6,7 @@ import (
 )
 
 func InitLikeRoutes() {
-	RegisterRoute(func(dfGroup *gin.RouterGroup, auGroup *gin.RouterGroup) {
+	RegisterRoute(func(dfGroup *gin.RouterGroup, auGroup *gin.RouterGroup, adGroup *gin.RouterGroup) {
 		likeApi := api.NewLikeApi()
 		likeAuthGroup := auGroup.Group("like")
 		{

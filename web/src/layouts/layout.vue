@@ -1,6 +1,6 @@
 <script setup>
-import FHeader from './components/FHeader.vue';
-import FMenu from './components/FMenu.vue';
+import FHeader from './components/FHeader.vue'
+import FMenu from './components/FMenu.vue'
 </script>
 <script>
 </script>

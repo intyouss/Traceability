@@ -2,8 +2,8 @@
 const props = defineProps({
   title: String,
   author: String,
-  createdAt: String,
-});
+  createdAt: String
+})
 </script>
 
 <template>

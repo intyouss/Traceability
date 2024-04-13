@@ -19,7 +19,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-type IFnRegisterRoute = func(defaultGroup *gin.RouterGroup, authGroup *gin.RouterGroup)
+type IFnRegisterRoute = func(defaultGroup *gin.RouterGroup, authGroup *gin.RouterGroup, adminGroup *gin.RouterGroup)
 
 // 注册路由列表
 var (
@@ -44,7 +44,9 @@ func InitRouter() {
 	r.Use(middleware.Cors())
 	defaultGroup := r.Group("/api/v1/public")
 	authGroup := r.Group("/api/v1/")
+	adminGroup := authGroup.Group("admin")
 	authGroup.Use(middleware.Auth())
+	adminGroup.Use(middleware.Auth())
 
 	InitBaseRoutes()
 
@@ -53,7 +55,7 @@ func InitRouter() {
 
 	// 初始化所有注册路由
 	for _, fnRegisterRoute := range routes {
-		fnRegisterRoute(defaultGroup, authGroup)
+		fnRegisterRoute(defaultGroup, authGroup, adminGroup)
 	}
 
 	// 集成Swagger

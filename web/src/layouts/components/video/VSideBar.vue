@@ -1,10 +1,9 @@
 <script setup>
-import {ref, watch} from 'vue';
-import {useLike} from '~/composables/likeManager.js';
-import {useCollect} from '~/composables/collectManager.js';
-import {getVideoInfo} from '~/api/video.js';
-import UAvatar from '~/layouts/components/user/UAvatar.vue';
-
+import { ref, watch } from 'vue'
+import { useLike } from '~/composables/likeManager.js'
+import { useCollect } from '~/composables/collectManager.js'
+import { getVideoInfo } from '~/api/video.js'
+import UAvatar from '~/layouts/components/user/UAvatar.vue'
 
 const props = defineProps({
   videoId: Number,
@@ -15,35 +14,34 @@ const props = defineProps({
   likeCount: Number,
   commentCount: Number,
   collectCount: Number,
-  clickFunc: Function,
-});
+  clickFunc: Function
+})
 
-const emits = defineEmits(['click']);
+const emits = defineEmits(['click'])
 const handleClick = () => {
-  emits('click', 'true');
-};
+  emits('click', 'true')
+}
 const {
   IsLiked,
-  handleLikeAction,
-} = useLike(props.isLike);
+  handleLikeAction
+} = useLike(props.isLike)
 
 const {
   IsCollected,
-  handleCollectAction,
-} = useCollect(props.isCollect);
-
+  handleCollectAction
+} = useCollect(props.isCollect)
 
 watch([() => IsLiked.value, () => IsCollected.value], () => {
   getVideoInfo(props.videoId).then((res) => {
-    likeCount.value = res.data.video.like_count;
-    commentCount.value = res.data.video.comment_count;
-    collectCount.value = res.data.video.collect_count;
-  });
-});
+    likeCount.value = res.data.video.like_count
+    commentCount.value = res.data.video.comment_count
+    collectCount.value = res.data.video.collect_count
+  })
+})
 
-const likeCount = ref(props.likeCount);
-const commentCount = ref(props.commentCount);
-const collectCount = ref(props.collectCount);
+const likeCount = ref(props.likeCount)
+const commentCount = ref(props.commentCount)
+const collectCount = ref(props.collectCount)
 </script>
 <template>
   <div class="k" style="height: auto; bottom: 80px;">

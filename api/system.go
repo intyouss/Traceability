@@ -27,8 +27,12 @@ func NewSystemApi() SystemApi {
 // @Param token header string true "token"
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
-// @Router /api/v1/system/cpu/usage [get]
+// @Router /api/v1/admin/system/cpu/usage [get]
 func (s *SystemApi) GetCpuUsage(c *gin.Context) {
+	if err := s.BuildRequest(BuildRequestOption{Ctx: c}).GetError(); err != nil {
+		s.Fail(&Response{Code: ErrGetCpuUsage, Msg: err.Error()})
+		return
+	}
 	usage, err := s.Service.GetCpuUsage(c)
 	if err != nil {
 		s.Fail(&Response{Code: ErrGetCpuUsage, Msg: err.Error()})
@@ -42,12 +46,20 @@ func (s *SystemApi) GetCpuUsage(c *gin.Context) {
 // @Param token header string true "token"
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
-// @Router /api/v1/system/memory/usage [get]
-func (s *SystemApi) GetMemoryUsage(c *gin.Context) {
-	usage, err := s.Service.GetMemoryUsage(c)
+// @Router /api/v1/admin/system/memory/usage [get]
+func (s *SystemApi) GetMemoryUsage(ctx *gin.Context) {
+	if err := s.BuildRequest(BuildRequestOption{Ctx: ctx}).GetError(); err != nil {
+		s.Fail(&Response{Code: ErrGetMemoryUsage, Msg: err.Error()})
+		return
+	}
+	usage, err := s.Service.GetMemoryUsage(ctx)
 	if err != nil {
 		s.Fail(&Response{Code: ErrGetMemoryUsage, Msg: err.Error()})
 		return
 	}
-	s.Success(&Response{Data: gin.H{"memory_usage": usage}})
+	s.Success(&Response{
+		Data: gin.H{
+			"memory_usage": usage,
+		},
+	})
 }

@@ -1,7 +1,7 @@
 <script setup>
-import {useRelation} from '~/composables/relationManager.js';
-import UAvatar from '~/layouts/components/user/UAvatar.vue';
-import {onMounted} from 'vue';
+import { useRelation } from '~/composables/relationManager.js'
+import UAvatar from '~/layouts/components/user/UAvatar.vue'
+import { onMounted } from 'vue'
 
 const props = defineProps({
   userId: Number,
@@ -11,18 +11,18 @@ const props = defineProps({
   signature: String,
   fansCount: Number,
   likedCount: Number,
-  loading: Boolean,
-});
+  loading: Boolean
+})
 
 const {
   IsFocus,
   setFocus,
-  handleRelation,
-} = useRelation();
+  handleRelation
+} = useRelation()
 
 onMounted(() => {
-  setFocus(props.isFocus);
-});
+  setFocus(props.isFocus)
+})
 </script>
 <template>
   <el-skeleton
@@ -91,7 +91,6 @@ onMounted(() => {
       </template>
     </el-skeleton>
 </template>
-
 
 <style scoped>
   .header {
@@ -167,4 +166,3 @@ onMounted(() => {
     padding: 0 8px;
   }
 </style>
-

@@ -108,6 +108,44 @@ func (u *UserDao) GetUserList(
 	return users, total, err
 }
 
+// GetRoleList 获取角色列表
+func (u *UserDao) GetRoleList(
+	ctx context.Context, roleDto *dto.RoleListDTO,
+) ([]*models.Role, int64, error) {
+	var roles []*models.Role
+	var total int64
+	err := u.DB.Model(&models.Role{}).WithContext(ctx).
+		Scopes(Paginate(roleDto.CommonPageDTO)).Find(&roles).
+		Offset(-1).Limit(-1).Count(&total).Error
+	return roles, total, err
+}
+
+// GetRoleListBySearch 模糊搜索角色列表
+func (u *UserDao) GetRoleListBySearch(
+	ctx context.Context, roleDto *dto.RoleListDTO,
+) ([]*models.Role, int64, error) {
+	var roles []*models.Role
+	var total int64
+	err := u.DB.Model(&models.Role{}).WithContext(ctx).
+		Where("username like ?", "%"+roleDto.Key+"%").
+		Scopes(Paginate(roleDto.CommonPageDTO)).Find(&roles).
+		Offset(-1).Limit(-1).Count(&total).Error
+	return roles, total, err
+}
+
+// GetRoleById 根据id获取角色
+func (u *UserDao) GetRoleById(ctx context.Context, id uint) (bool, *models.Role, error) {
+	var role models.Role
+	err := u.DB.Model(&models.Role{}).WithContext(ctx).First(&role, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil, nil
+	}
+	if err != nil {
+		return false, nil, err
+	}
+	return true, &role, err
+}
+
 // UpdateUser 更新用户信息
 func (u *UserDao) UpdateUser(ctx context.Context, user *models.User) error {
 	return u.DB.WithContext(ctx).Updates(&user).Error
@@ -209,6 +247,57 @@ func (u *UserDao) GetUserIncreaseList(ctx context.Context, year, month uint) ([]
 	err := u.DB.Model(&models.UserIncrease{}).WithContext(ctx).Where("year = ? and month = ?", year, month).
 		Find(&userIncreases).Error
 	return userIncreases, err
+}
+
+// GetUserTotalCount 获取用户总数
+func (u *UserDao) GetUserTotalCount(ctx context.Context) (int64, error) {
+	var total int64
+	err := u.DB.Model(&models.User{}).WithContext(ctx).Count(&total).Error
+	return total, err
+}
+
+// AddRole 添加角色
+func (u *UserDao) AddRole(ctx context.Context, name, desc string) error {
+	return u.DB.WithContext(ctx).Create(&models.Role{
+		Name: name,
+		Desc: desc,
+	}).Error
+}
+
+// DeleteRoleById 根据id删除角色
+func (u *UserDao) DeleteRoleById(ctx context.Context, ids []uint) error {
+	return u.DB.WithContext(ctx).Delete(&models.Role{}, ids).Error
+}
+
+// FindRoleByName 根据角色名查找角色
+func (u *UserDao) FindRoleByName(ctx context.Context, name string) (bool, *models.Role, error) {
+	var role models.Role
+	err := u.DB.Model(&models.Role{}).WithContext(ctx).Where("name = ?", name).First(&role).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil, nil
+	}
+	if err != nil {
+		return false, nil, err
+	}
+	return true, &role, err
+}
+
+// FindRoleById 根据id查找角色
+func (u *UserDao) FindRoleById(ctx context.Context, id uint) (bool, *models.Role, error) {
+	var role models.Role
+	err := u.DB.Model(&models.Role{}).WithContext(ctx).First(&role, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil, nil
+	}
+	if err != nil {
+		return false, nil, err
+	}
+	return true, &role, err
+}
+
+// UpdateRole 更新角色
+func (u *UserDao) UpdateRole(ctx context.Context, roleDao *models.Role) error {
+	return u.DB.WithContext(ctx).Updates(&roleDao).Error
 }
 
 // UpdateUserIncreaseCount 更新用户日增长记录
