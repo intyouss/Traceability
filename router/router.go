@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/DeanThompson/ginpprof"
 	"net"
 	"net/http"
 	"os/signal"
@@ -42,6 +43,7 @@ func InitRouter() {
 
 	r := gin.Default()
 	r.Use(middleware.Cors())
+	ginpprof.Wrap(r)
 	defaultGroup := r.Group("/api/v1/public")
 	authGroup := r.Group("/api/v1/")
 	adminGroup := authGroup.Group("admin")

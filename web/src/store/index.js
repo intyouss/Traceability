@@ -4,14 +4,12 @@ import { setToken, removeToken } from '~/composables/auth.js'
 
 // 创建一个新的 store 实例
 const store = createStore({
-  state () {
-    return {
-      // 用户信息
-      user: {},
-      // 侧边栏宽度
-      asideWidth: '120px',
-      tagListWidth: '150px'
-    }
+  state: sessionStorage.getItem('state') ? JSON.parse(sessionStorage.getItem('state')) : {
+    // 用户信息
+    user: {},
+    // 侧边栏宽度
+    asideWidth: '120px',
+    tagListWidth: '150px'
   },
   mutations: {
     // 记录用户信息
@@ -30,6 +28,7 @@ const store = createStore({
       return new Promise((resolve, reject) => {
         login(username, password).then((res) => {
           setToken(res.data.token)
+          sessionStorage.setItem('state', JSON.stringify({ user: res.data.user }))
           commit('setUserInfo', res.data.user)
           resolve(res)
         }).catch((err) => reject(err))
@@ -39,6 +38,7 @@ const store = createStore({
       return new Promise((resolve, reject) => {
         register(username, password).then((res) => {
           setToken(res.data.token)
+          sessionStorage.setItem('state', JSON.stringify({ user: res.data.user }))
           commit('setUserInfo', res.data.user)
           resolve(res)
         }).catch((err) => reject(err))
@@ -49,6 +49,7 @@ const store = createStore({
       return new Promise((resolve, reject) => {
         getInfo(0).then((res) => {
           commit('setUserInfo', res.data.user)
+          sessionStorage.setItem('state', JSON.stringify({ user: res.data.user }))
           resolve(res)
         }).catch((err) => reject(err))
       })
@@ -56,6 +57,7 @@ const store = createStore({
     logout ({ commit }) {
       removeToken()
       commit('setUserInfo', {})
+      sessionStorage.removeItem('state')
     }
   }
 })

@@ -21,4 +21,6 @@ type MessageOpen struct {
 	OpenUserID uint `gorm:"not null" json:"open_user_id"`
 	// 正在使用的人数
 	UseCount uint `gorm:"not null;default:1" json:"use_count"`
+	// 对方删除消息时间
+	DeleteTime int64 `gorm:"default:0" json:"delete_time"`
 }

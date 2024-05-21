@@ -1,8 +1,9 @@
 <script setup>
 import { useSetUserInfo, useUserByOwner } from '~/composables/userManager.js'
-import { ref, watch } from 'vue'
+import { inject, ref, watch } from 'vue'
 import DefaultAvatar from '~/assets/icon/default_avatar.jpg'
-
+import { useStore } from 'vuex'
+const reload = inject('reload')
 const props = defineProps({
   infoForm: Boolean,
   formClose: Function,
@@ -28,13 +29,14 @@ const {
   avatarUpload,
   avatarAbolish
 } = useSetUserInfo()
-
+const store = useStore()
 const submit = () => {
   if (form.avatarUrl === '' && form.signature === '') {
     props.formClose()
     return
   }
-  onSubmit(form.signature, form.avatarUrl)
+  onSubmit(store.state.user.id, form.signature, form.avatarUrl)
+  reload()
   getUserInfo()
   form.avatarUrl = ''
   form.signature = ''
@@ -75,6 +77,7 @@ const CloseSetInfo = () => {
       :show-close="false"
       width="40%"
       class="gwgwef"
+      :before-close="CloseSetInfo"
   >
     <div class="pb-12">
       <div class="flex justify-center text-center pb-4">

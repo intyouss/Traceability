@@ -54,6 +54,8 @@ func InitUserRoutes() {
 			userAdminGroup.POST("/update", userApi.UpdateUser)
 			// 获取用户总数
 			userAdminGroup.GET("/total", userApi.GetUserTotal)
+			// 添加用户
+			userAdminGroup.POST("/add", userApi.Register)
 		}
 	})
 }

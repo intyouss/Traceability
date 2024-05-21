@@ -11,6 +11,7 @@ import {
 } from '~/api/video.js'
 import { getLikeList } from '~/api/like.js'
 import { getCollectList } from '~/api/collect.js'
+import { getToken } from '~/composables/auth.js'
 
 /**
  * 根据当前用户获取视频列表
@@ -98,6 +99,12 @@ export function useVideoByOther () {
 export function useVideoByPage () {
   const Videos = ref([])
   const getIndexVideos = () => {
+    if (getToken()) {
+      getAuthVideo(1).then((res) => {
+        Videos.value = res.data.videos
+      })
+      return
+    }
     getIndexVideo(1).then((res) => {
       Videos.value = res.data.videos
     })

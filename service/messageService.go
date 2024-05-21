@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/intyouss/Traceability/global"
 	"github.com/intyouss/Traceability/models"
@@ -162,6 +163,15 @@ func (m *MessageService) GetUserOpenMsgList(
 	if err != nil {
 		return nil, err
 	}
+	for _, userDao := range usersDao {
+		if userDao.Avatar == "" {
+			continue
+		}
+		err = m.UpdateAvatar(ctx, userDao)
+		if err != nil {
+			return nil, err
+		}
+	}
 	users := make([]*dto.User, 0, len(usersDao))
 	_ = copier.Copy(&users, &usersDao)
 	return users, nil
@@ -197,6 +207,12 @@ func (m *MessageService) AddOpenUser(ctx context.Context, addDto *dto.AddOpenUse
 	if err != nil {
 		return nil, err
 	}
+	if userDao.Avatar != "" {
+		err = m.UpdateAvatar(ctx, userDao)
+		if err != nil {
+			return nil, err
+		}
+	}
 	user := new(dto.User)
 	_ = copier.Copy(&user, &userDao)
 	return user, nil
@@ -221,6 +237,33 @@ func (m *MessageService) DeleteOpenUser(ctx context.Context, dto *dto.DeleteOpen
 		if err != nil {
 			return err
 		}
+		err = m.Dao.UpdateDeleteTime(ctx, dto.OpenUserID, userId, time.Now().UnixMilli())
+		if err != nil {
+			return err
+		}
 	}
 	return m.Dao.DeleteLinkUser(ctx, dto.OpenUserID)
+}
+
+// UpdateAvatar 更新头像
+func (m *MessageService) UpdateAvatar(ctx context.Context, user *models.User) error {
+	ok, err := m.UserDao.CheckAvatarUrl(user.Avatar)
+	if err != nil {
+		return err
+	}
+	if ok {
+		avatarUrl, err := m.UserDao.GetRemoteAvatarUrl(ctx, user.ID)
+		if err != nil {
+			return err
+		}
+		user.Avatar = avatarUrl
+
+		go func(us *models.User) {
+			err = m.UserDao.UpdateDBUrl(ctx, us.ID, us.Avatar)
+			if err != nil {
+				m.logger.Error(err)
+			}
+		}(user)
+	}
+	return nil
 }

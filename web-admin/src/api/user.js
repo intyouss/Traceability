@@ -42,21 +42,7 @@ export function getUserTotal () {
 
 /** 退出登录Api */
 export function loginOutApi () {
-  return service({
-    url: '/user/out',
-    method: 'post',
-    baseURL: '/mock'
-  })
-}
-
-/** 获取用户信息Api */
-export function passwordChange (data) {
-  return service({
-    url: '/user/passwordChange',
-    method: 'post',
-    baseURL: '/mock',
-    data
-  })
+  return authAPI.post('/user/logout')
 }
 
 /** 获取登录后需要展示的菜单 */

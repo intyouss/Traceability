@@ -74,13 +74,23 @@ func (u UserApi) Login(ctx *gin.Context) {
 // @Summary 用户注册
 // @Description 用户注册
 // @Param username formData string true "用户名"
-// @Param password formData string true "旧密码"
-// @Param new_password formData string true "新密码"
+// @Param password formData string true "密码"
 // @Param email formData string false "邮箱"
 // @Param mobile formData string false "手机号"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/public/user/register [post]
+
+// Register 添加用户
+// @Summary 添加用户
+// @Description 添加用户
+// @Param username formData string true "用户名"
+// @Param password formData string true "密码"
+// @Param email formData string false "邮箱"
+// @Param mobile formData string false "手机号"
+// @Success 200 {string} Response
+// @Failure 400 {string} Response
+// @Router /api/v1/admin/user/add [post]
 func (u UserApi) Register(ctx *gin.Context) {
 	var userAddDto dto.UserAddDTO
 	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &userAddDto}).GetError(); err != nil {
@@ -431,18 +441,18 @@ func (u UserApi) UpdateRole(ctx *gin.Context) {
 // @Summary 删除用户
 // @Description 删除用户
 // @Param token header string true "token"
-// @Param user_id formData int true "用户id"
+// @Param ids formData []int true "用户id列表"
 // @Success 200 {string} Response
 // @Failure 400 {string} Response
 // @Router /api/v1/admin/user/delete [post]
 func (u UserApi) DeleteUser(ctx *gin.Context) {
-	var idDTO dto.CommonIDDTO
-	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idDTO}).GetError(); err != nil {
+	var idsDTO dto.UserDeleteDTO
+	if err := u.BuildRequest(BuildRequestOption{Ctx: ctx, DTO: &idsDTO}).GetError(); err != nil {
 		u.Fail(&Response{Code: ErrCodeDeleteUser, Msg: err.Error()})
 		return
 	}
 
-	err := u.Service.DeleteUserById(ctx, &idDTO)
+	err := u.Service.DeleteUser(ctx, &idsDTO)
 	if err != nil {
 		u.Fail(&Response{Code: ErrCodeDeleteUser, Msg: err.Error()})
 		return

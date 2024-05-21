@@ -97,6 +97,7 @@ func (v *VideoService) GetVideoList(
 	focusMap := make(map[uint]bool)
 	var wg sync.WaitGroup
 	errChan := make(chan error)
+	fmt.Println("????")
 	if ctx.Value(global.LoginUser) != nil {
 		videoIds := make([]uint, 0, len(videosDao))
 		for _, video := range videosDao {
@@ -135,7 +136,6 @@ func (v *VideoService) GetVideoList(
 		default:
 		}
 	}
-
 	// 组装数据
 	for _, video := range videosDao {
 		var videoDTO = new(dto.Video)
@@ -145,6 +145,7 @@ func (v *VideoService) GetVideoList(
 		_ = copier.Copy(user, authorMap[video.AuthorID])
 		videoDTO.Author = user
 		if ctx.Value(global.LoginUser) != nil {
+			fmt.Println("?????", likeMap[video.ID], collectMap[video.ID], focusMap[video.AuthorID])
 			videoDTO.IsLike = likeMap[video.ID]
 			videoDTO.IsCollect = collectMap[video.ID]
 			videoDTO.Author.IsFocus = focusMap[video.AuthorID]

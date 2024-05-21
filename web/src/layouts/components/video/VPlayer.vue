@@ -2,22 +2,22 @@
 import {
   reactive, ref, watch
 } from 'vue'
-import SwiperCore, {
+import {
   Navigation,
   Mousewheel
-} from 'swiper'
+} from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/swiper-bundle.css'
 import VFooter from '~/layouts/components/video/VFooter.vue'
 import VSideBar from '~/layouts/components/video/VSideBar.vue'
 import CDrawer from '~/layouts/components/comment/CDrawer.vue'
-SwiperCore.use([Mousewheel, Navigation])
 
 const swiperOption = reactive({
   slidesPerView: 1,
   direction: 'vertical',
   mousewheel: true,
   thresholdTime: 700,
+  modules: [Navigation, Mousewheel],
   navigation: {
     nextEl: '.swiper-button-next',
     prevEl: '.swiper-button-prev'
@@ -54,13 +54,14 @@ const setWidth = (index) => {
 
 <template>
     <el-row :gutter="20">
-      <el-col :span="23">
+      <el-col :span="Videos.length > 1?23:24">
           <swiper
               :slidesPerView="swiperOption.slidesPerView"
               :direction="swiperOption.direction"
               :mousewheel="swiperOption.mousewheel"
               :thresholdTime="swiperOption.thresholdTime"
               :navigation="swiperOption.navigation"
+              :modules="swiperOption.modules"
               class="swiper swiper-no-swiping"
               ref="swiperRef"
           >
@@ -73,7 +74,6 @@ const setWidth = (index) => {
                   <div class="breoi">
                     <div class="fegew">
                       <div class="breinrb" :style="{width: setWidth(index)}">
-<!--                        TODO: 切换视频，上一个视频暂停-->
                         <vue-plyr
                               class="plyr"
                               :data-poster="item.cover_url"
@@ -124,16 +124,16 @@ const setWidth = (index) => {
             </swiper-slide>
           </swiper>
       </el-col>
-      <el-col :span="1">
-        <div class="swiper-navigation" :style="{display: props.sideBarDisplay}">
+      <el-col :span="Videos.length > 1?1:0" :style="{display: props.sideBarDisplay}">
+        <div class="swiper-navigation">
             <font-awesome-icon
                 :icon="['fas', 'chevron-up']"
                 class="swiper-button-prev" size="2xl"
             />
-            <font-awesome-icon
-                :icon="['fas', 'chevron-down']"
-                class="swiper-button-next" size="2xl"
-            />
+              <font-awesome-icon
+                  :icon="['fas', 'chevron-down']"
+                  class="swiper-button-next" size="2xl"
+              />
         </div>
       </el-col>
     </el-row>

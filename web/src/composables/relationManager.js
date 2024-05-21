@@ -27,7 +27,6 @@ export function useRelation () {
     })
   }
   const setFocus = (isFocus) => {
-    console.log(isFocus)
     IsFocus.value = isFocus
   }
   return {

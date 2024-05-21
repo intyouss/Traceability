@@ -17,9 +17,10 @@
 <script lang="js" setup>
 import { ref } from 'vue'
 import { useStore } from 'vuex'
-import { passwordChange } from '@/api/user'
+import { updateUserApi} from '@/api/user'
 import Layer from '@/components/layer/index.vue'
 import { notify } from '@/composables/util'
+import router from "@/router";
 
 const props = defineProps({
   layer: {
@@ -38,7 +39,7 @@ const ruleForm = ref(null)
 const layerDom = ref(null)
 const store = useStore()
 const form = ref({
-  userId: '123465',
+  userId: '',
   name: '',
   old: '',
   new: ''
@@ -52,16 +53,18 @@ function submit () {
     ruleForm.value.validate((valid) => {
       if (valid) {
         const params = {
-          id: form.value.userId,
-          old: form.value.old,
-          new: form.value.new
+          user_id: store.getters['user/info'].id,
+          password: form.value.old,
+          new_password: form.value.new
         }
-        passwordChange(params)
+        updateUserApi(params)
           .then(() => {
             notify('密码修改成功，即将跳转到登录页面', 'success')
-            layerDom.value && layerDom.value.close()
+            layerDom.value
             setTimeout(() => {
-              store.dispatch('user/loginOut')
+              store.dispatch('user/loginOut').then(() => {
+                router.push('/login')
+              })
             }, 2000)
           })
       } else {

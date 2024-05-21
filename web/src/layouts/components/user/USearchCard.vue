@@ -15,7 +15,6 @@ const props = defineProps({
 })
 
 const {
-  IsFocus,
   setFocus,
   handleRelation
 } = useRelation()
@@ -65,7 +64,7 @@ onMounted(() => {
                 size="default"
                 round
                 @click="handleRelation(props.userId)"
-                v-if="!IsFocus"
+                v-if="!props.isFocus"
             >
               关注
             </el-button>

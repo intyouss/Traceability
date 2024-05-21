@@ -91,7 +91,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { del } from '@/api/system/user'
+import {deleteUser} from '@/api/system/user'
 import Table from '@/components/table/index.vue'
 import Layer from './layer.vue'
 import { Plus, Delete, Search } from '@element-plus/icons'
@@ -158,7 +158,7 @@ const handleDel = (data) => {
         return e.id
       })
   }
-  del(params).then(() => {
+  deleteUser(params).then(() => {
     notify('删除成功', 'success')
     getTableData(tableData.value.length === 1)
   })
@@ -187,7 +187,6 @@ const handleUpdateStatus = (row) => {
     user_id: row.id,
     status: row.status
   }
-  // TODO: 需要admin jwtToken 配合
   updateUserApi(params)
     .then(() => {
       notify('状态变更成功', 'success')

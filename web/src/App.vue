@@ -1,22 +1,15 @@
 <script>
 </script>
 <script setup>
-import { provide, nextTick, ref } from 'vue'
+import { provide, nextTick, ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
 
-if (sessionStorage.getItem('store')) {
-  store.replaceState(
-    Object.assign(
-      {},
-      store.state,
-      JSON.parse(sessionStorage.getItem('store'))
-    )
-  )
-}
-window.addEventListener('beforeunload', () => {
-  sessionStorage.setItem('store', JSON.stringify(this.$store.state))
+onMounted(() => {
+  window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('state', JSON.stringify(store.state))
+  })
 })
 
 const isRouterActive = ref(true)
@@ -35,6 +28,7 @@ provide('reload', () => {
 </template>
 
 <style>
+
 body {
   @apply bg-light-50;
 }

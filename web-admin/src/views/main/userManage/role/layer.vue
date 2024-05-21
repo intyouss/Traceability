@@ -1,13 +1,25 @@
 <template>
   <Layer :layer="props.layer" @confirm="submit">
-    <el-form :model="ruleForm" :rules="rules" ref="form" label-width="120px" style="margin-right:30px;">
-      <el-form-item label="角色名：" prop="name">
-        <el-input v-model="ruleForm.name" maxlength="10"></el-input>
-      </el-form-item>
-      <el-form-item label="描述：" prop="desc">
-        <el-input v-model="ruleForm.desc" maxlength="100" type="textarea" autosize></el-input>
-      </el-form-item>
-    </el-form>
+    <template v-if="props.layer.type !== 2">
+      <el-form :model="ruleForm" :rules="rules" ref="form" label-width="120px" style="margin-right:30px;">
+        <el-form-item label="角色名：" prop="name">
+          <el-input v-model="ruleForm.name" maxlength="10"></el-input>
+        </el-form-item>
+        <el-form-item label="描述：" prop="desc">
+          <el-input v-model="ruleForm.desc" maxlength="100" type="textarea" autosize></el-input>
+        </el-form-item>
+      </el-form>
+    </template>
+    <template v-else>
+      <el-form :model="editRuleForm" :rules="editRules" ref="form" label-width="120px" style="margin-right:30px;">
+        <el-form-item label="角色名：" prop="name">
+          <el-input v-model="editRuleForm.name" maxlength="10"></el-input>
+        </el-form-item>
+        <el-form-item label="描述：" prop="desc">
+          <el-input v-model="editRuleForm.desc" maxlength="100" type="textarea" autosize></el-input>
+        </el-form-item>
+      </el-form>
+    </template>
   </Layer>
 </template>
 
@@ -41,18 +53,26 @@ const rules = {
   desc: [{ required: true, message: '请输入角色描述', trigger: 'blur' }]
 }
 
+const editRuleForm = reactive({
+  name: '',
+  desc: ''
+})
+const editRules = {
+  name: [{ trigger: 'blur' }],
+  desc: [{ trigger: 'blur' }]
+}
+
 const emits = defineEmits(['getTableData'])
 
 const form = ref(null)
 const submit = () => {
   form.value.validate((valid) => {
     if (valid) {
-      const params = ruleForm
       if (props.layer.type === 2) {
-        params.id = props.layer.row.id
-        updateForm(params)
+        editRuleForm.id = props.layer.row.id
+        updateForm(editRuleForm)
       } else {
-        addForm(params)
+        addForm(ruleForm)
       }
     } else {
       return false

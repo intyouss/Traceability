@@ -1,56 +1,13 @@
-import {
-  service,
-  authAPI
-} from '@/utils/system/request'
+import {authAPI} from '@/utils/system/request'
 
-// 获取数据api
-export function getData (data) {
-  return service({
-    url: '/system/user/list',
-    method: 'post',
-    baseURL: '/mock',
-    data
-  })
+// 删除用户
+export function deleteUser (data) {
+  return authAPI.post('/user/delete', data)
 }
 
-// 新增
-export function add (data) {
-  return service({
-    url: '/system/user/add',
-    method: 'post',
-    baseURL: '/mock',
-    data
-  })
-}
-
-// 编辑
-export function update (data) {
-  return service({
-    url: '/system/user/update',
-    method: 'post',
-    baseURL: '/mock',
-    data
-  })
-}
-
-// 状态变更
-export function updateStatus (data) {
-  return service({
-    url: '/system/user/updateStatus',
-    method: 'post',
-    baseURL: '/mock',
-    data
-  })
-}
-
-// 删除
-export function del (data) {
-  return service({
-    url: '/system/user/del',
-    method: 'post',
-    baseURL: '/mock',
-    data
-  })
+// 添加用户
+export function addUser (data) {
+  return authAPI.post('/user/add', data)
 }
 
 // 获取角色列表

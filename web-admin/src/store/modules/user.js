@@ -1,4 +1,4 @@
-import { loginApi, getInfoApi, loginOutApi } from '@/api/user'
+import { loginApi, getInfoApi } from '@/api/user'
 const state = () => ({
   token: '', // 登录token
   info: {} // 用户信息
@@ -8,6 +8,9 @@ const state = () => ({
 const getters = {
   token (state) {
     return state.token
+  },
+  info (state) {
+    return state.info
   }
 }
 
@@ -36,7 +39,7 @@ const actions = {
         })
     })
   },
-  // get user info after user logined
+
   getInfo ({ commit }, params) {
     return new Promise((resolve, reject) => {
       getInfoApi(params)
@@ -47,21 +50,13 @@ const actions = {
     })
   },
 
-  // login out the system after user click the loginOut button
   loginOut ({ commit }) {
-    loginOutApi()
-      .then(res => {
-
-      })
-      .catch(error => {
-
-      })
-      .finally(() => {
+        commit('tokenChange', '')
+        commit('infoChange', {})
         localStorage.removeItem('tabs')
         localStorage.removeItem('vuex')
         sessionStorage.removeItem('vuex')
         location.reload()
-      })
   }
 }
 

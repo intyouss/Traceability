@@ -2,7 +2,7 @@
 
 import MContainer from '~/layouts/components/message/MContainer.vue'
 import MMenu from '~/layouts/components/message/MMenu.vue'
-import { ref, watch } from 'vue'
+import { inject, ref, watch } from 'vue'
 import { useMessage } from '~/composables/messageManager.js'
 const {
   Messages,

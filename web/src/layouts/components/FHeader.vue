@@ -65,9 +65,6 @@ const search = () => {
   router.push({ path: '/search', query: { key: key.value } })
   enKey.value = key.value
 }
-// onBeforeMount(() => {
-//   console.log(store.state.user);
-// });
 </script>
 
 <template>
@@ -116,8 +113,8 @@ const search = () => {
               <el-dropdown-item class="d-item" @click="MessageOpen">
                 我的消息
               </el-dropdown-item>
-              <el-dropdown-item class="d-item">收到的赞</el-dropdown-item>
-              <el-dropdown-item class="d-item">系统消息</el-dropdown-item>
+<!--              <el-dropdown-item class="d-item">收到的赞</el-dropdown-item>-->
+<!--              <el-dropdown-item class="d-item">系统消息</el-dropdown-item>-->
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -142,7 +139,7 @@ const search = () => {
           <u-avatar
               class="avatar"
               :avatar="$store.state.user.avatar"
-              :mine="true"
+              :mine="getToken()"
           />
           <template #dropdown>
             <el-dropdown-menu v-if="!getToken()">

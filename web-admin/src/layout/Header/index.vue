@@ -8,14 +8,11 @@
       <Breadcrumb />
     </div>
     <div class="right-box">
-      <!-- 快捷功能按钮 -->
-      <div class="function-list">
-        <div class="function-list-item hidden-sm-and-down"><Full-screen /></div>
-        <div class="function-list-item"><Word /></div>
-<!--        <div class="function-list-item"><SizeChange /></div>-->
-        <div class="function-list-item hidden-sm-and-down"><Theme /></div>
-<!--        <div class="function-list-item hidden-sm-and-down"><Github /></div>-->
-      </div>
+<!--      &lt;!&ndash; 快捷功能按钮 &ndash;&gt;-->
+<!--      <div class="function-list">-->
+<!--        <div class="function-list-item hidden-sm-and-down"><Full-screen /></div>-->
+<!--        <div class="function-list-item"><Word /></div>-->
+<!--      </div>-->
       <!-- 用户信息 -->
       <div class="user-info">
         <el-dropdown>
@@ -43,8 +40,6 @@ import { useRouter, useRoute } from 'vue-router'
 import FullScreen from './functionList/fullscreen.vue'
 import Word from './functionList/word.vue'
 import SizeChange from './functionList/sizeChange.vue'
-import Github from './functionList/github.vue'
-import Theme from './functionList/theme.vue'
 import Breadcrumb from './Breadcrumb.vue'
 import PasswordLayer from './passwordLayer.vue'
 export default defineComponent({
@@ -53,25 +48,19 @@ export default defineComponent({
     Breadcrumb,
     Word,
     SizeChange,
-    Github,
-    Theme,
     PasswordLayer
   },
   setup() {
     const store = useStore()
-    const router = useRouter()
-    const route = useRoute()
     const layer = reactive({
       show: false,
       showButton: true
     })
     const isCollapse = computed(() => store.state.app.isCollapse)
-    // isCollapse change to hide/show the sidebar
     const opendStateChange = () => {
       store.commit('app/isCollapseChange', !isCollapse.value)
     }
 
-    // login out the system
     const loginOut = () => {
       store.dispatch('user/loginOut')
     }

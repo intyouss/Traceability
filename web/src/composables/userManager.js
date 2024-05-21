@@ -63,13 +63,13 @@ export function useSetUserInfo () {
   const avatarAbolish = (userId) => {
     abolishAvatar(userId).then(() => {})
   }
-  const onSubmit = (signature = '', avatarUrl = '') => {
+  const onSubmit = (userId, signature = '', avatarUrl = '') => {
     formRef.value.validate((valid) => {
       if (!valid) {
         return false
       }
       loading.value = true
-      updateUser({ signature, avatarUrl }).then(() => {
+      updateUser({ userId, signature, avatarUrl }).then(() => {
         notify('修改成功', 'success')
       }).finally(() => {
         loading.value = false

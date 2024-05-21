@@ -84,6 +84,7 @@ func (u *UserAddDTO) ToModel(user *models.User) {
 
 type UserUpdateDTO struct {
 	UserID      uint   `json:"user_id" form:"user_id"`
+	Username    string `json:"username" form:"username"`
 	Password    string `json:"password" form:"password"`
 	NewPassword string `json:"new_password" form:"new_password"`
 	AvatarUrl   string `json:"avatar_url" form:"avatar_url"`
@@ -104,6 +105,7 @@ type AbolishAvatarDTO struct {
 
 func (u *UserUpdateDTO) ToModel(user *models.User) {
 	user.Password = u.NewPassword
+	user.Username = u.Username
 	user.Avatar = u.AvatarUrl
 	user.Signature = u.Signature
 	user.Email = u.Email
@@ -140,5 +142,9 @@ type RoleUpdateDTO struct {
 }
 
 type RoleDeleteDTO struct {
+	IDs []uint `json:"ids" form:"ids" binding:"required" message:"ids cannot be empty"`
+}
+
+type UserDeleteDTO struct {
 	IDs []uint `json:"ids" form:"ids" binding:"required" message:"ids cannot be empty"`
 }

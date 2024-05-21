@@ -74,6 +74,7 @@ export function getInfo (userId) {
  */
 export function updateUser (data) {
   return authAPI.post('/user/update', {
+    user_id: data.userId,
     password: data.password,
     new_password: data.newPassword,
     signature: data.signature,

@@ -1,8 +1,8 @@
 <script setup>
-import { reactive, ref, watch } from 'vue'
+import { inject, reactive, ref, watch } from 'vue'
 import { useVideoUpload } from '~/composables/videoManager.js'
 import { notify } from '~/composables/util.js'
-
+const reload = inject('reload')
 const props = defineProps({
   open: Boolean,
   close: Function
@@ -60,6 +60,7 @@ const Publish = (title, playUrl, coverUrl) => {
   } else {
     videoPublish(title, playUrl, coverUrl)
     notify('发布成功', 'success')
+    reload()
     form.title = ''
     props.close()
   }

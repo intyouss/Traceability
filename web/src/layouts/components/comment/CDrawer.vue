@@ -57,7 +57,7 @@ const handleClick = () => {
     </template>
     <div class="grefd">
       <div class="egwafw" @mousedown.stop>
-        <span class="afwafwa">全部评论({{ props.commentCount }})</span>
+        <span class="afwafwa">全部评论({{ props.commentCount <= Comments.length?Comments.length:props.commentCount }})</span>
       </div>
       <el-scrollbar @wheel.stop style="margin-top: 0">
         <div>

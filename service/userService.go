@@ -146,27 +146,7 @@ func (u *UserService) GetUserList(
 	if len(usersDao) == 0 {
 		return nil, 0, nil
 	}
-	role := ctx.Value(global.LoginUser).(models.LoginUser).Role
-	// TODO: 暂时使用数据库ID作为RoleID
-	if role == 2 {
-		var users = make([]*dto.User, 0, len(usersDao))
-		for _, user := range usersDao {
-			var userDTO = new(dto.User)
-			_ = copier.Copy(&userDTO, &user)
-			ok, userRole, err := u.Dao.GetRoleById(ctx, user.Role)
-			if err != nil {
-				return nil, 0, err
-			}
-			if !ok {
-				return nil, 0, errors.New("role not find")
-			}
-			var userRoleDTO = new(dto.Role)
-			_ = copier.Copy(&userRoleDTO, &userRole)
-			userDTO.Role = userRoleDTO
-			users = append(users, userDTO)
-		}
-		return users, total, nil
-	}
+	//role := ctx.Value(global.LoginUser).(models.LoginUser).Role
 	for _, user := range usersDao {
 		if user.Avatar == "" {
 			continue
@@ -192,6 +172,16 @@ func (u *UserService) GetUserList(
 	for _, user := range usersDao {
 		var userDTO = new(dto.User)
 		_ = copier.Copy(userDTO, user)
+		ok, userRole, err := u.Dao.GetRoleById(ctx, user.Role)
+		if err != nil {
+			return nil, 0, err
+		}
+		if !ok {
+			return nil, 0, errors.New("role not find")
+		}
+		var userRoleDTO = new(dto.Role)
+		_ = copier.Copy(&userRoleDTO, &userRole)
+		userDTO.Role = userRoleDTO
 		if ctx.Value(global.LoginUser) != nil && user.ID != ctx.Value(global.LoginUser).(models.LoginUser).ID {
 			userDTO.IsFocus = focusMap[user.ID]
 		} else {
@@ -271,13 +261,9 @@ func (u *UserService) DeleteRemoteAvatar(ctx context.Context, abolish *dto.Aboli
 	return u.Dao.DeleteRemoteAvatar(ctx, abolish.UserId)
 }
 
-// DeleteUserById 删除用户
-func (u *UserService) DeleteUserById(ctx context.Context, idDTO *dto.CommonIDDTO) error {
-	userId := ctx.Value(global.LoginUser).(models.LoginUser).ID
-	if *idDTO.ID != userId {
-		return errors.New("don't have permission")
-	}
-	return u.Dao.DeleteUserById(ctx, userId)
+// DeleteUser 删除用户
+func (u *UserService) DeleteUser(ctx context.Context, idsDTO *dto.UserDeleteDTO) error {
+	return u.Dao.DeleteUserByIds(ctx, idsDTO.IDs)
 }
 
 // GetUserIncrease 获取月总日用户增长列表

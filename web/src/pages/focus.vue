@@ -31,6 +31,7 @@ const handleClick = (index, userId) => {
   activeIndex.value = index
   getPublishVideos(userId)
 }
+
 </script>
 
 <template>

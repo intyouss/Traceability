@@ -1,5 +1,5 @@
-import { reactive, ref } from 'vue'
-import { getAuthUserSearch, getPublicUserSearch, logout, updateUser } from '~/api/user.js'
+import { inject, reactive, ref } from 'vue'
+import { getAuthUserSearch, getPublicUserSearch, updateUser } from '~/api/user.js'
 import { confirm, notify } from '~/composables/util.js'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -46,7 +46,7 @@ export function useRePassword () {
         return false
       }
       loading.value = true
-      updateUser({ password: form.oldPassword, newPassword: form.enterPassword })
+      updateUser({ userId: store.state.user.id, password: form.oldPassword, newPassword: form.enterPassword })
         .then(() => {
           notify('修改成功', 'success')
           store.dispatch('logout').then()
@@ -75,16 +75,23 @@ export function useLogout () {
   const router = useRouter()
   const route = useRoute()
   const store = useStore()
+  const reload = inject('reload')
   function handleLogout () {
     confirm('确定退出登录吗?').then(() => {
-      logout()
-        .finally(() => {
-          store.dispatch('logout')
-          if (route.path !== '/') {
-            router.push('/login')
-          }
-          notify('退出成功')
-        })
+      // logout()
+      //   .finally(() => {
+      //     store.dispatch('logout')
+      //     if (route.path !== '/') {
+      //       router.push('/login')
+      //     }
+      //     notify('退出成功')
+      //   })
+      store.dispatch('logout')
+      if (route.path !== '/') {
+        router.push('/login')
+      }
+      notify('退出成功')
+      reload()
     })
   }
   return {

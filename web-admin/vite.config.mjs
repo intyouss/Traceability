@@ -16,7 +16,7 @@ export default defineConfig(({ mode, command }) => {
   const prodMock = true;
   const env = loadEnv(mode, process.cwd());
   const { VITE_BASE_ENDPOINT, VITE_BASE_PORT } = env;
-  const BaseUrl = VITE_BASE_ENDPOINT + ':' + VITE_BASE_PORT
+  const BaseUrl = VITE_BASE_ENDPOINT + ':' + VITE_BASE_PORT;
   return {
     base: './',
     resolve: {

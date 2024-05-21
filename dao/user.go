@@ -127,7 +127,7 @@ func (u *UserDao) GetRoleListBySearch(
 	var roles []*models.Role
 	var total int64
 	err := u.DB.Model(&models.Role{}).WithContext(ctx).
-		Where("username like ?", "%"+roleDto.Key+"%").
+		Where("name like ?", "%"+roleDto.Key+"%").
 		Scopes(Paginate(roleDto.CommonPageDTO)).Find(&roles).
 		Offset(-1).Limit(-1).Count(&total).Error
 	return roles, total, err
@@ -154,6 +154,11 @@ func (u *UserDao) UpdateUser(ctx context.Context, user *models.User) error {
 // DeleteUserById 根据id删除用户
 func (u *UserDao) DeleteUserById(ctx context.Context, id uint) error {
 	return u.DB.WithContext(ctx).Delete(&models.User{}, id).Error
+}
+
+// DeleteUserByIds 根据id列表删除用户
+func (u *UserDao) DeleteUserByIds(ctx context.Context, ids []uint) error {
+	return u.DB.WithContext(ctx).Delete(&models.User{}, ids).Error
 }
 
 // GetUserListByIds 根据id列表获取用户列表
