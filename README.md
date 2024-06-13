@@ -12,4 +12,4 @@ First, you need to make sure that you have a node.js, Golang, and Docker environ
 
 4. In your home directory, run `go run . ` and run `npm run dev` project run in the web and web-admin folders.
 
-zh_CN [简体中文](README.zh_CN.md)
+[简体中文](README.zh_CN.md)
